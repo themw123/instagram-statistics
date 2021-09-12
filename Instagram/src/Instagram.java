@@ -21,7 +21,11 @@ public class Instagram {
 	
 	private String[] following;
 	private String[] followers;
+	
 	private Vector<String> notFollowingYou;
+	private Vector<String> youFollowingNot;
+	private Vector<String> OpenFriendRequestOut;
+	private Vector<String> OpenFriendRequestIn;
 	
 	public Instagram(String email, String password, String sessionId, String ds_user_id) {
 		this.email = email;
@@ -31,6 +35,9 @@ public class Instagram {
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
 		setNotFollowingYou();
+		setYouFollowingNot();
+		setOpenFriendRequestOut();
+		setOpenFriendRequestIn();
 	}
 	
 	public Instagram(String email, String password) {
@@ -40,6 +47,9 @@ public class Instagram {
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
 		setNotFollowingYou();
+		setYouFollowingNot();
+		setOpenFriendRequestOut();
+		setOpenFriendRequestIn();
 	}
 	
 	private void setSession() {
@@ -103,7 +113,7 @@ public class Instagram {
 					}
 					
 				} catch (Exception e) {
-
+					e.printStackTrace();
 				}	
 	}
 	
@@ -124,6 +134,104 @@ public class Instagram {
 			drin = false;
 		}
 	    
+	}
+	
+	private void setYouFollowingNot() {
+		youFollowingNot = new Vector<String>();
+
+		boolean drin = false;
+		for(String foers : followers) {
+			for(String foing : following) {
+				if(foing.equals(foers)) {
+					drin = true;
+					break;
+				}
+			}
+			if(!drin) {
+				youFollowingNot.add(foers);
+			}
+			drin = false;
+		}
+	    
+	}
+	
+	private void setOpenFriendRequestOut() {
+		
+		OpenFriendRequestOut = new Vector<String>();
+		String cursor = null;
+		do {
+			String url = null;
+			if(cursor == null) {
+				url = "https://www.instagram.com/accounts/access_tool/current_follow_requests?__a=1";
+			}
+			else {
+				url = "https://www.instagram.com/accounts/access_tool/current_follow_requests?__a=1&cursor=" + cursor;
+			}
+			OkHttpClient client = new OkHttpClient().newBuilder()
+					  .build();
+					Request request = new Request.Builder()
+					  .url(url)
+					  .method("GET", null)
+					  .addHeader("X-IG-App-ID", "936619743392459")
+					  .addHeader("Cookie", "sessionid=" + sessionId)
+					  .build();
+					try {
+						Response response = client.newCall(request).execute();
+						String output = response.body().string();
+						JSONObject jsonObj = new JSONObject(output);
+						jsonObj = jsonObj.getJSONObject("data");
+						
+						String cursor1 = jsonObj.toString();
+						String cursor2 = cursor1.substring(cursor1.indexOf("cursor")+9, cursor1.length());
+						cursor = cursor2.substring(0, cursor2.indexOf(",")-1);
+						if(cursor.equals("ul")) {
+							cursor = null;
+						}
+						
+						JSONArray jsonArr = jsonObj.getJSONArray("data");
+						int length = jsonArr.length();
+						for(int i=0;i<length;i++) {
+							JSONObject userJson = jsonArr.getJSONObject(i);
+							String username = userJson.getString("text");
+							OpenFriendRequestOut.add(username);
+						}
+						
+						
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+		}while(cursor != null);
+		
+	}
+	
+	private void setOpenFriendRequestIn() {
+		
+		OpenFriendRequestIn = new Vector<String>();
+		OkHttpClient client = new OkHttpClient().newBuilder()
+				  .build();
+				Request request = new Request.Builder()
+				  .url("https://i.instagram.com/api/v1/friendships/pending/")
+				  .method("GET", null)
+				  .addHeader("X-IG-App-ID", "936619743392459")
+				  .addHeader("Cookie", "sessionid=" + sessionId)
+				  .build();
+				try {
+					Response response = client.newCall(request).execute();
+					String output = response.body().string();
+					JSONObject jsonObj = new JSONObject(output);
+					JSONArray jsonArr = jsonObj.getJSONArray("users");
+					
+					int length = jsonArr.length();
+					for(int i=0;i<length;i++) {
+						JSONObject userJson = jsonArr.getJSONObject(i);
+						String username = userJson.getString("username");
+						OpenFriendRequestIn.add(username);
+					}
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
 	}
 	
 	
