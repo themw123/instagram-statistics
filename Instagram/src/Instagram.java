@@ -14,7 +14,7 @@ import okhttp3.Response;
 
 public class Instagram {
 
-	private String email;
+	private String username;
 	private String password;
 	private String sessionId;
 	private String ds_user_id;
@@ -26,9 +26,10 @@ public class Instagram {
 	private Vector<String> youFollowingNot;
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
+	private Vector<String> myPosts;
 	
-	public Instagram(String email, String password, String sessionId, String ds_user_id) {
-		this.email = email;
+	public Instagram(String username, String password, String sessionId, String ds_user_id) {
+		this.username = username;
 		this.password = password;
 		this.sessionId = sessionId;
 		this.ds_user_id = ds_user_id;
@@ -38,10 +39,11 @@ public class Instagram {
 		setYouFollowingNot();
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
+		setMyPosts();
 	}
 	
-	public Instagram(String email, String password) {
-		this.email = email;
+	public Instagram(String username, String password) {
+		this.username = username;
 		this.password = password;
 		setSession();
 		setFollowingAndFollowers("following");
@@ -50,13 +52,14 @@ public class Instagram {
 		setYouFollowingNot();
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
+		setMyPosts();
 	}
 	
 	private void setSession() {
 		//session id mit Instagram4j holen
 		String[] session = null;
 		try {
-		Instagram4j instagram = Instagram4j.builder().username(email).password(password).build();
+		Instagram4j instagram = Instagram4j.builder().username(username).password(password).build();
 		instagram.setup();
 		instagram.login();
 		
@@ -232,6 +235,89 @@ public class Instagram {
 					e.printStackTrace();
 				}
 				
+	}
+	
+	private void setMyPosts() {
+		
+		myPosts = new Vector<String>();
+		int count = 1000;
+		String has_next_page = "true";
+		String end_cursor = null;
+		
+		OkHttpClient client = new OkHttpClient().newBuilder()
+				  .build();
+				Request request = new Request.Builder()
+				  .url("https://www.instagram.com/" + username + "/?__a=1")
+				  .method("GET", null)
+				  .addHeader("X-IG-App-ID", "936619743392459")
+				  .addHeader("Cookie", "sessionid=" + sessionId)
+				  .build();
+				try {
+					Response response = client.newCall(request).execute();
+					
+					String output = response.body().string();
+					JSONObject jsonObj = new JSONObject(output);
+					jsonObj = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
+					
+					
+					String countStr = jsonObj.toString();
+					countStr = countStr.substring(countStr.indexOf("count")+7, countStr.length());
+					countStr = countStr.substring(0, countStr.indexOf(","));
+					count = Integer.parseInt(countStr);
+					
+
+					String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
+					has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
+					has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
+					
+					
+					if(has_next_page.equals("true")) {
+						String end_cursorStr = jsonObj.getJSONObject("page_info").toString();
+						end_cursorStr = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length());
+						end_cursor = end_cursorStr.substring(0, end_cursorStr.indexOf("\""));
+					}
+					
+					JSONArray jsonArr = jsonObj.getJSONArray("edges");
+					int length = jsonArr.length();
+					for(int i=0;i<length;i++) {
+						JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
+						String shortcode = post.getString("shortcode");
+						myPosts.add(shortcode);
+					}
+	
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+		if(has_next_page.equals("true")) {	
+			
+			OkHttpClient client2 = new OkHttpClient().newBuilder()
+							.build();
+					Request request2 = new Request.Builder()
+							.url("https://www.instagram.com/graphql/query/?query_id=17888483320059182&variables={\"id\":\""+ ds_user_id + "\",\"first\":"+ count +",\"after\":\"" + end_cursor + "\"}")
+							.method("GET", null)
+							.addHeader("X-IG-App-ID", "936619743392459")
+							.addHeader("Cookie", "sessionid=" + sessionId)
+							.build();
+					try {
+						Response response2 = client2.newCall(request2).execute();
+						
+						String output = response2.body().string();
+						JSONObject jsonObj = new JSONObject(output);
+						jsonObj = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
+						
+						JSONArray jsonArr = jsonObj.getJSONArray("edges");
+						int length = jsonArr.length();
+						for(int i=0;i<length;i++) {
+							JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
+							String shortcode = post.getString("shortcode");
+							myPosts.add(shortcode);
+						}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		}
 	}
 	
 	
