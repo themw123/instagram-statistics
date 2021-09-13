@@ -29,9 +29,14 @@ public class Instagram {
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
 	private Vector<String> myPosts;
+	private int likes = 0;
+	private int comments = 0;
 	
 	private Object[][] mostLikedByFollowers;
 	private Object[][] mostCommentedByFollowers;
+	
+	
+	
 	
 	public Instagram(String username, String password, String sessionId, String ds_user_id) {
 		this.username = username;
@@ -303,6 +308,15 @@ public class Instagram {
 					int length = jsonArr.length();
 					for(int i=0;i<length;i++) {
 						JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
+						
+						JSONObject likesObj = post.getJSONObject("edge_liked_by");
+						String l = likesObj.toString();
+						likes = likes +  Integer.parseInt(l.substring(l.indexOf("count")+7, l.length()-1)); 
+						
+						JSONObject commentsObj = post.getJSONObject("edge_media_to_comment");
+						String c = commentsObj.toString();
+						comments = comments +  Integer.parseInt(c.substring(l.indexOf("count")+7, c.length()-1)); 
+						
 						String shortcode = post.getString("shortcode");
 						myPosts.add(shortcode);
 					}
@@ -361,6 +375,15 @@ public class Instagram {
 						int length = jsonArr.length();
 						for(int i=0;i<length;i++) {
 							JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
+							
+							JSONObject likesObj = post.getJSONObject("edge_liked_by");
+							String l = likesObj.toString();
+							likes = likes +  Integer.parseInt(l.substring(l.indexOf("count")+7, l.length()-1)); 
+							
+							JSONObject commentsObj = post.getJSONObject("edge_media_to_comment");
+							String c = commentsObj.toString();
+							comments = comments +  Integer.parseInt(c.substring(l.indexOf("count")+7, c.length()-1)); 
+							
 							String shortcode = post.getString("shortcode");
 							myPosts.add(shortcode);
 						}
