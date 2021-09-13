@@ -291,6 +291,19 @@ public class Instagram {
 				
 		if(has_next_page.equals("true")) {	
 			
+			/*
+			query_id:
+			17851374694183129 = posts for tags
+			17874545323001329 = user following
+			17851374694183129 = user followers
+			17888483320059182 = user posts
+			17864450716183058 = likes on posts
+			17852405266163336 = comments on posts
+			17842794232208280 =	posts on feed
+			17847560125201451 = feed profile suggestions
+			17863787143139595 = post suggestions
+			*/
+			
 			OkHttpClient client2 = new OkHttpClient().newBuilder()
 							.build();
 					Request request2 = new Request.Builder()
