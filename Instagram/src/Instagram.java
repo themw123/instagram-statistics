@@ -55,6 +55,7 @@ public class Instagram {
 		this.username = username;
 		this.password = password;
 		setSession();
+		
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
 		setNotFollowingYou();
