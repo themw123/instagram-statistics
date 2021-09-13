@@ -260,7 +260,7 @@ public class Instagram {
 	
 	private void setMyPosts() {
 		
-		int max = 1; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
+		int max = 2; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
 		
 		/*
 		query_id:
@@ -332,6 +332,7 @@ public class Instagram {
 					for(int i=0;i<length;i++) {
 						JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
 						
+						/*
 						if(sumPosts == 0) {
 							JSONObject likesObj = post.getJSONObject("edge_liked_by");
 							String l = likesObj.toString();
@@ -341,9 +342,11 @@ public class Instagram {
 							likes = 0;
 						}
 						
+						
 						JSONObject commentsObj = post.getJSONObject("edge_media_to_comment");
 						String c = commentsObj.toString();
 						comments = comments +  Integer.parseInt(c.substring(c.indexOf("count")+7, c.length()-1)); 
+						*/
 						
 						String shortcode = post.getString("shortcode");
 						myPosts.add(shortcode);
@@ -386,6 +389,7 @@ public class Instagram {
 		int durchlauf = 0;
 		int sumLikes = 0;
 		
+		schleife:
 		for(String post : myPosts) {
 			durchlauf = 0;
 			sumLikes = 0;
@@ -414,7 +418,11 @@ public class Instagram {
 							String output = response.body().string();
 							JSONObject jsonObj = new JSONObject(output);
 							jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
-	
+							
+							if(durchlauf == 0) {
+								likes = likes + Integer.parseInt(jsonObj.get("count").toString());
+							}
+							
 							String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
 							has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
 							has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
@@ -429,6 +437,7 @@ public class Instagram {
 							JSONArray jsonArr = jsonObj.getJSONArray("edges");
 							int len = jsonArr.length();
 							for(int i=0;i<len;i++) {
+								
 								JSONObject liker = jsonArr.getJSONObject(i).getJSONObject("node");
 								String username = liker.getString("username");
 								
@@ -446,7 +455,7 @@ public class Instagram {
 						} catch (Exception e) {
 							System.out.println("setMostLikedByFollowers" + durchlauf + " fehlgeschlagen");
 							e.printStackTrace();
-							break;
+							break schleife;
 						}
 						
 						durchlauf++;
@@ -515,6 +524,7 @@ public class Instagram {
 		int durchlauf = 0;
 		int sumComments = 0;
 		
+		schleife:
 		for(String post : myPosts) {
 			durchlauf = 0;
 			sumComments = 0;
@@ -544,7 +554,10 @@ public class Instagram {
 							JSONObject jsonObj = new JSONObject(output);
 							jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_parent_comment");
 							
-	
+							if(durchlauf == 0) {
+								comments = comments + Integer.parseInt(jsonObj.get("count").toString());
+							}
+							
 							String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
 							has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
 							has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
@@ -572,7 +585,7 @@ public class Instagram {
 						} catch (Exception e) {
 							System.out.println("setMostCommentedByFollowers" + durchlauf + "fehlgeschlagen");
 							e.printStackTrace();
-							break;
+							break schleife;
 						}
 						durchlauf++;
 						
