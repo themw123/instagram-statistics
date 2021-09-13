@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
