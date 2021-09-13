@@ -202,10 +202,9 @@ public class Instagram {
 						JSONObject jsonObj = new JSONObject(output);
 						jsonObj = jsonObj.getJSONObject("data");
 						
-						String cursor1 = jsonObj.toString();
-						String cursor2 = cursor1.substring(cursor1.indexOf("cursor")+9, cursor1.length());
-						cursor = cursor2.substring(0, cursor2.indexOf(",")-1);
-						if(cursor.equals("ul")) {
+						
+						cursor = jsonObj.get("cursor").toString();
+						if(cursor.equals("null")) {
 							cursor = null;
 						}
 						
@@ -260,7 +259,7 @@ public class Instagram {
 	
 	private void setMyPosts() {
 		
-		int max = 2; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
+		int max = 1; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
 		
 		/*
 		query_id:
@@ -316,37 +315,17 @@ public class Instagram {
 						jsonObj = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
 					}
 					
-					String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
-					has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
-					has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
+					has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
 					
 					
 					if(has_next_page.equals("true")) {
-						String end_cursorStr = jsonObj.getJSONObject("page_info").toString();
-						end_cursorStr = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length());
-						end_cursor = end_cursorStr.substring(0, end_cursorStr.indexOf("\""));
+						end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
 					}
 					
 					JSONArray jsonArr = jsonObj.getJSONArray("edges");
 					int length = jsonArr.length();
 					for(int i=0;i<length;i++) {
 						JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
-						
-						/*
-						if(sumPosts == 0) {
-							JSONObject likesObj = post.getJSONObject("edge_liked_by");
-							String l = likesObj.toString();
-							likes = likes +  Integer.parseInt(l.substring(l.indexOf("count")+7, l.length()-1)); 
-						}
-						else {
-							likes = 0;
-						}
-						
-						
-						JSONObject commentsObj = post.getJSONObject("edge_media_to_comment");
-						String c = commentsObj.toString();
-						comments = comments +  Integer.parseInt(c.substring(c.indexOf("count")+7, c.length()-1)); 
-						*/
 						
 						String shortcode = post.getString("shortcode");
 						myPosts.add(shortcode);
@@ -423,15 +402,11 @@ public class Instagram {
 								likes = likes + Integer.parseInt(jsonObj.get("count").toString());
 							}
 							
-							String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
-							has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
-							has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
+							has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
 							
 							
 							if(has_next_page.equals("true")) {
-								String end_cursorStr = jsonObj.getJSONObject("page_info").toString();
-								end_cursorStr = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length());
-								end_cursor = end_cursorStr.substring(0, end_cursorStr.indexOf("\""));
+								end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
 							}
 							
 							JSONArray jsonArr = jsonObj.getJSONArray("edges");
@@ -558,14 +533,10 @@ public class Instagram {
 								comments = comments + Integer.parseInt(jsonObj.get("count").toString());
 							}
 							
-							String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
-							has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
-							has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
-							
+							has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
 							
 							if(has_next_page.equals("true")) {
-								String end_cursorStr = jsonObj.getJSONObject("page_info").toString();
-								end_cursor = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length()-2);
+								end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
 							}
 							
 							JSONArray jsonArr = jsonObj.getJSONArray("edges");
