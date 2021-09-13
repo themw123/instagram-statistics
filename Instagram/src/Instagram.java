@@ -46,8 +46,8 @@ public class Instagram {
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
 		setMyPosts();
-		mostLikedByFollowers();
-		mostCommentedByFollowers();
+		setMostLikedByFollowers();
+		setMostCommentedByFollowers();
 	}
 	
 	public Instagram(String username, String password) {
@@ -62,8 +62,8 @@ public class Instagram {
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
 		setMyPosts();
-		mostLikedByFollowers();
-		mostCommentedByFollowers();
+		setMostLikedByFollowers();
+		setMostCommentedByFollowers();
 	}
 	
 	private void setSession() {
@@ -87,7 +87,8 @@ public class Instagram {
 		this.sessionId = sessionId;
 		this.ds_user_id = ds_user_id;
 		
-		} catch (IOException e) {
+		} catch (Exception e) {
+			System.out.println("Login fehlgeschlagen");
 			e.printStackTrace();
 		}
 	
@@ -127,6 +128,7 @@ public class Instagram {
 					}
 					
 				} catch (Exception e) {
+					System.out.println("setFollowingAndFollowers fehlgeschlagen");
 					e.printStackTrace();
 				}	
 	}
@@ -211,8 +213,10 @@ public class Instagram {
 						}
 						
 						
-					} catch (IOException e) {
+					} catch (Exception e) {
+						System.out.println("setOpenFriendRequestOut fehlgeschlagen");
 						e.printStackTrace();
+						break;
 					}
 		}while(cursor != null);
 		
@@ -242,7 +246,8 @@ public class Instagram {
 						OpenFriendRequestIn.add(username);
 					}
 					
-				} catch (IOException e) {
+				} catch (Exception e) {
+					System.out.println("setOpenFriendRequestIn fehlgeschlagen");
 					e.printStackTrace();
 				}
 				
@@ -302,7 +307,8 @@ public class Instagram {
 						myPosts.add(shortcode);
 					}
 					sumPosts = sumPosts + length;
-				} catch (IOException e) {
+				} catch (Exception e) {
+					System.out.println("setMyPosts1 fehlgeschlagen");
 					e.printStackTrace();
 				}
 				
@@ -359,14 +365,16 @@ public class Instagram {
 							myPosts.add(shortcode);
 						}
 						sumPosts = sumPosts + length;
-					} catch (IOException e) {
+					} catch (Exception e) {
+						System.out.println("setMyPosts2 fehlgeschlagen");
 						e.printStackTrace();
+						break;
 					}
 					durchlauf++;
 		}
 	}
 	
-	private void mostLikedByFollowers() {
+	private void setMostLikedByFollowers() {
 		
 		int max = 20; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
 		
@@ -437,8 +445,10 @@ public class Instagram {
 						
 						sumLikes = sumLikes + len;
 						
-					} catch (IOException e) {
+					} catch (Exception e) {
+						System.out.println("setMostLikedByFollowers1 fehlgeschlagen");
 						e.printStackTrace();
+						break;
 					}
 					
 					durchlauf++;
@@ -489,8 +499,10 @@ public class Instagram {
 							
 							sumLikes = sumLikes + len;
 							
-						} catch (IOException e) {
+						} catch (Exception e) {
+							System.out.println("setMostLikedByFollowers2 fehlgeschlagen");
 							e.printStackTrace();
+							break;
 						}
 						
 						durchlauf++;
@@ -537,7 +549,7 @@ public class Instagram {
 	}
 	
 	
-	private void mostCommentedByFollowers() {
+	private void setMostCommentedByFollowers() {
 		
 		int max = 2; //2 durchläufe entsprechen 100 Kommentare die betrachtet werden, Faktor 50
 		
@@ -602,8 +614,10 @@ public class Instagram {
 								
 						}
 						sumComments = sumComments + len;
-					} catch (IOException e) {
+					} catch (Exception e) {
+						System.out.println("setMostCommentedByFollowers1 fehlgeschlagen");
 						e.printStackTrace();
+						break;
 					}
 					
 					durchlauf++;
@@ -652,8 +666,10 @@ public class Instagram {
 							
 							sumComments = sumComments + len;
 							
-						} catch (IOException e) {
+						} catch (Exception e) {
+							System.out.println("setMostCommentedByFollowers2 fehlgeschlagen");
 							e.printStackTrace();
+							break;
 						}
 						
 						durchlauf++;		
