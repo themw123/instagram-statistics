@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
@@ -47,6 +48,7 @@ public class Instagram {
 		setOpenFriendRequestIn();
 		setMyPosts();
 		mostLikedByFollowers();
+		
 	}
 	
 	public Instagram(String username, String password) {
@@ -360,6 +362,7 @@ public class Instagram {
 		String has_next_page = "true";
 		String end_cursor = null;
 		int count = 5000000;
+
 		
 		for(String post : myPosts) {
 			OkHttpClient client = new OkHttpClient().newBuilder()
@@ -461,6 +464,7 @@ public class Instagram {
 			}
 		});
 		
+
 	}
 	
 	
