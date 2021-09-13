@@ -380,7 +380,7 @@ public class Instagram {
 		
 		
 		
-		String has_next_page = "true";
+		String has_next_page = "false";
 		String end_cursor = null;
 		int count = 5000000;
 		int durchlauf = 0;
@@ -390,74 +390,31 @@ public class Instagram {
 			durchlauf = 0;
 			sumLikes = 0;
 			
-			OkHttpClient client = new OkHttpClient().newBuilder()
-					  .build();
-					Request request = new Request.Builder()
-					  .url("https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\"" + post + "\",\"include_reel\":true,\"first\":" + count + "}")
-					  .method("GET", null)
-					  .addHeader("X-IG-App-ID", "936619743392459")
-					  .addHeader("Cookie", "sessionid=" + sessionId)
-					  .build();
-					try {
-						Response response = client.newCall(request).execute();
-						
-						String output = response.body().string();
-						JSONObject jsonObj = new JSONObject(output);
-						jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
-
-						String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
-						has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
-						has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
-						
-						
-						if(has_next_page.equals("true")) {
-							String end_cursorStr = jsonObj.getJSONObject("page_info").toString();
-							end_cursorStr = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length());
-							end_cursor = end_cursorStr.substring(0, end_cursorStr.indexOf("\""));
-						}
-						
-						JSONArray jsonArr = jsonObj.getJSONArray("edges");
-						int len = jsonArr.length();
-						for(int i=0;i<len;i++) {
-							JSONObject liker = jsonArr.getJSONObject(i).getJSONObject("node");
-							String username = liker.getString("username");
-							
-							for(int k=0;k<mostLikedByFollowers.length;k++) {
-								if(mostLikedByFollowers[k][0].equals(username)) {
-									int likes = ((int) mostLikedByFollowers[k][1])+1;
-									mostLikedByFollowers[k][1] = likes;
-								}
-							}
-							
-						}
-						
-						sumLikes = sumLikes + len;
-						
-					} catch (Exception e) {
-						System.out.println("setMostLikedByFollowers1 fehlgeschlagen");
-						e.printStackTrace();
-						break;
-					}
-					
-					durchlauf++;
-					
-			while(has_next_page.equals("true") && durchlauf < max) {
+			do {
 				
-				OkHttpClient client2 = new OkHttpClient().newBuilder()
+				String url = "";	
+				if(has_next_page.equals("false")) {
+					url = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\"" + post + "\",\"include_reel\":true,\"first\":" + count + "}";
+				}	
+				else if (has_next_page.equals("true")) {
+					url = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\""+ post + "\",\"include_reel\":true,\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}";
+				}	
+				
+				OkHttpClient client = new OkHttpClient().newBuilder()
 						  .build();
-						Request request2 = new Request.Builder()
-						  .url("https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\""+ post + "\",\"include_reel\":true,\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}")
+						Request request = new Request.Builder()
+						  .url(url)
 						  .method("GET", null)
 						  .addHeader("X-IG-App-ID", "936619743392459")
 						  .addHeader("Cookie", "sessionid=" + sessionId)
 						  .build();
 						try {
-							Response response = client2.newCall(request2).execute();
+							Response response = client.newCall(request).execute();
 							
 							String output = response.body().string();
 							JSONObject jsonObj = new JSONObject(output);
 							jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
-							
+	
 							String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
 							has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
 							has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
@@ -468,7 +425,6 @@ public class Instagram {
 								end_cursorStr = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length());
 								end_cursor = end_cursorStr.substring(0, end_cursorStr.indexOf("\""));
 							}
-							
 							
 							JSONArray jsonArr = jsonObj.getJSONArray("edges");
 							int len = jsonArr.length();
@@ -488,13 +444,14 @@ public class Instagram {
 							sumLikes = sumLikes + len;
 							
 						} catch (Exception e) {
-							System.out.println("setMostLikedByFollowers2 fehlgeschlagen");
+							System.out.println("setMostLikedByFollowers" + durchlauf + " fehlgeschlagen");
 							e.printStackTrace();
 							break;
 						}
 						
 						durchlauf++;
-			}
+					
+			}while(has_next_page.equals("true") && durchlauf < max);	
 			
 		}
 		
@@ -552,82 +509,42 @@ public class Instagram {
 			counter++;
 		}
 		
-		String has_next_page = "true";
+		String has_next_page = "false";
 		String end_cursor = null;
 		int count = 5000000;
 		int durchlauf = 0;
 		int sumComments = 0;
 		
 		for(String post : myPosts) {
-			
 			durchlauf = 0;
 			sumComments = 0;
-			OkHttpClient client = new OkHttpClient().newBuilder()
-					  .build();
-					Request request = new Request.Builder()
-					  .url("https://www.instagram.com/graphql/query/?query_hash=2efa04f61586458cef44441f474eee7c&variables={\"shortcode\":\"" + post + "\",\"parent_comment_count\":" + count + ",\"has_threaded_comments\":true}")
-					  .method("GET", null)
-					  .addHeader("X-IG-App-ID", "936619743392459")
-					  .addHeader("Cookie", "sessionid=" + sessionId)
-					  .build();
-					try {
-						Response response = client.newCall(request).execute();
-						
-						String output = response.body().string();
-						JSONObject jsonObj = new JSONObject(output);
-						jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_parent_comment");
-						
-
-						String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
-						has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
-						has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
-						
-						
-						if(has_next_page.equals("true")) {
-							String end_cursorStr = jsonObj.getJSONObject("page_info").toString();
-							end_cursor = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length()-2);
-						}
-						
-						JSONArray jsonArr = jsonObj.getJSONArray("edges");
-						int len = jsonArr.length();
-						for(int i=0;i<len;i++) {
-							JSONObject commenter = jsonArr.getJSONObject(i).getJSONObject("node").getJSONObject("owner");
-							String username = commenter.getString("username");
-							for(int k=0;k<mostCommentedByFollowers.length;k++) {
-								if(mostCommentedByFollowers[k][0].equals(username)) {
-									int likes = ((int) mostCommentedByFollowers[k][1])+1;
-									mostCommentedByFollowers[k][1] = likes;
-								}
-							}
-								
-						}
-						sumComments = sumComments + len;
-					} catch (Exception e) {
-						System.out.println("setMostCommentedByFollowers1 fehlgeschlagen");
-						e.printStackTrace();
-						break;
-					}
-					
-					durchlauf++;
-					
-			while(has_next_page.equals("true") && durchlauf < max) {
+			
+			do {
 				
-				OkHttpClient client2 = new OkHttpClient().newBuilder()
+				String url = "";	
+				if(has_next_page.equals("false")) {
+					url = "https://www.instagram.com/graphql/query/?query_hash=2efa04f61586458cef44441f474eee7c&variables={\"shortcode\":\"" + post + "\",\"parent_comment_count\":" + count + ",\"has_threaded_comments\":true}";
+				}	
+				else if (has_next_page.equals("true")) {
+					url = "https://www.instagram.com/graphql/query/?query_hash=bc3296d1ce80a24b1b6e40b1e72903f5&variables={\"shortcode\":\"" + post + "\",\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}";
+				}	
+				
+				OkHttpClient client = new OkHttpClient().newBuilder()
 						  .build();
-						Request request2 = new Request.Builder()
-						  .url("https://www.instagram.com/graphql/query/?query_hash=bc3296d1ce80a24b1b6e40b1e72903f5&variables={\"shortcode\":\"" + post + "\",\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}")
+						Request request = new Request.Builder()
+						  .url(url)
 						  .method("GET", null)
 						  .addHeader("X-IG-App-ID", "936619743392459")
 						  .addHeader("Cookie", "sessionid=" + sessionId)
 						  .build();
 						try {
-							Response response = client2.newCall(request2).execute();
+							Response response = client.newCall(request).execute();
 							
 							String output = response.body().string();
 							JSONObject jsonObj = new JSONObject(output);
 							jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_parent_comment");
 							
-							
+	
 							String has_next_pageStr = jsonObj.getJSONObject("page_info").toString();
 							has_next_pageStr = has_next_pageStr.substring(has_next_pageStr.indexOf("has_next_page")+15, has_next_pageStr.length());
 							has_next_page = has_next_pageStr.substring(0, has_next_pageStr.indexOf(","));
@@ -638,31 +555,29 @@ public class Instagram {
 								end_cursor = end_cursorStr.substring(end_cursorStr.indexOf("end_cursor")+13, end_cursorStr.length()-2);
 							}
 							
-							
 							JSONArray jsonArr = jsonObj.getJSONArray("edges");
 							int len = jsonArr.length();
 							for(int i=0;i<len;i++) {
-								JSONObject liker = jsonArr.getJSONObject(i).getJSONObject("node").getJSONObject("owner");
-								String username = liker.getString("username");
+								JSONObject commenter = jsonArr.getJSONObject(i).getJSONObject("node").getJSONObject("owner");
+								String username = commenter.getString("username");
 								for(int k=0;k<mostCommentedByFollowers.length;k++) {
 									if(mostCommentedByFollowers[k][0].equals(username)) {
 										int likes = ((int) mostCommentedByFollowers[k][1])+1;
 										mostCommentedByFollowers[k][1] = likes;
 									}
 								}
+									
 							}
-							
 							sumComments = sumComments + len;
-							
 						} catch (Exception e) {
-							System.out.println("setMostCommentedByFollowers2 fehlgeschlagen");
+							System.out.println("setMostCommentedByFollowers" + durchlauf + "fehlgeschlagen");
 							e.printStackTrace();
 							break;
 						}
+						durchlauf++;
 						
-						durchlauf++;		
-			}
-			//System.out.println("fertig");
+			}while(has_next_page.equals("true") && durchlauf < max);			
+				
 		}
 		
 		Arrays.sort(mostCommentedByFollowers, new Comparator<Object[]>() {
