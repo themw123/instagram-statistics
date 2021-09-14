@@ -9,8 +9,6 @@ import org.brunocvcunha.instagram4j.Instagram4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 public class Instagram {
