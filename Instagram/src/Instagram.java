@@ -80,13 +80,15 @@ public class Instagram{
     public void data(){
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
-		setOpenFriendRequestOut();
-		setOpenFriendRequestIn();
-		setMyPosts();
-		
 		if(following != null && followers != null) {
 			setNotFollowingYou();
 			setYouFollowingNot();
+		}
+		setOpenFriendRequestOut();
+		setOpenFriendRequestIn();
+		
+		if(following != null && followers != null) {
+			setMyPosts();
 			setMostLikedByFollowers();
 			setMostCommentedByFollowers();
 		}
@@ -166,6 +168,53 @@ public class Instagram{
 	}
 	
 	
+	private void setNotFollowingYou() {
+		
+		mutual = new Vector<String>();
+		
+		notFollowingYou = new Vector<String>();
+
+		boolean drin = false;
+		for(String foing : following) {
+			for(String foers : followers) {
+				if(foing.equals(foers)) {
+					drin = true;
+					mutual.add(foing);
+					break;
+				}
+			}
+			if(!drin) {
+				notFollowingYou.add(foing);
+			}
+			drin = false;
+		}
+	    
+	}
+	
+	private void setYouFollowingNot() {
+		youFollowingNot = new Vector<String>();
+
+		boolean drin = false;
+		for(String foers : followers) {
+			for(String foing : following) {
+				if(foing.equals(foers)) {
+					drin = true;
+					if(!mutual.contains(foers)) {
+					mutual.add(foers);
+					}
+					break;
+				}
+			}
+			if(!drin) {
+				youFollowingNot.add(foers);
+			}
+			drin = false;
+		}
+	    
+	}
+	
+	
+	
 	private void setOpenFriendRequestOut() {
 		
 		OpenFriendRequestOut = new Vector<String>();
@@ -239,6 +288,7 @@ public class Instagram{
 		}
 				
 	}
+	
 	
 	
 	private void setMyPosts() {
@@ -319,53 +369,6 @@ public class Instagram{
 		}while(has_next_page.equals("true") && durchlauf < max);		
 				
 			
-	}
-	
-	
-	
-	private void setNotFollowingYou() {
-		
-		mutual = new Vector<String>();
-		
-		notFollowingYou = new Vector<String>();
-
-		boolean drin = false;
-		for(String foing : following) {
-			for(String foers : followers) {
-				if(foing.equals(foers)) {
-					drin = true;
-					mutual.add(foing);
-					break;
-				}
-			}
-			if(!drin) {
-				notFollowingYou.add(foing);
-			}
-			drin = false;
-		}
-	    
-	}
-	
-	private void setYouFollowingNot() {
-		youFollowingNot = new Vector<String>();
-
-		boolean drin = false;
-		for(String foers : followers) {
-			for(String foing : following) {
-				if(foing.equals(foers)) {
-					drin = true;
-					if(!mutual.contains(foers)) {
-					mutual.add(foers);
-					}
-					break;
-				}
-			}
-			if(!drin) {
-				youFollowingNot.add(foers);
-			}
-			drin = false;
-		}
-	    
 	}
 	
 
