@@ -17,6 +17,11 @@ public class Instagram {
 	private String sessionId;
 	private boolean sessionIdValid;
 	private String ds_user_id;
+	private long time;
+	/*
+	time = -System.currentTimeMillis();
+	System.out.println((time + System.currentTimeMillis())/1000 + " Sekunden");
+	*/
 	
 	private APIRequest r;
 	
@@ -53,7 +58,6 @@ public class Instagram {
 	
 	
 	public boolean login() {
-		
 		//(String username, String sessionId, String ds_user_id)
 		if(sessionId != null && ds_user_id != null) {
 			this.r = new APIRequest(sessionId);
@@ -69,16 +73,14 @@ public class Instagram {
 				sessionIdValid = r.checkSessionId("https://www.instagram.com/" + username + "/?__a=1");
 			}
 		}
-		
 		return sessionIdValid;
 	}
 	
-	
+
 	
 	public void start() {
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
-		
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
 		setMyPosts();
@@ -89,6 +91,7 @@ public class Instagram {
 			setMostLikedByFollowers();
 			setMostCommentedByFollowers();
 		}
+		
 	}
 	
 	

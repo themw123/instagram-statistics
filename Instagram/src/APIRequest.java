@@ -8,7 +8,12 @@ public class APIRequest {
 	private OkHttpClient client;
 	private Request request;
 	private String sessionId;
-			
+	private double time;
+	/*
+	time = -System.currentTimeMillis();
+	System.out.println((time + System.currentTimeMillis())/1000 + " Sekunden");
+	*/
+	
 	APIRequest(String sessionId) {
 		this.client = new OkHttpClient().newBuilder().build();
 		this.sessionId = sessionId;
@@ -16,7 +21,6 @@ public class APIRequest {
 	
 	
 	public Response doRequest(String url) {
-		
 		Response response = null;
 		
 		this.request = new Request.Builder()
@@ -24,8 +28,8 @@ public class APIRequest {
 			.method("GET", null)
 			.addHeader("X-IG-App-ID", "936619743392459")
 			.addHeader("Cookie", "sessionid=" + sessionId)
-			.build();
-		
+			.build();;
+
 		try {
 			response = client.newCall(request).execute();
 		} catch (IOException e) {
