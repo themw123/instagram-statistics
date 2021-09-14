@@ -34,7 +34,8 @@ public class Instagram {
 	private Object[][] mostLikedByFollowers;
 	private Object[][] mostCommentedByFollowers;
 	
-	
+	private String[] ghostedLikeByFollowers;
+	private String[] ghostedCommentByFollowers;
 	
 	
 	public Instagram(String username, String password, String sessionId, String ds_user_id) {
@@ -451,26 +452,32 @@ public class Instagram {
 		
 		Object[][] mostLikedByFollowers2 = mostLikedByFollowers;
 		
-		counter = 0;
+		int counterLiker = 0;
+		int counterGhoster = 0;
 		for(Object[] follower : mostLikedByFollowers2) {
 			if((int) follower[1] != 0) {
-				counter++;
+				counterLiker++;
 			}
 			else {
-				break;
+				counterGhoster++;
 			}
 		}
 		
-		mostLikedByFollowers = new Object [counter][2];
-		counter = 0;
+		mostLikedByFollowers = new Object [counterLiker][2];
+		ghostedLikeByFollowers = new String [counterGhoster];
+		
+		counterLiker = 0;
+		counterGhoster = 0;
+		
 		for(Object[] follower : mostLikedByFollowers2) {
 			if((int) follower[1] != 0) {
-				mostLikedByFollowers[counter][0] = follower[0];
-				mostLikedByFollowers[counter][1] = follower[1];
-				counter++;
+				mostLikedByFollowers[counterLiker][0] = follower[0];
+				mostLikedByFollowers[counterLiker][1] = follower[1];
+				counterLiker++;
 			}
 			else {
-				break;
+				ghostedLikeByFollowers[counterGhoster] = (String) follower[0];
+				counterGhoster++;
 			}
 		}
 		
@@ -577,28 +584,37 @@ public class Instagram {
 		
 		Object[][] mostCommentedByFollowers2 = mostCommentedByFollowers;
 		
-		counter = 0;
+		int counterCommenter = 0;
+		int counterGhoster = 0;
 		for(Object[] follower : mostCommentedByFollowers2) {
 			if((int) follower[1] != 0) {
-				counter++;
+				counterCommenter++;
 			}
 			else {
-				break;
+				counterGhoster++;
 			}
 		}
 		
-		mostCommentedByFollowers = new Object [counter][2];
-		counter = 0;
+		mostCommentedByFollowers = new Object [counterCommenter][2];
+		ghostedCommentByFollowers = new String [counterGhoster];
+		
+		counterCommenter = 0;
+		counterGhoster = 0;
+		
 		for(Object[] follower : mostCommentedByFollowers2) {
 			if((int) follower[1] != 0) {
-				mostCommentedByFollowers[counter][0] = follower[0];
-				mostCommentedByFollowers[counter][1] = follower[1];
-				counter++;
+				mostCommentedByFollowers[counterCommenter][0] = follower[0];
+				mostCommentedByFollowers[counterCommenter][1] = follower[1];
+				counterCommenter++;
 			}
 			else {
-				break;
+				ghostedCommentByFollowers[counterGhoster] = (String) follower[0];
+				counterGhoster++;
 			}
 		}
+		
+	
+		
 	}
 	
 	
