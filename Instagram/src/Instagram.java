@@ -161,7 +161,8 @@ public class Instagram {
 				followers = null;
 			}
 			//e.printStackTrace();
-		}	
+		}
+		response.close();
 	}
 	
 	
