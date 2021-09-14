@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import okhttp3.Response;
 
-public class Instagram {
+public class Instagram extends Thread{
 	private String username;
 	private String password;
 	private String sessionId;
@@ -57,7 +57,7 @@ public class Instagram {
 	}
 	
 	
-	public boolean login() {
+	public void login() {
 		//(String username, String sessionId, String ds_user_id)
 		if(sessionId != null && ds_user_id != null) {
 			this.r = new APIRequest(sessionId);
@@ -73,12 +73,11 @@ public class Instagram {
 				sessionIdValid = r.checkSessionId("https://www.instagram.com/" + username + "/?__a=1");
 			}
 		}
-		return sessionIdValid;
 	}
 	
 
 	
-	public void start() {
+    public void data(){
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
 		setOpenFriendRequestOut();
@@ -91,7 +90,6 @@ public class Instagram {
 			setMostLikedByFollowers();
 			setMostCommentedByFollowers();
 		}
-		
 	}
 	
 	
@@ -631,6 +629,9 @@ public class Instagram {
 		
 	}
 	
+	public boolean getSessionIdValid() {
+		return sessionIdValid;
+	}
 	
 	
 	

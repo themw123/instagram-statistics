@@ -55,7 +55,6 @@ public class APIRequest {
 			if(response.code() == 200) {
 				sessionIdValid = true;
 			}
-			System.out.println();
 		} catch (IOException e) {
 			System.out.println();
 			//e.printStackTrace(
