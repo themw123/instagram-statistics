@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import okhttp3.Response;
 
-public class Instagram extends Thread{
+public class Instagram{
 	private String username;
 	private String password;
 	private String sessionId;
