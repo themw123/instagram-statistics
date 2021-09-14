@@ -23,6 +23,7 @@ public class Instagram {
 	private String[] followers;
 	private Vector<String> notFollowingYou;
 	private Vector<String> youFollowingNot;
+	private Vector<String> mutual;
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
 	private Vector<String> myPosts;
@@ -42,16 +43,7 @@ public class Instagram {
 		this.sessionId = sessionId;
 		this.ds_user_id = ds_user_id;
 		this.r = new APIRequest(sessionId);
-		
-		setFollowingAndFollowers("following");
-		setFollowingAndFollowers("followers");
-		setNotFollowingYou();
-		setYouFollowingNot();
-		setOpenFriendRequestOut();
-		setOpenFriendRequestIn();
-		setMyPosts();
-		setMostLikedByFollowers();
-		setMostCommentedByFollowers();
+		start();
 	}
 	
 	public Instagram(String username, String password) {
@@ -59,17 +51,34 @@ public class Instagram {
 		this.password = password;
 		this.r = new APIRequest(sessionId);
 		setSession();
-		
+		if(sessionId != null) {
+			start();
+		}
+	}
+	
+	
+	
+	private void start() {
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
-		setNotFollowingYou();
-		setYouFollowingNot();
+		
+		if(following != null && followers != null) {
+			setNotFollowingYou();
+			setYouFollowingNot();
+		}
+		
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
 		setMyPosts();
+		
+		if(following != null && followers != null) {
 		setMostLikedByFollowers();
 		setMostCommentedByFollowers();
+		}
 	}
+	
+	
+	
 	
 	private void setSession() {
 		//session id mit Instagram4j holen
@@ -93,14 +102,17 @@ public class Instagram {
 		
 		} catch (Exception e) {
 			System.out.println("Login fehlgeschlagen");
-			e.printStackTrace();
+			sessionId = null;
+			//e.printStackTrace();
 		}
 	
 	}
 	
 	private void setFollowingAndFollowers(String urlParameter) {
 		
-		String url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/";
+		int count = 1000000000;
+		
+		String url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "";
 		
 		Response response = r.doRequest(url);
 		
@@ -127,11 +139,20 @@ public class Instagram {
 					
 		} catch (Exception e) {
 			System.out.println("setFollowingAndFollowers fehlgeschlagen");
-			e.printStackTrace();
+			if(urlParameter.equals("following")) {
+				following = null;
+			}
+			else if(urlParameter.equals("followers")) {
+				followers = null;
+			}
+			//e.printStackTrace();
 		}	
 	}
 	
 	private void setNotFollowingYou() {
+		
+		mutual = new Vector<String>();
+		
 		notFollowingYou = new Vector<String>();
 
 		boolean drin = false;
@@ -139,6 +160,7 @@ public class Instagram {
 			for(String foers : followers) {
 				if(foing.equals(foers)) {
 					drin = true;
+					mutual.add(foing);
 					break;
 				}
 			}
@@ -158,6 +180,7 @@ public class Instagram {
 			for(String foing : following) {
 				if(foing.equals(foers)) {
 					drin = true;
+					mutual.add(foers);
 					break;
 				}
 			}
@@ -168,6 +191,8 @@ public class Instagram {
 		}
 	    
 	}
+	
+	
 	
 	private void setOpenFriendRequestOut() {
 		
@@ -206,7 +231,8 @@ public class Instagram {
 						
 			} catch (Exception e) {
 				System.out.println("setOpenFriendRequestOut fehlgeschlagen");
-				e.printStackTrace();
+				OpenFriendRequestOut = null;
+				//e.printStackTrace();
 				break;
 			}
 		}while(cursor != null);
@@ -235,7 +261,9 @@ public class Instagram {
 					
 		} catch (Exception e) {
 			System.out.println("setOpenFriendRequestIn fehlgeschlagen");
-			e.printStackTrace();
+			OpenFriendRequestIn = null;
+			//e.printStackTrace();
+			
 		}
 				
 	}
@@ -308,7 +336,8 @@ public class Instagram {
 				sumPosts = sumPosts + length;
 			} catch (Exception e) {
 				System.out.println("setMyPosts" + durchlauf + " fehlgeschlagen");
-				e.printStackTrace();
+				myPosts = null;
+				//e.printStackTrace();
 				break;
 			}
 					
@@ -396,7 +425,8 @@ public class Instagram {
 							
 				} catch (Exception e) {
 					System.out.println("setMostLikedByFollowers" + durchlauf + " fehlgeschlagen");
-					e.printStackTrace();
+					mostLikedByFollowers = null;
+					//e.printStackTrace();
 					break schleife;
 				}
 						
@@ -520,7 +550,8 @@ public class Instagram {
 					sumComments = sumComments + len;
 				} catch (Exception e) {
 					System.out.println("setMostCommentedByFollowers" + durchlauf + "fehlgeschlagen");
-					e.printStackTrace();
+					mostCommentedByFollowers = null;
+					//e.printStackTrace();
 					break schleife;
 				}
 				durchlauf++;
