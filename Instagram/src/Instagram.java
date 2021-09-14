@@ -23,7 +23,6 @@ public class Instagram {
 	
 	private String[] following;
 	private String[] followers;
-	
 	private Vector<String> notFollowingYou;
 	private Vector<String> youFollowingNot;
 	private Vector<String> OpenFriendRequestOut;
