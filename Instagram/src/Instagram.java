@@ -162,7 +162,6 @@ public class Instagram {
 			}
 			//e.printStackTrace();
 		}
-		response.close();
 	}
 	
 	
