@@ -6,6 +6,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/json-1.1.jar"/>
+	<classpathentry kind="lib" path="libs/json-20180813.jar"/>
 	<classpathentry kind="lib" path="libs/instagram4j/annotations-13.0.jar"/>
 	<classpathentry kind="lib" path="libs/instagram4j/commons-codec-1.9.jar"/>
 	<classpathentry kind="lib" path="libs/instagram4j/commons-lang3-3.11.jar"/>
@@ -28,7 +30,5 @@
 	<classpathentry kind="lib" path="libs/instagram4j/okio-2.9.0.jar"/>
 	<classpathentry kind="lib" path="libs/instagram4j/slf4j-api-1.7.30.jar"/>
 	<classpathentry kind="lib" path="libs/instagram4j/slf4j-simple-1.7.30.jar"/>
-	<classpathentry kind="lib" path="libs/json-1.1.jar"/>
-	<classpathentry kind="lib" path="libs/json-20180813.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
