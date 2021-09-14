@@ -30,7 +30,8 @@ public class APIRequest {
 		try {
 			response = client.newCall(request).execute();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Error in Request");
+			//e.printStackTrace(
 		}
 		return response;
 	}

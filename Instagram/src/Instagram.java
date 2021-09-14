@@ -49,9 +49,9 @@ public class Instagram {
 	public Instagram(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.r = new APIRequest(sessionId);
 		setSession();
 		if(sessionId != null) {
+			this.r = new APIRequest(sessionId);
 			start();
 		}
 	}
@@ -180,7 +180,9 @@ public class Instagram {
 			for(String foing : following) {
 				if(foing.equals(foers)) {
 					drin = true;
+					if(!mutual.contains(foers)) {
 					mutual.add(foers);
+					}
 					break;
 				}
 			}
