@@ -1,5 +1,4 @@
 import java.io.IOException;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -34,5 +33,29 @@ public class APIRequest {
 			//e.printStackTrace(
 		}
 		return response;
+	}
+	
+	public boolean checkSessionId(String url) {
+		
+		boolean sessionIdValid = false;
+		
+		this.request = new Request.Builder()
+			.url(url)
+			.method("GET", null)
+			.addHeader("X-IG-App-ID", "936619743392459")
+			.addHeader("Cookie", "sessionid=" + sessionId)
+			.build();
+		
+		try {
+			Response response = client.newCall(request).execute();
+			if(response.code() == 200) {
+				sessionIdValid = true;
+			}
+			System.out.println();
+		} catch (IOException e) {
+			System.out.println();
+			//e.printStackTrace(
+		}
+		return sessionIdValid;
 	}
 }

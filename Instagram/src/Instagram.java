@@ -15,6 +15,7 @@ public class Instagram {
 	private String username;
 	private String password;
 	private String sessionId;
+	private boolean sessionIdValid;
 	private String ds_user_id;
 	
 	private APIRequest r;
@@ -37,28 +38,44 @@ public class Instagram {
 	private String[] ghostedCommentByFollowers;
 	
 	
-	public Instagram(String username, String password, String sessionId, String ds_user_id) {
+	public Instagram(String username, String sessionId, String ds_user_id) {
 		this.username = username;
-		this.password = password;
+		this.sessionIdValid = false;
 		this.sessionId = sessionId;
 		this.ds_user_id = ds_user_id;
-		this.r = new APIRequest(sessionId);
-		start();
 	}
 	
 	public Instagram(String username, String password) {
 		this.username = username;
 		this.password = password;
-		setSession();
-		if(sessionId != null) {
+		this.sessionIdValid = false;
+	}
+	
+	
+	public boolean login() {
+		
+		//(String username, String sessionId, String ds_user_id)
+		if(sessionId != null && ds_user_id != null) {
 			this.r = new APIRequest(sessionId);
-			start();
+			//check if sessionId still works
+			sessionIdValid = r.checkSessionId("https://www.instagram.com/" + username + "/?__a=1");
 		}
+		
+		//(String username, String password)
+		else {
+			setSession();
+			if(sessionId != null && ds_user_id != null) {
+				this.r = new APIRequest(sessionId);
+				sessionIdValid = r.checkSessionId("https://www.instagram.com/" + username + "/?__a=1");
+			}
+		}
+		
+		return sessionIdValid;
 	}
 	
 	
 	
-	private void start() {
+	public void start() {
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
 		
@@ -103,6 +120,7 @@ public class Instagram {
 		} catch (Exception e) {
 			System.out.println("Login fehlgeschlagen");
 			sessionId = null;
+			ds_user_id = null;
 			//e.printStackTrace();
 		}
 	
@@ -608,6 +626,8 @@ public class Instagram {
 	
 		
 	}
+	
+	
 	
 	
 }
