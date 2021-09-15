@@ -12,12 +12,13 @@ import org.json.JSONObject;
 import okhttp3.Response;
 
 public class Instagram{
+	private Object LogData = new Object();
+	private Object Data1 = new Object();
 	private String username;
 	private String password;
 	private String sessionId;
 	private boolean sessionIdValid;
 	private String ds_user_id;
-	private long time;
 	/*
 	time = -System.currentTimeMillis();
 	System.out.println((time + System.currentTimeMillis())/1000 + " Sekunden");
@@ -73,28 +74,24 @@ public class Instagram{
 				sessionIdValid = r.checkSessionId("https://www.instagram.com/" + username + "/?__a=1");
 			}
 		}
+		System.out.println("Login-Thread finished");
+		startThread("LogData");
 	}
 	
 
 	
-    public void data(Object syncObj){
+    public void data(){
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
 		
-    	System.out.println("Hard-Thread running");
 		if(following != null && followers != null) {
+	    	System.out.println("Hard-Thread running");
 			Thread t1 = new Thread(new Runnable() {
 			    @Override
 			    public void run() {
 					setMyPosts();
 					setMostLikedByFollowers();
 					setMostCommentedByFollowers();
-			    	System.out.println("Hard-Thread finished");
-
-			        synchronized(syncObj)
-			        {
-			          syncObj.notify();
-			        }
 			    }
 			});  
 			t1.start();
@@ -108,7 +105,9 @@ public class Instagram{
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
 		
-		
+		waitThread("Data1");
+		System.out.println("Data-Thread finished");
+		startThread("LogData");
 	}
 	
 	
@@ -652,12 +651,47 @@ public class Instagram{
 			}
 		
 		}
-	
 		
+    	System.out.println("Hard-Thread finished");
+    	startThread("Data1");
 	}
 	
 	public boolean getSessionIdValid() {
 		return sessionIdValid;
+	}
+	
+	public void startThread(String obj) {
+		if(obj.equals("LogData")) {
+	        synchronized(LogData)
+	        {
+	        	LogData.notify();
+	        }
+		}
+		else if(obj.equals("Data1")) {
+	        synchronized(Data1)
+	        {
+	        	Data1.notify();
+	        }
+		}
+	}
+	
+	public void waitThread(String obj) {
+	    try
+	    {
+	    	if(obj.equals("LogData")) {		
+		      synchronized(LogData)
+		      {
+		    	  LogData.wait();
+		      }
+	    	}
+	    	else if(obj.equals("Data1")){
+			      synchronized(Data1)
+			      {
+			        Data1.wait();
+			      }
+	    	}
+	    }
+	    catch(InterruptedException ie) { }
 	}
 	
 	
