@@ -82,60 +82,76 @@ public class Instagram{
 
 	
     public void data(){
+		
     	System.out.println("Data1-Thread running");
-		new Thread(() -> {
-	    	setFollowingAndFollowers("following");
-		}).start();
+		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
+		t1.start();
 		
 		
     	System.out.println("Data2-Thread running");
-		new Thread(() -> {
-	    	setFollowingAndFollowers("followers");
-		}).start();
+		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
+		t2.start();
 		
 		
-		if(following != null && followers != null) {
-	    	System.out.println("Data3-Thread running");
-			new Thread(() -> {
-				setNotFollowingYou();
-			}).start();
-			
-	    	System.out.println("Data4-Thread running");
-			new Thread(() -> {
-				setYouFollowingNot();
-			}).start();
+		try {
+			t1.join();
+			t2.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
+		
+
+	    	System.out.println("Data3-Thread running");
+			Thread t3 = new Thread(() -> setNotFollowingYou());
+			t3.start();
+			
+	    	System.out.println("Data4-Thread running");
+			Thread t4 = new Thread(() -> setYouFollowingNot());
+			t4.start();
+		
+		
     	System.out.println("Data5-Thread running");
-		new Thread(() -> {
-			setOpenFriendRequestOut();
-		}).start();
+		Thread t5 = new Thread(() -> setOpenFriendRequestOut());
+		t5.start();
 		
     	System.out.println("Data6-Thread running");
-		new Thread(() -> {
-			setOpenFriendRequestIn();
-		}).start();
+		Thread t6 = new Thread(() -> setOpenFriendRequestIn());
+		t6.start();
 		
 		
 		
 		
     	System.out.println("Data7-Thread running");
-		new Thread(() -> {
-			setMyPosts();
-		}).start();
+		Thread t7 = new Thread(() -> setMyPosts());
+		t7.start();
 		
-    	System.out.println("Data8-Thread running");
-		new Thread(() -> {
-			setMostLikedByFollowers();
-		}).start();
+		try {
+			t7.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
-    	System.out.println("Data9-Thread running");
-		new Thread(() -> {
-			setMostCommentedByFollowers();
-
-		}).start();
+	    	System.out.println("Data8-Thread running");
+			Thread t8 = new Thread(() -> setMostLikedByFollowers());
+			t8.start();
+			
+			Thread t9 = new Thread(() -> setMostCommentedByFollowers());
+	    	System.out.println("Data9-Thread running");
+	    	t9.start();
 		
-		
+    	try {
+			t3.join();
+			t4.join();
+			t5.join();
+			t6.join();
+			t8.join();
+			t9.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+    	
        
 		System.out.println("Data-Thread finished");
 		startThread("LogData");
@@ -358,7 +374,7 @@ public class Instagram{
 	
 	private void setMyPosts() {
 		
-		int max = 1; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
+		int max = 5; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
 		
 		/*
 		query_id:
