@@ -504,6 +504,7 @@ public class Instagram{
 		String end_cursor = null;
 		int count = 5000000;
 		int durchlauf = 0;
+		int sumPosts = 0;
 		
 		schleife:
 		for(String post : myPosts) {
@@ -556,7 +557,7 @@ public class Instagram{
 							
 							
 				} catch (Exception e) {
-					System.out.println("setMostLikedByFollowers" + durchlauf + " failed -> " + error);
+					System.out.println("setMostLikedByFollowers" + durchlauf + " Post: " + sumPosts + " failed -> " + error);
 					mostLikedByFollowers = null;
 					//e.printStackTrace();
 					break schleife;
@@ -565,7 +566,7 @@ public class Instagram{
 				durchlauf++;
 					
 			}while(has_next_page.equals("true") && durchlauf < max);	
-			
+			sumPosts++;
 		}
 		
 		
@@ -637,6 +638,7 @@ public class Instagram{
 		String error = null;
 		int count = 5000000;
 		int durchlauf = 0;
+		int sumPosts = 0;
 		
 		schleife:
 		for(String post : myPosts) {
@@ -686,14 +688,15 @@ public class Instagram{
 					}
 
 				} catch (Exception e) {
-					System.out.println("setMostCommentedByFollowers" + durchlauf + " failed -> " + error);
+					System.out.println("setMostCommentedByFollowers" + durchlauf + " Post: " + sumPosts + " failed -> " + error);
 					mostCommentedByFollowers = null;
 					//e.printStackTrace();
 					break schleife;
 				}
 				durchlauf++;
 						
-			}while(has_next_page.equals("true") && durchlauf < max);			
+			}while(has_next_page.equals("true") && durchlauf < max);
+			sumPosts++;
 		}
 		
 		
