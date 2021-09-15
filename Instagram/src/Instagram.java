@@ -317,6 +317,7 @@ public class Instagram{
 		OpenFriendRequestOut = new Vector<String>();
 		String cursor = null;
 		String error = null;
+		int durchlauf = 0;
 		
 		do {
 			String url = null;
@@ -351,11 +352,12 @@ public class Instagram{
 						
 						
 			} catch (Exception e) {
-				System.out.println("setOpenFriendRequestOut failed -> " + error);
+				System.out.println("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + "failed -> " + error);
 				OpenFriendRequestOut = null;
 				//e.printStackTrace();
 				break;
 			}
+			durchlauf++;
 		}while(cursor != null);
 		
 		System.out.println("Data5-Thread finished");
@@ -465,7 +467,7 @@ public class Instagram{
 					myPosts.add(shortcode);
 				}
 			} catch (Exception e) {
-				System.out.println("setMyPosts" + durchlauf + " failed -> " + error);
+				System.out.println("setMyPosts Post: " + durchlauf + " failed -> " + error);
 				myPosts = null;
 				//e.printStackTrace();
 				break;
@@ -557,7 +559,7 @@ public class Instagram{
 							
 							
 				} catch (Exception e) {
-					System.out.println("setMostLikedByFollowers" + durchlauf + " Post: " + sumPosts + " failed -> " + error);
+					System.out.println("setMostLikedByFollowers Durchlauf: " + durchlauf + " Post: " + sumPosts + " failed -> " + error);
 					mostLikedByFollowers = null;
 					//e.printStackTrace();
 					break schleife;
@@ -688,7 +690,7 @@ public class Instagram{
 					}
 
 				} catch (Exception e) {
-					System.out.println("setMostCommentedByFollowers" + durchlauf + " Post: " + sumPosts + " failed -> " + error);
+					System.out.println("setMostCommentedByFollowers Durchlauf: " + durchlauf + " Post: " + sumPosts + " failed -> " + error);
 					mostCommentedByFollowers = null;
 					//e.printStackTrace();
 					break schleife;
