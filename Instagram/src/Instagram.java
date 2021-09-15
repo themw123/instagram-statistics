@@ -102,7 +102,7 @@ public class Instagram{
 		}
 		
 		
-
+		
 	    	System.out.println("Data3-Thread running");
 			Thread t3 = new Thread(() -> setNotFollowingYou());
 			t3.start();
@@ -192,6 +192,7 @@ public class Instagram{
 	private void setFollowingAndFollowers(String urlParameter) {
 		
 		int count = 1000000000;
+		String error = null;
 		
 		String url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "";
 		
@@ -200,7 +201,8 @@ public class Instagram{
 		try {
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
-					
+			error = jsonObj.toString();
+			
 			JSONArray ja_users = jsonObj.getJSONArray("users");
 			int length = ja_users.length();
 					
@@ -219,7 +221,7 @@ public class Instagram{
 			}
 					
 		} catch (Exception e) {
-			System.out.println("setFollowingAndFollowers fehlgeschlagen");
+			System.out.println("setFollowingAndFollowers failed -> " + error);
 			if(urlParameter.equals("following")) {
 				following = null;
 			}
@@ -296,6 +298,8 @@ public class Instagram{
 		
 		OpenFriendRequestOut = new Vector<String>();
 		String cursor = null;
+		String error = null;
+		
 		do {
 			String url = null;
 			if(cursor == null) {
@@ -311,7 +315,7 @@ public class Instagram{
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
 				jsonObj = jsonObj.getJSONObject("data");
-						
+				error = jsonObj.toString();	
 						
 				cursor = jsonObj.get("cursor").toString();
 				if(cursor.equals("null")) {
@@ -328,7 +332,7 @@ public class Instagram{
 						
 						
 			} catch (Exception e) {
-				System.out.println("setOpenFriendRequestOut fehlgeschlagen");
+				System.out.println("setOpenFriendRequestOut failed -> " + error);
 				OpenFriendRequestOut = null;
 				//e.printStackTrace();
 				break;
@@ -347,11 +351,15 @@ public class Instagram{
 
 		Response response = r.doRequest(url);
 
+		String error = null;
+		
 		try {
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
+			error = jsonObj.toString();
 			JSONArray jsonArr = jsonObj.getJSONArray("users");
-					
+	
+			
 			int length = jsonArr.length();
 			for(int i=0;i<length;i++) {
 				JSONObject userJson = jsonArr.getJSONObject(i);
@@ -360,7 +368,7 @@ public class Instagram{
 			}
 					
 		} catch (Exception e) {
-			System.out.println("setOpenFriendRequestIn fehlgeschlagen");
+			System.out.println("setOpenFriendRequestIn failed -> " + error);
 			OpenFriendRequestIn = null;
 			//e.printStackTrace();
 			
@@ -393,7 +401,7 @@ public class Instagram{
 		int count = 1000;
 		String has_next_page = "false";
 		String end_cursor = null;
-		
+		String error = null;
 		
 		int durchlauf = 0;
 		int sumPosts = 0;
@@ -414,7 +422,8 @@ public class Instagram{
 			try {			
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
-						
+				error = jsonObj.toString();
+				
 				if(has_next_page.equals("false")) {
 					jsonObj = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
 				}
@@ -439,7 +448,7 @@ public class Instagram{
 				}
 				sumPosts = sumPosts + length;
 			} catch (Exception e) {
-				System.out.println("setMyPosts" + durchlauf + " fehlgeschlagen");
+				System.out.println("setMyPosts" + durchlauf + " failed -> " + error);
 				myPosts = null;
 				//e.printStackTrace();
 				break;
@@ -461,6 +470,7 @@ public class Instagram{
 		
 		int length = followers.length;
 		int counter = 0;
+		String error = null;
 		
 		mostLikedByFollowers = new Object[length][2];
 		
@@ -500,7 +510,8 @@ public class Instagram{
 					String output = response.body().string();
 					JSONObject jsonObj = new JSONObject(output);
 					jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
-							
+					error = jsonObj.toString();
+					
 					if(durchlauf == 0) {
 						likes = likes + Integer.parseInt(jsonObj.get("count").toString());
 					}
@@ -531,7 +542,7 @@ public class Instagram{
 					sumLikes = sumLikes + len;
 							
 				} catch (Exception e) {
-					System.out.println("setMostLikedByFollowers" + durchlauf + " fehlgeschlagen");
+					System.out.println("setMostLikedByFollowers" + durchlauf + " failed -> " + error);
 					mostLikedByFollowers = null;
 					//e.printStackTrace();
 					break schleife;
@@ -588,7 +599,7 @@ public class Instagram{
 			}
 		}
 		System.out.println("Data8-Thread finished");
-
+		
 	}
 	
 	
@@ -609,6 +620,7 @@ public class Instagram{
 		
 		String has_next_page = "false";
 		String end_cursor = null;
+		String error = null;
 		int count = 5000000;
 		int durchlauf = 0;
 		int sumComments = 0;
@@ -633,6 +645,8 @@ public class Instagram{
 				try {
 					String output = response.body().string();
 					JSONObject jsonObj = new JSONObject(output);
+					error = jsonObj.toString();
+					 
 					jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_parent_comment");
 							
 					if(durchlauf == 0) {
@@ -660,7 +674,7 @@ public class Instagram{
 					}
 					sumComments = sumComments + len;
 				} catch (Exception e) {
-					System.out.println("setMostCommentedByFollowers" + durchlauf + "fehlgeschlagen");
+					System.out.println("setMostCommentedByFollowers" + durchlauf + " failed -> " + error);
 					mostCommentedByFollowers = null;
 					//e.printStackTrace();
 					break schleife;
@@ -668,7 +682,6 @@ public class Instagram{
 				durchlauf++;
 						
 			}while(has_next_page.equals("true") && durchlauf < max);			
-				
 		}
 		
 		
