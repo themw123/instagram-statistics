@@ -77,9 +77,30 @@ public class Instagram{
 	
 
 	
-    public void data(){
+    public void data(Object syncObj){
 		setFollowingAndFollowers("following");
 		setFollowingAndFollowers("followers");
+		
+    	System.out.println("Hard-Thread running");
+		if(following != null && followers != null) {
+			Thread t1 = new Thread(new Runnable() {
+			    @Override
+			    public void run() {
+					setMyPosts();
+					setMostLikedByFollowers();
+					setMostCommentedByFollowers();
+			    	System.out.println("Hard-Thread finished");
+
+			        synchronized(syncObj)
+			        {
+			          syncObj.notify();
+			        }
+			    }
+			});  
+			t1.start();
+		}
+		
+        
 		if(following != null && followers != null) {
 			setNotFollowingYou();
 			setYouFollowingNot();
@@ -87,11 +108,7 @@ public class Instagram{
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
 		
-		if(following != null && followers != null) {
-			setMyPosts();
-			setMostLikedByFollowers();
-			setMostCommentedByFollowers();
-		}
+		
 	}
 	
 	
@@ -461,45 +478,48 @@ public class Instagram{
 			
 		}
 		
-		Arrays.sort(mostLikedByFollowers, new Comparator<Object[]>() {
-			@Override
-			public int compare(Object[] o1, Object[] o2) {
-		            Integer quantityOne = (Integer) o1[1];
-			    Integer quantityTwo = (Integer) o2[1];
-			   
-			    return quantityTwo.compareTo(quantityOne);
-
+		
+		if(mostLikedByFollowers != null) {
+			Arrays.sort(mostLikedByFollowers, new Comparator<Object[]>() {
+				@Override
+				public int compare(Object[] o1, Object[] o2) {
+			            Integer quantityOne = (Integer) o1[1];
+				    Integer quantityTwo = (Integer) o2[1];
+				   
+				    return quantityTwo.compareTo(quantityOne);
+	
+				}
+			});
+			
+			Object[][] mostLikedByFollowers2 = mostLikedByFollowers;
+			
+			int counterLiker = 0;
+			int counterGhoster = 0;
+			for(Object[] follower : mostLikedByFollowers2) {
+				if((int) follower[1] != 0) {
+					counterLiker++;
+				}
+				else {
+					counterGhoster++;
+				}
 			}
-		});
-		
-		Object[][] mostLikedByFollowers2 = mostLikedByFollowers;
-		
-		int counterLiker = 0;
-		int counterGhoster = 0;
-		for(Object[] follower : mostLikedByFollowers2) {
-			if((int) follower[1] != 0) {
-				counterLiker++;
-			}
-			else {
-				counterGhoster++;
-			}
-		}
-		
-		mostLikedByFollowers = new Object [counterLiker][2];
-		ghostedLikeByFollowers = new String [counterGhoster];
-		
-		counterLiker = 0;
-		counterGhoster = 0;
-		
-		for(Object[] follower : mostLikedByFollowers2) {
-			if((int) follower[1] != 0) {
-				mostLikedByFollowers[counterLiker][0] = follower[0];
-				mostLikedByFollowers[counterLiker][1] = follower[1];
-				counterLiker++;
-			}
-			else {
-				ghostedLikeByFollowers[counterGhoster] = (String) follower[0];
-				counterGhoster++;
+			
+			mostLikedByFollowers = new Object [counterLiker][2];
+			ghostedLikeByFollowers = new String [counterGhoster];
+			
+			counterLiker = 0;
+			counterGhoster = 0;
+			
+			for(Object[] follower : mostLikedByFollowers2) {
+				if((int) follower[1] != 0) {
+					mostLikedByFollowers[counterLiker][0] = follower[0];
+					mostLikedByFollowers[counterLiker][1] = follower[1];
+					counterLiker++;
+				}
+				else {
+					ghostedLikeByFollowers[counterGhoster] = (String) follower[0];
+					counterGhoster++;
+				}
 			}
 		}
 		
@@ -585,49 +605,53 @@ public class Instagram{
 				
 		}
 		
-		Arrays.sort(mostCommentedByFollowers, new Comparator<Object[]>() {
-			@Override
-			public int compare(Object[] o1, Object[] o2) {
-		            Integer quantityOne = (Integer) o1[1];
-			    Integer quantityTwo = (Integer) o2[1];
-			   
-			    return quantityTwo.compareTo(quantityOne);
-
-			}
-		});
 		
-		
-		Object[][] mostCommentedByFollowers2 = mostCommentedByFollowers;
-		
-		int counterCommenter = 0;
-		int counterGhoster = 0;
-		for(Object[] follower : mostCommentedByFollowers2) {
-			if((int) follower[1] != 0) {
-				counterCommenter++;
+		if(mostCommentedByFollowers != null) {
+			
+			Arrays.sort(mostCommentedByFollowers, new Comparator<Object[]>() {
+				@Override
+				public int compare(Object[] o1, Object[] o2) {
+			            Integer quantityOne = (Integer) o1[1];
+				    Integer quantityTwo = (Integer) o2[1];
+				   
+				    return quantityTwo.compareTo(quantityOne);
+	
+				}
+			});
+			
+			
+			Object[][] mostCommentedByFollowers2 = mostCommentedByFollowers;
+			
+			int counterCommenter = 0;
+			int counterGhoster = 0;
+			for(Object[] follower : mostCommentedByFollowers2) {
+				if((int) follower[1] != 0) {
+					counterCommenter++;
+				}
+				else {
+					counterGhoster++;
+				}
 			}
-			else {
-				counterGhoster++;
+			
+			mostCommentedByFollowers = new Object [counterCommenter][2];
+			ghostedCommentByFollowers = new String [counterGhoster];
+			
+			counterCommenter = 0;
+			counterGhoster = 0;
+			
+			for(Object[] follower : mostCommentedByFollowers2) {
+				if((int) follower[1] != 0) {
+					mostCommentedByFollowers[counterCommenter][0] = follower[0];
+					mostCommentedByFollowers[counterCommenter][1] = follower[1];
+					counterCommenter++;
+				}
+				else {
+					ghostedCommentByFollowers[counterGhoster] = (String) follower[0];
+					counterGhoster++;
+				}
 			}
+		
 		}
-		
-		mostCommentedByFollowers = new Object [counterCommenter][2];
-		ghostedCommentByFollowers = new String [counterGhoster];
-		
-		counterCommenter = 0;
-		counterGhoster = 0;
-		
-		for(Object[] follower : mostCommentedByFollowers2) {
-			if((int) follower[1] != 0) {
-				mostCommentedByFollowers[counterCommenter][0] = follower[0];
-				mostCommentedByFollowers[counterCommenter][1] = follower[1];
-				counterCommenter++;
-			}
-			else {
-				ghostedCommentByFollowers[counterGhoster] = (String) follower[0];
-				counterGhoster++;
-			}
-		}
-		
 	
 		
 	}
