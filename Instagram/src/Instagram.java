@@ -14,6 +14,9 @@ import okhttp3.Response;
 public class Instagram{
 	private Object LogData = new Object();
 	private Object Data1 = new Object();
+	private Object Data2 = new Object();
+	private Object Data3 = new Object();
+	
 	private String username;
 	private String password;
 	private String sessionId;
@@ -81,12 +84,30 @@ public class Instagram{
 
 	
     public void data(){
-		setFollowingAndFollowers("following");
-		setFollowingAndFollowers("followers");
+    	System.out.println("Data1-Thread running");
+		Thread t1 = new Thread(new Runnable() {
+		    @Override
+		    public void run() {
+		    	setFollowingAndFollowers("following");
+		    }
+		});  
+		t1.start();
 		
+    	System.out.println("Data2-Thread running");
+		Thread t2 = new Thread(new Runnable() {
+		    @Override
+		    public void run() {
+		    	setFollowingAndFollowers("followers");
+		    }
+		});  
+		t2.start();
+		
+		
+		waitThread("Data1");
+		waitThread("Data2");
 		if(following != null && followers != null) {
-	    	System.out.println("Hard-Thread running");
-			Thread t1 = new Thread(new Runnable() {
+	    	System.out.println("Data3-Thread running");
+			Thread t3 = new Thread(new Runnable() {
 			    @Override
 			    public void run() {
 					setMyPosts();
@@ -94,7 +115,7 @@ public class Instagram{
 					setMostCommentedByFollowers();
 			    }
 			});  
-			t1.start();
+			t3.start();
 		}
 		
         
@@ -105,7 +126,8 @@ public class Instagram{
 		setOpenFriendRequestOut();
 		setOpenFriendRequestIn();
 		
-		waitThread("Data1");
+		
+		waitThread("Data3");
 		System.out.println("Data-Thread finished");
 		startThread("LogData");
 	}
@@ -180,6 +202,16 @@ public class Instagram{
 				followers = null;
 			}
 			//e.printStackTrace();
+		}
+		
+
+		if(urlParameter.equals("following")) {
+			System.out.println("Data1-Thread finished");
+			startThread("Data1");
+		}
+		else if(urlParameter.equals("followers")) {
+			System.out.println("Data2-Thread finished");
+			startThread("Data2");
 		}
 	}
 	
@@ -652,8 +684,8 @@ public class Instagram{
 		
 		}
 		
-    	System.out.println("Hard-Thread finished");
-    	startThread("Data1");
+    	System.out.println("Data3-Thread finished");
+    	startThread("Data3");
 	}
 	
 	public boolean getSessionIdValid() {
@@ -673,6 +705,18 @@ public class Instagram{
 	        	Data1.notify();
 	        }
 		}
+		else if(obj.equals("Data2")) {
+	        synchronized(Data2)
+	        {
+	        	Data2.notify();
+	        }
+		}
+		else if(obj.equals("Data3")) {
+	        synchronized(Data3)
+	        {
+	        	Data3.notify();
+	        }
+		}
 	}
 	
 	public void waitThread(String obj) {
@@ -688,6 +732,18 @@ public class Instagram{
 			      synchronized(Data1)
 			      {
 			        Data1.wait();
+			      }
+	    	}
+	    	else if(obj.equals("Data2")){
+			      synchronized(Data2)
+			      {
+			        Data2.wait();
+			      }
+	    	}
+	    	else if(obj.equals("Data3")){
+			      synchronized(Data3)
+			      {
+			        Data3.wait();
 			      }
 	    	}
 	    }
