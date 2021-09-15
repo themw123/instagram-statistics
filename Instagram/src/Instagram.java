@@ -332,8 +332,9 @@ public class Instagram{
 			try {
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
-				jsonObj = jsonObj.getJSONObject("data");
 				error = jsonObj.toString();	
+				jsonObj = jsonObj.getJSONObject("data");
+				
 						
 				cursor = jsonObj.get("cursor").toString();
 				if(cursor.equals("null")) {
@@ -400,7 +401,7 @@ public class Instagram{
 	
 	private void setMyPosts() {
 		
-		int max = 2; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
+		int max = 5; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
 		
 		/*
 		query_id:
@@ -527,8 +528,8 @@ public class Instagram{
 				try {			
 					String output = response.body().string();
 					JSONObject jsonObj = new JSONObject(output);
-					jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
 					error = jsonObj.toString();
+					jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
 					
 					if(durchlauf == 0) {
 						likes = likes + Integer.parseInt(jsonObj.get("count").toString());
