@@ -504,7 +504,6 @@ public class Instagram{
 		String end_cursor = null;
 		int count = 5000000;
 		int durchlauf = 0;
-		int sumLikes = 0;
 		
 		schleife:
 		for(String post : myPosts) {
