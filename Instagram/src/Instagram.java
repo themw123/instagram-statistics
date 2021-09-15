@@ -423,7 +423,6 @@ public class Instagram{
 		String error = null;
 		
 		int durchlauf = 0;
-		int sumPosts = 0;
 		
 		
 		do {
@@ -465,7 +464,6 @@ public class Instagram{
 					String shortcode = post.getString("shortcode");
 					myPosts.add(shortcode);
 				}
-				sumPosts = sumPosts + length;
 			} catch (Exception e) {
 				System.out.println("setMyPosts" + durchlauf + " failed -> " + error);
 				myPosts = null;
@@ -511,7 +509,6 @@ public class Instagram{
 		schleife:
 		for(String post : myPosts) {
 			durchlauf = 0;
-			sumLikes = 0;
 			
 			do {
 				
@@ -558,7 +555,6 @@ public class Instagram{
 								
 					}
 							
-					sumLikes = sumLikes + len;
 							
 				} catch (Exception e) {
 					System.out.println("setMostLikedByFollowers" + durchlauf + " failed -> " + error);
@@ -642,12 +638,10 @@ public class Instagram{
 		String error = null;
 		int count = 5000000;
 		int durchlauf = 0;
-		int sumComments = 0;
 		
 		schleife:
 		for(String post : myPosts) {
 			durchlauf = 0;
-			sumComments = 0;
 			
 			do {
 				
@@ -691,7 +685,7 @@ public class Instagram{
 						}
 									
 					}
-					sumComments = sumComments + len;
+
 				} catch (Exception e) {
 					System.out.println("setMostCommentedByFollowers" + durchlauf + " failed -> " + error);
 					mostCommentedByFollowers = null;
