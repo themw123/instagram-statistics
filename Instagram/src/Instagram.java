@@ -92,7 +92,7 @@ public class Instagram{
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
 		t2.start();
 		
-		
+		//Auf following/follower warten. Bei fail, nur Thread 5,6 und 7 starten
 		try {
 			t1.join();
 			t2.join();
@@ -102,14 +102,17 @@ public class Instagram{
 		}
 		
 		
-		
+		Thread t3 = null;
+		Thread t4 = null;
+		if(following != null && followers != null) {
 	    	System.out.println("Data3-Thread running");
-			Thread t3 = new Thread(() -> setNotFollowingYou());
+			t3 = new Thread(() -> setNotFollowingYou());
 			t3.start();
 			
 	    	System.out.println("Data4-Thread running");
-			Thread t4 = new Thread(() -> setYouFollowingNot());
+			t4 = new Thread(() -> setYouFollowingNot());
 			t4.start();
+		}
 		
 		
     	System.out.println("Data5-Thread running");
@@ -127,32 +130,47 @@ public class Instagram{
 		Thread t7 = new Thread(() -> setMyPosts());
 		t7.start();
 		
+		//Auf Posts warten
 		try {
 			t7.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
+		Thread t8 = null;
+		Thread t9 = null;
+		if(following != null && followers != null) {
 	    	System.out.println("Data8-Thread running");
-			Thread t8 = new Thread(() -> setMostLikedByFollowers());
+			t8 = new Thread(() -> setMostLikedByFollowers());
 			t8.start();
 			
-			Thread t9 = new Thread(() -> setMostCommentedByFollowers());
+			t9 = new Thread(() -> setMostCommentedByFollowers());
 	    	System.out.println("Data9-Thread running");
-	    	t9.start();
+			t9.start();
+		}
 		
+		
+		
+		
+		
+		
+		//Auf übrige Threads warten
     	try {
-			t3.join();
-			t4.join();
+    		if(following != null && followers != null) {
+				t3.join();
+				t4.join();
+    		}
 			t5.join();
 			t6.join();
-			t8.join();
-			t9.join();
+			if(following != null && followers != null) {
+				t8.join();
+				t9.join();
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
     	
-       
+       //Main Thread starten
 		System.out.println("Data-Thread finished");
 		startThread("LogData");
 	}
@@ -382,7 +400,7 @@ public class Instagram{
 	
 	private void setMyPosts() {
 		
-		int max = 5; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
+		int max = 2; //Bei, ersten mal holt er 12 und dann immer Faktor 40.
 		
 		/*
 		query_id:
