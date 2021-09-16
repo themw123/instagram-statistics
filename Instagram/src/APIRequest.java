@@ -33,7 +33,7 @@ public class APIRequest {
 		try {
 			response = client.newCall(request).execute();
 		} catch (IOException e) {
-			System.out.println("Error in Request");
+			//System.out.println("Error in Request");
 			//e.printStackTrace()
 		}
 		return response;

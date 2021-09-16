@@ -2,6 +2,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
@@ -20,6 +23,7 @@ public class Instagram{
 	private String sessionId;
 	private boolean sessionIdValid;
 	private String ds_user_id;
+
 	/*
 	time = -System.currentTimeMillis();
 	System.out.println((time + System.currentTimeMillis())/1000 + " Sekunden");
@@ -101,7 +105,7 @@ public class Instagram{
 			e.printStackTrace();
 		}
 		
-		
+		/*
 		Thread t3 = null;
 		Thread t4 = null;
 		if(following != null && followers != null) {
@@ -122,7 +126,7 @@ public class Instagram{
     	System.out.println("Data6-Thread running");
 		Thread t6 = new Thread(() -> setOpenFriendRequestIn());
 		t6.start();
-		
+		*/
 		
 		
 		
@@ -137,16 +141,19 @@ public class Instagram{
 			e.printStackTrace();
 		}
 		
+		
 		Thread t8 = null;
-		Thread t9 = null;
-		if(following != null && followers != null) {
-	    	System.out.println("Data8-Thread running");
+		//Thread t9 = null;
+		if(following != null && followers != null && myPosts != null) {
+		    System.out.println("Data8-Thread running");
 			t8 = new Thread(() -> setMostLikedByFollowers());
 			t8.start();
-			
+				
+			/*
 			t9 = new Thread(() -> setMostCommentedByFollowers());
-	    	System.out.println("Data9-Thread running");
+		    System.out.println("Data9-Thread running");
 			t9.start();
+			*/
 		}
 		
 		
@@ -157,14 +164,14 @@ public class Instagram{
 		//Auf übrige Threads warten
     	try {
     		if(following != null && followers != null) {
-				t3.join();
-				t4.join();
+				//t3.join();
+				//t4.join();
     		}
-			t5.join();
-			t6.join();
-			if(following != null && followers != null) {
+			//t5.join();
+			//t6.join();
+    		if(following != null && followers != null && myPosts != null) {
 				t8.join();
-				t9.join();
+				//t9.join();
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -484,15 +491,10 @@ public class Instagram{
 
 	
 	private void setMostLikedByFollowers() {
-		
-		int max = 200; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
-		
+				
 		int length = followers.length;
 		int counter = 0;
-		String error = null;
-		
 		mostLikedByFollowers = new Object[length][2];
-		
 		for(String name : followers) {
 			mostLikedByFollowers[counter][0] = name;
 			mostLikedByFollowers[counter][1] = 0;
@@ -501,75 +503,30 @@ public class Instagram{
 		
 		
 		
-		
-		String has_next_page = "false";
-		String end_cursor = null;
-		int count = 5000000;
-		int durchlauf = 0;
-		int sumPosts = 0;
-		
-		schleife:
+		//Maximal 12 Threads laufen gleichzeitig.
+        ExecutorService executor = Executors.newFixedThreadPool(12);
+		System.out.println("\tData8pool running");
 		for(String post : myPosts) {
-			durchlauf = 0;
-			
-			do {
-				
-				String url = "";	
-				if(has_next_page.equals("false")) {
-					url = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\"" + post + "\",\"include_reel\":true,\"first\":" + count + "}";
-				}	
-				else if (has_next_page.equals("true")) {
-					url = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\""+ post + "\",\"include_reel\":true,\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}";
-				}	
-				
-				Response response = r.doRequest(url);
-
-				try {			
-					String output = response.body().string();
-					JSONObject jsonObj = new JSONObject(output);
-					error = jsonObj.toString();
-					jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
-					
-					if(durchlauf == 0) {
-						likes = likes + Integer.parseInt(jsonObj.get("count").toString());
-					}
-							
-					has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
-							
-							
-					if(has_next_page.equals("true")) {
-						end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
-					}
-							
-					JSONArray jsonArr = jsonObj.getJSONArray("edges");
-					int len = jsonArr.length();
-					for(int i=0;i<len;i++) {
-								
-						JSONObject liker = jsonArr.getJSONObject(i).getJSONObject("node");
-						String username = liker.getString("username");
-								
-						for(int k=0;k<mostLikedByFollowers.length;k++) {
-							if(mostLikedByFollowers[k][0].equals(username)) {
-								int likes = ((int) mostLikedByFollowers[k][1])+1;
-								mostLikedByFollowers[k][1] = likes;
-							}
-						}
-								
-					}
-							
-							
-				} catch (Exception e) {
-					System.out.println("setMostLikedByFollowers Durchlauf: " + durchlauf + " Post: " + sumPosts + " failed -> " + error);
-					mostLikedByFollowers = null;
-					//e.printStackTrace();
-					break schleife;
-				}
-						
-				durchlauf++;
-					
-			}while(has_next_page.equals("true") && durchlauf < max);	
-			sumPosts++;
+            executor.submit(() -> {
+	            boolean answer = mostLikedByFollowers(post);
+	            if(!answer) {
+	            	executor.shutdownNow();
+	            	
+	            }
+            	
+            });
 		}
+		executor.shutdown();
+		try {
+			while (!executor.awaitTermination(24L, TimeUnit.HOURS)) {
+			    System.out.println("Not yet. Still waiting for termination");
+			}
+		} catch (InterruptedException e) {
+			System.out.println("Waiting for threads failed.");
+			//e.printStackTrace();
+		}
+		System.out.println("\tData8pool finished");
+		
 		
 		
 		if(mostLikedByFollowers != null) {
@@ -617,6 +574,85 @@ public class Instagram{
 		}
 		System.out.println("Data8-Thread finished");
 		
+	}
+	
+	
+	private boolean mostLikedByFollowers(String post) {
+		int durchlauf = 0;
+		String error = null;
+		boolean answer = true;
+		
+		
+		try {	
+			
+			int max = 200; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
+			int count = 5000000;
+			String end_cursor = null;
+			String has_next_page = "false";
+
+
+		
+			do {
+				
+				String url = "";	
+				if(has_next_page.equals("false")) {
+					url = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\"" + post + "\",\"include_reel\":true,\"first\":" + count + "}";
+				}	
+				else if (has_next_page.equals("true")) {
+					url = "https://www.instagram.com/graphql/query/?query_id=17864450716183058&variables={\"shortcode\":\""+ post + "\",\"include_reel\":true,\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}";
+				}	
+				
+				Response response = r.doRequest(url);
+	
+			
+				String output = response.body().string();
+				JSONObject jsonObj = new JSONObject(output);
+				error = jsonObj.toString();
+				jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
+				
+				if(durchlauf == 0) {
+					likes = likes + Integer.parseInt(jsonObj.get("count").toString());
+				}
+							
+				has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
+							
+							
+				if(has_next_page.equals("true")) {
+					end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
+				}
+							
+				JSONArray jsonArr = jsonObj.getJSONArray("edges");
+				int len = jsonArr.length();
+				for(int i=0;i<len;i++) {
+								
+					JSONObject liker = jsonArr.getJSONObject(i).getJSONObject("node");
+					String username = liker.getString("username");
+								
+					for(int k=0;k<mostLikedByFollowers.length;k++) {
+						if(mostLikedByFollowers[k][0].equals(username)) {
+							int likes = ((int) mostLikedByFollowers[k][1])+1;
+							mostLikedByFollowers[k][1] = likes;
+						}
+					}
+								
+				}
+		
+						
+			durchlauf++;
+					
+			}while(has_next_page.equals("true") && durchlauf < max);
+		
+		
+		} catch (Exception e) {
+			if(error != null) {
+				System.out.println("\tsetMostLikedByFollowers Durchlauf: " + durchlauf + " failed -> " + error);
+			}
+			answer = false;
+			//mostLikedByFollowers = null;
+			//e.printStackTrace();
+		}
+		
+		return answer;
 	}
 	
 	
