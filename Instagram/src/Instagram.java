@@ -54,12 +54,14 @@ public class Instagram{
 		this.sessionIdValid = false;
 		this.sessionId = sessionId;
 		this.ds_user_id = ds_user_id;
+		this.postNumber = 0;
 	}
 	
 	public Instagram(String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.sessionIdValid = false;
+		this.postNumber = 0;
 	}
 	
 	
@@ -731,6 +733,7 @@ public class Instagram{
 									
 					}
 				}
+		        postNumber++;
 		
 						
 			durchlauf++;
@@ -741,13 +744,13 @@ public class Instagram{
 		} catch (Exception e) {
 	        if(likerOrCommenter.equals("liker")) {	
 				if(error != null && !error.contains("edge_liked_by")) {
-					System.out.println("setMostLikedByFollowers Durchlauf: " + durchlauf + " failed -> " + error);
+					System.out.println("setMostLikedByFollowers Post: " + postNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 				//mostLikedByFollowers = null;
 	        }
 			else if(likerOrCommenter.equals("commenter")) {
 				if(error != null && !error.contains("edge_media_to_parent_comment")) {
-					System.out.println("setMostCommentedByFollowers Durchlauf: " + durchlauf + " failed -> " + error);
+					System.out.println("setMostCommentedByFollowers Post: " + postNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 			}
 			answer = false;
