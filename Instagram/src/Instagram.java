@@ -485,7 +485,7 @@ public class Instagram{
 	
 	private void setMostLikedByFollowers() {
 		
-		int max = 20; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
+		int max = 200; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
 		
 		int length = followers.length;
 		int counter = 0;
@@ -622,7 +622,7 @@ public class Instagram{
 	
 	private void setMostCommentedByFollowers() {
 		
-		int max = 2; //2 durchläufe entsprechen 100 Kommentare die betrachtet werden, Faktor 50
+		int max = 200; //2 durchläufe entsprechen 100 Kommentare die betrachtet werden, Faktor 50
 		
 		int length = followers.length;
 		int counter = 0;
