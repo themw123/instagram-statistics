@@ -143,17 +143,15 @@ public class Instagram{
 		
 		
 		Thread t8 = null;
-		//Thread t9 = null;
+		Thread t9 = null;
 		if(following != null && followers != null && myPosts != null) {
 		    System.out.println("Data8-Thread running");
 			t8 = new Thread(() -> setMostLikedByFollowers());
 			t8.start();
-				
-			/*
-			t9 = new Thread(() -> setMostCommentedByFollowers());
+			
 		    System.out.println("Data9-Thread running");
+			t9 = new Thread(() -> setMostCommentedByFollowers());
 			t9.start();
-			*/
 		}
 		
 		
@@ -171,7 +169,7 @@ public class Instagram{
 			//t6.join();
     		if(following != null && followers != null && myPosts != null) {
 				t8.join();
-				//t9.join();
+				t9.join();
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
