@@ -605,35 +605,51 @@ public class Instagram{
 			System.out.println("Data8-Thread finished");
 	    }
 		else if(likerOrCommenter.equals("commenter")) {
-			Object[][] mostCommentedByFollowers2 = mostCommentedByFollowers;
-			
-			int counterCommenter = 0;
-			int counterGhoster = 0;
-			for(Object[] follower : mostCommentedByFollowers2) {
-				if((int) follower[1] != 0) {
-					counterCommenter++;
+			if(mostCommentedByFollowers != null) {
+				
+				Arrays.sort(mostCommentedByFollowers, new Comparator<Object[]>() {
+					@Override
+					public int compare(Object[] o1, Object[] o2) {
+				            Integer quantityOne = (Integer) o1[1];
+					    Integer quantityTwo = (Integer) o2[1];
+					   
+					    return quantityTwo.compareTo(quantityOne);
+		
+					}
+				});
+				
+				
+				Object[][] mostCommentedByFollowers2 = mostCommentedByFollowers;
+				
+				int counterCommenter = 0;
+				int counterGhoster = 0;
+				for(Object[] follower : mostCommentedByFollowers2) {
+					if((int) follower[1] != 0) {
+						counterCommenter++;
+					}
+					else {
+						counterGhoster++;
+					}
 				}
-				else {
-					counterGhoster++;
+				
+				mostCommentedByFollowers = new Object [counterCommenter][2];
+				ghostedCommentByFollowers = new String [counterGhoster];
+				
+				counterCommenter = 0;
+				counterGhoster = 0;
+				
+				for(Object[] follower : mostCommentedByFollowers2) {
+					if((int) follower[1] != 0) {
+						mostCommentedByFollowers[counterCommenter][0] = follower[0];
+						mostCommentedByFollowers[counterCommenter][1] = follower[1];
+						counterCommenter++;
+					}
+					else {
+						ghostedCommentByFollowers[counterGhoster] = (String) follower[0];
+						counterGhoster++;
+					}
 				}
-			}
 			
-			mostCommentedByFollowers = new Object [counterCommenter][2];
-			ghostedCommentByFollowers = new String [counterGhoster];
-			
-			counterCommenter = 0;
-			counterGhoster = 0;
-			
-			for(Object[] follower : mostCommentedByFollowers2) {
-				if((int) follower[1] != 0) {
-					mostCommentedByFollowers[counterCommenter][0] = follower[0];
-					mostCommentedByFollowers[counterCommenter][1] = follower[1];
-					counterCommenter++;
-				}
-				else {
-					ghostedCommentByFollowers[counterGhoster] = (String) follower[0];
-					counterGhoster++;
-				}
 			}
 		
 			System.out.println("Data9-Thread finished");
