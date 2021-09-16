@@ -38,7 +38,8 @@ public class Instagram{
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
 	private Vector<String> myPosts;
-	private int postNumber;
+	private int postLikeNumber;
+	private int postCommentNumber;
 	private int likes = 0;
 	private int comments = 0;
 	
@@ -54,14 +55,16 @@ public class Instagram{
 		this.sessionIdValid = false;
 		this.sessionId = sessionId;
 		this.ds_user_id = ds_user_id;
-		this.postNumber = 0;
+		this.postLikeNumber = 0;
+		this.postCommentNumber = 0;
 	}
 	
 	public Instagram(String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.sessionIdValid = false;
-		this.postNumber = 0;
+		this.postLikeNumber = 0;
+		this.postCommentNumber = 0;
 	}
 	
 	
@@ -719,6 +722,7 @@ public class Instagram{
 						}
 									
 					}
+					postLikeNumber++;
 		        }
 				else if(likerOrCommenter.equals("commenter")) {
 					for(int i=0;i<len;i++) {
@@ -732,8 +736,8 @@ public class Instagram{
 						}
 									
 					}
+					postCommentNumber++;
 				}
-		        postNumber++;
 		
 						
 			durchlauf++;
@@ -744,13 +748,13 @@ public class Instagram{
 		} catch (Exception e) {
 	        if(likerOrCommenter.equals("liker")) {	
 				if(error != null && !error.contains("edge_liked_by")) {
-					System.out.println("setMostLikedByFollowers Post: " + postNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+					System.out.println("setMostLikedByFollowers Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 				//mostLikedByFollowers = null;
 	        }
 			else if(likerOrCommenter.equals("commenter")) {
 				if(error != null && !error.contains("edge_media_to_parent_comment")) {
-					System.out.println("setMostCommentedByFollowers Post: " + postNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+					System.out.println("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 			}
 			answer = false;
@@ -793,5 +797,12 @@ public class Instagram{
 	}
 	
 	
+	public int getPostLikeNumber() {
+		return postLikeNumber;
+	}
+	
+	public int getPostCommentNumber() {
+		return postCommentNumber;
+	}
 	
 }
