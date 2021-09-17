@@ -666,7 +666,8 @@ public class Instagram{
 			int count = 5000000;
 			String end_cursor = null;
 			String has_next_page = "false";
-
+			int likes = 0;
+			int comments = 0;
 
 		
 			do {
@@ -695,6 +696,7 @@ public class Instagram{
 				JSONObject jsonObj = new JSONObject(output);
 				error = jsonObj.toString();
 				
+				
 		        if(likerOrCommenter.equals("liker")) {	
 		        	jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
 					if(durchlauf == 0) {
@@ -707,7 +709,7 @@ public class Instagram{
 						comments = comments + Integer.parseInt(jsonObj.get("count").toString());
 					}
 				}
-		        
+
 
 							
 				has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
@@ -728,8 +730,8 @@ public class Instagram{
 									
 						for(int k=0;k<mostLikedByFollowers.length;k++) {
 							if(mostLikedByFollowers[k][0].equals(username)) {
-								int likes = ((int) mostLikedByFollowers[k][1])+1;
-								mostLikedByFollowers[k][1] = likes;
+								int likesFollower = ((int) mostLikedByFollowers[k][1])+1;
+								mostLikedByFollowers[k][1] = likesFollower;
 							}
 						}
 									
@@ -741,8 +743,8 @@ public class Instagram{
 						String username = commenter.getString("username");
 						for(int k=0;k<mostCommentedByFollowers.length;k++) {
 							if(mostCommentedByFollowers[k][0].equals(username)) {
-								int likes = ((int) mostCommentedByFollowers[k][1])+1;
-								mostCommentedByFollowers[k][1] = likes;
+								int likesCommenter = ((int) mostCommentedByFollowers[k][1])+1;
+								mostCommentedByFollowers[k][1] = likesCommenter;
 							}
 						}
 									
@@ -756,9 +758,11 @@ public class Instagram{
 		
 			if(likerOrCommenter.equals("liker")) {	
 				postLikeNumber++;
+				this.likes = this.likes + likes;
 			}
 			else if(likerOrCommenter.equals("commenter")) {
 				postCommentNumber++;
+				this.comments = this.comments + comments;
 			}	
 		
 		} catch (Exception e) {
