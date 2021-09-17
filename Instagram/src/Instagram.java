@@ -38,8 +38,8 @@ public class Instagram{
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
 	private Vector<String> myPosts;
-	private int postLikeNumber;
-	private int postCommentNumber;
+	private int postLikeNumber = 0;
+	private int postCommentNumber = 0;
 	private int likes = 0;
 	private int comments = 0;
 	
@@ -55,16 +55,12 @@ public class Instagram{
 		this.sessionIdValid = false;
 		this.sessionId = sessionId;
 		this.ds_user_id = ds_user_id;
-		this.postLikeNumber = 0;
-		this.postCommentNumber = 0;
 	}
 	
 	public Instagram(String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.sessionIdValid = false;
-		this.postLikeNumber = 0;
-		this.postCommentNumber = 0;
 	}
 	
 	
