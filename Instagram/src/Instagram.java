@@ -734,7 +734,6 @@ public class Instagram{
 						}
 									
 					}
-					postLikeNumber++;
 		        }
 				else if(likerOrCommenter.equals("commenter")) {
 					for(int i=0;i<len;i++) {
@@ -748,7 +747,6 @@ public class Instagram{
 						}
 									
 					}
-					postCommentNumber++;
 				}
 		
 						
@@ -756,6 +754,12 @@ public class Instagram{
 					
 			}while(has_next_page.equals("true") && durchlauf < max);
 		
+			if(likerOrCommenter.equals("liker")) {	
+				postLikeNumber++;
+			}
+			else if(likerOrCommenter.equals("commenter")) {
+				postCommentNumber++;
+			}	
 		
 		} catch (Exception e) {
 	        if(likerOrCommenter.equals("liker")) {	
@@ -773,6 +777,7 @@ public class Instagram{
 			//e.printStackTrace();
 			
 		}
+		
 		
 		return answer;
 	}
@@ -817,4 +822,12 @@ public class Instagram{
 		return postCommentNumber;
 	}
 	
+	public int getPostNumber() {
+		if(myPosts != null) { 
+			return myPosts.size(); 
+		}
+		else {
+			return -1;
+		}
+	}	
 }
