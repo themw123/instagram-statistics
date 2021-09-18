@@ -524,39 +524,61 @@ public class Instagram{
 		
 		
 		//Maximal 12 Threads laufen gleichzeitig.
-        ExecutorService executor = Executors.newFixedThreadPool(12);
-        if(likerOrCommenter.equals("liker")) {
-        	System.out.println("Data8pool running");
-        }
-		else if(likerOrCommenter.equals("commenter")) {
-    		System.out.println("Data9pool running");
-        }
-		for(String post : myPosts) {
-            executor.submit(() -> {
-            	boolean answer = true;
-                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
-                
-	            if(!answer) {
-	            	executor.shutdownNow();
-	            }
-            	
-            });
-		}
-		executor.shutdown();
-		try {
-			while (!executor.awaitTermination(24L, TimeUnit.HOURS)) {
-			    System.out.println("Not yet. Still waiting for termination");
+		if(likerOrCommenter.equals("liker")) {
+	        ExecutorService executor1 = Executors.newFixedThreadPool(6);
+	        System.out.println("Data8pool running");
+	        
+			for(String post : myPosts) {
+	            executor1.submit(() -> {
+	            	boolean answer = true;
+	                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
+	                
+		            if(!answer) {
+		            	executor1.shutdownNow();
+		            }
+	            	
+	            });
 			}
-		} catch (InterruptedException e) {
-			System.out.println("Waiting for Threads failed.");
-			//e.printStackTrace();
+			executor1.shutdown();
+			try {
+				while (!executor1.awaitTermination(24L, TimeUnit.HOURS)) {
+				    System.out.println("Not yet. Still waiting for termination");
+				}
+			} catch (InterruptedException e) {
+				System.out.println("Waiting for Threads failed.");
+				//e.printStackTrace();
+			}
+			
+	        System.out.println("Data8pool finished");
+
 		}
-		
-        if(likerOrCommenter.equals("liker")) {
-        	System.out.println("Data8pool finished");
-        }
 		else if(likerOrCommenter.equals("commenter")) {
-        	System.out.println("Data9pool finished");
+	        ExecutorService executor2 = Executors.newFixedThreadPool(12);
+	        System.out.println("Data9pool running");
+	        
+			for(String post : myPosts) {
+	            executor2.submit(() -> {
+	            	boolean answer = true;
+	                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
+	                
+		            if(!answer) {
+		            	executor2.shutdownNow();
+		            }
+	            	
+	            });
+			}
+			executor2.shutdown();
+			try {
+				while (!executor2.awaitTermination(24L, TimeUnit.HOURS)) {
+				    System.out.println("Not yet. Still waiting for termination");
+				}
+			} catch (InterruptedException e) {
+				System.out.println("Waiting for Threads failed.");
+				//e.printStackTrace();
+			}
+			
+	        System.out.println("Data9pool finished");
+
 		}
         
         		
