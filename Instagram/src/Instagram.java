@@ -23,6 +23,8 @@ public class Instagram{
 	private String sessionId;
 	private boolean sessionIdValid;
 	private String ds_user_id;
+	private Vector<String> dataPoolLog;
+
 	/*
 	time = -System.currentTimeMillis();
 	System.out.println((time + System.currentTimeMillis())/1000 + " Sekunden");
@@ -34,7 +36,7 @@ public class Instagram{
 	private String[] followers;
 	private Vector<String> notFollowingYou;
 	private Vector<String> youFollowingNot;
-	private Vector<String> mutual;
+	private Vector<String> mutual = new Vector<String>();
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
 	private Vector<String> myPosts;
@@ -152,9 +154,11 @@ public class Instagram{
 			t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 			t8.start();
 			
+			
 		    System.out.println("Data9-Thread running");
 			t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
 			t9.start();
+			
 		}
 		
 		
@@ -175,6 +179,7 @@ public class Instagram{
     		if(following != null && followers != null && myPosts != null) {
 				t8.join();
 				t9.join();
+		        setDataPoolLog();
 				System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
 			}
 		} catch (InterruptedException e) {
@@ -271,9 +276,7 @@ public class Instagram{
 	
 	
 	private void setNotFollowingYou() {
-		
-		mutual = new Vector<String>();
-		
+				
 		notFollowingYou = new Vector<String>();
 
 		boolean drin = false;
@@ -495,6 +498,9 @@ public class Instagram{
 
 	
 	private void setMostLikedOrCommentedByFollowers(String likerOrCommenter) {
+				
+		dataPoolLog = new Vector<String>();
+
 		
 		int length = followers.length;
 		int counter = 0;
@@ -552,7 +558,8 @@ public class Instagram{
 		else if(likerOrCommenter.equals("commenter")) {
         	System.out.println("Data9pool finished");
 		}
-		
+        
+        		
 		
         if(likerOrCommenter.equals("liker")) {
 			if(mostLikedByFollowers != null) {
@@ -766,17 +773,19 @@ public class Instagram{
 			}	
 		
 		} catch (Exception e) {
-	        if(likerOrCommenter.equals("liker")) {	
-				if(error != null && !error.contains("edge_liked_by")) {
-					System.out.println("setMostLikedByFollowers Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
-				}
-				//mostLikedByFollowers = null;
-	        }
-			else if(likerOrCommenter.equals("commenter")) {
-				if(error != null && !error.contains("edge_media_to_parent_comment")) {
-					System.out.println("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+			
+			if(likerOrCommenter.equals("liker")) {	
+				if(error != null && !error.contains("shortcode_media")) {
+					dataPoolLog.add("setMostLikedByFollowers Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 			}
+			else if(likerOrCommenter.equals("commenter")) {
+				if(error != null && !error.contains("shortcode_media")) {
+					dataPoolLog.add("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+				}
+			}
+			
+
 			answer = false;
 			//e.printStackTrace();
 			
@@ -815,6 +824,29 @@ public class Instagram{
 	    	}
 	    }
 	    catch(InterruptedException ie) { }
+	}
+	
+	private void setDataPoolLog() {
+		String errorLiker = null;
+		String errorCommenter = null;
+		boolean print1 = true;
+		boolean print2 = true;
+		
+		for(String error : dataPoolLog) {
+			if(error.contains("setMostLikedByFollowers")) {
+				if(print1) {
+				System.out.println(error);
+				print1 = false;
+				}
+			}
+			else if(error.contains("setMostCommentedByFollowers")) {
+				if(print2) {
+				System.out.println(error);
+				print2 = false;
+				}
+			}
+		}
+		
 	}
 	
 	
