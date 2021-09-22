@@ -683,9 +683,9 @@ public class Instagram{
 	
 	
 	private boolean mostLikedOrCommentedByFollowers(String post, String likerOrCommenter) {
+		boolean answer = true;
 		int durchlauf = 0;
 		String error = null;
-		boolean answer = true;
 		
 		
 		try {	
@@ -805,20 +805,23 @@ public class Instagram{
 		
 		catch (Exception e) {
 			
-			if(likerOrCommenter.equals("liker")) {	
-				if(error != null && !error.contains("shortcode_media")) {
+			if(error.contains("message")) {
+				if(likerOrCommenter.equals("liker")) {	
 					dataPoolLog.add("setMostLikedByFollowers Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
-			}
-			else if(likerOrCommenter.equals("commenter")) {
-				if(error != null && !error.contains("shortcode_media")) {
+				else if(likerOrCommenter.equals("commenter")) {
 					dataPoolLog.add("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
+				answer = false;
 			}
-			
-
-			answer = false;
-			//e.printStackTrace();
+			else {
+				if(likerOrCommenter.equals("liker")) {	
+					dataPoolLog.add("setMostLikedByFollowers REQUESTGING Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+				}
+				else if(likerOrCommenter.equals("commenter")) {
+					dataPoolLog.add("setMostCommentedByFollowers REQUESTGING Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+				}
+			}
 			
 		}
 		
