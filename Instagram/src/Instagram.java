@@ -535,19 +535,18 @@ public class Instagram{
 	                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
 	                
 		            if(!answer) {
-		            	executor1.shutdownNow();
+		    			executor1.shutdownNow();
 		            }
 	            	
 	            });
 			}
 			executor1.shutdown();
 			try {
-				while (!executor1.awaitTermination(24L, TimeUnit.HOURS)) {
-				    System.out.println("Not yet. Still waiting for termination");
-				}
+			    if (!executor1.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
+			        executor1.shutdownNow();
+			    } 
 			} catch (InterruptedException e) {
-				System.out.println("Waiting for Threads failed.");
-				//e.printStackTrace();
+			    executor1.shutdownNow();
 			}
 			
 	        //System.out.println("Data8pool finished");
@@ -563,19 +562,18 @@ public class Instagram{
 	                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
 	                
 		            if(!answer) {
-		            	executor2.shutdownNow();
+		    			executor2.shutdownNow();
 		            }
 	            	
 	            });
 			}
 			executor2.shutdown();
 			try {
-				while (!executor2.awaitTermination(24L, TimeUnit.HOURS)) {
-				    System.out.println("Not yet. Still waiting for termination");
-				}
+			    if (!executor2.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
+			        executor2.shutdownNow();
+			    } 
 			} catch (InterruptedException e) {
-				System.out.println("Waiting for Threads failed.");
-				//e.printStackTrace();
+			    executor2.shutdownNow();
 			}
 			
 	        //System.out.println("Data9pool finished");
