@@ -15,7 +15,8 @@ import org.json.JSONObject;
 import okhttp3.Response;
 
 public class Instagram{
-	private Object LogData = new Object();
+	private Object CountLiker = new Object();
+	private Object CountCommenter = new Object();
 
 	
 	private String username;
@@ -83,19 +84,18 @@ public class Instagram{
 			}
 		}
 		System.out.println("Login-Thread finished");
-		startThread("LogData");
 	}
 	
 
 	
     public void data(){
 		
-    	System.out.println("Data1-Thread running");
+    	//System.out.println("Data1-Thread running");
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
 		t1.start();
 		
 		
-    	System.out.println("Data2-Thread running");
+    	//System.out.println("Data2-Thread running");
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
 		t2.start();
 		
@@ -112,28 +112,28 @@ public class Instagram{
 		Thread t3 = null;
 		Thread t4 = null;
 		if(following != null && followers != null) {
-	    	System.out.println("Data3-Thread running");
+	    	//System.out.println("Data3-Thread running");
 			t3 = new Thread(() -> setNotFollowingYou());
 			t3.start();
 			
-	    	System.out.println("Data4-Thread running");
+	    	//System.out.println("Data4-Thread running");
 			t4 = new Thread(() -> setYouFollowingNot());
 			t4.start();
 		}
 		
 		
-    	System.out.println("Data5-Thread running");
+    	//System.out.println("Data5-Thread running");
 		Thread t5 = new Thread(() -> setOpenFriendRequestOut());
 		t5.start();
 		
-    	System.out.println("Data6-Thread running");
+    	//System.out.println("Data6-Thread running");
 		Thread t6 = new Thread(() -> setOpenFriendRequestIn());
 		t6.start();
 		
 		
 		
 		
-    	System.out.println("Data7-Thread running");
+    	//System.out.println("Data7-Thread running");
 		Thread t7 = new Thread(() -> setMyPosts());
 		t7.start();
 		
@@ -149,13 +149,13 @@ public class Instagram{
 		Thread t8 = null;
 		Thread t9 = null;
 		if(following != null && followers != null && myPosts != null) {
-			System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
-		    System.out.println("Data8-Thread running");
+			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
+		    //System.out.println("Data8-Thread running");
 			t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 			t8.start();
 			
 			
-		    System.out.println("Data9-Thread running");
+		    //System.out.println("Data9-Thread running");
 			t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
 			t9.start();
 			
@@ -180,7 +180,7 @@ public class Instagram{
 				t8.join();
 				t9.join();
 		        setDataPoolLog();
-				System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
+				//System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -188,7 +188,6 @@ public class Instagram{
     	
        //Main Thread starten
 		System.out.println("Data-Thread finished");
-		startThread("LogData");
 	}
 	
 	
@@ -265,13 +264,15 @@ public class Instagram{
 			//e.printStackTrace();
 		}
 		
-
+		
+		/*
 		if(urlParameter.equals("following")) {
 			System.out.println("Data1-Thread finished");
 		}
 		else if(urlParameter.equals("followers")) {
 			System.out.println("Data2-Thread finished");
 		}
+		*/
 	}
 	
 	
@@ -294,7 +295,7 @@ public class Instagram{
 			drin = false;
 		}
 		
-		System.out.println("Data3-Thread finished");
+		//System.out.println("Data3-Thread finished");
 
 	    
 	}
@@ -319,7 +320,7 @@ public class Instagram{
 			drin = false;
 		}
 	    
-		System.out.println("Data4-Thread finished");
+		//System.out.println("Data4-Thread finished");
 
 		
 	}
@@ -374,7 +375,7 @@ public class Instagram{
 			durchlauf++;
 		}while(cursor != null);
 		
-		System.out.println("Data5-Thread finished");
+		//System.out.println("Data5-Thread finished");
 
 	}
 	
@@ -409,7 +410,7 @@ public class Instagram{
 			
 		}
 			
-		System.out.println("Data6-Thread finished");
+		//System.out.println("Data6-Thread finished");
 
 	}
 	
@@ -491,7 +492,7 @@ public class Instagram{
 				
 		}while(has_next_page.equals("true") && durchlauf < max);		
 				
-		System.out.println("Data7-Thread finished");
+		//System.out.println("Data7-Thread finished");
 
 	}
 	
@@ -525,8 +526,8 @@ public class Instagram{
 		
 		//Maximal 12 Threads laufen gleichzeitig.
 		if(likerOrCommenter.equals("liker")) {
-	        ExecutorService executor1 = Executors.newFixedThreadPool(6);
-	        System.out.println("Data8pool running");
+	        ExecutorService executor1 = Executors.newFixedThreadPool(12);
+	        //System.out.println("Data8pool running");
 	        
 			for(String post : myPosts) {
 	            executor1.submit(() -> {
@@ -549,12 +550,12 @@ public class Instagram{
 				//e.printStackTrace();
 			}
 			
-	        System.out.println("Data8pool finished");
+	        //System.out.println("Data8pool finished");
 
 		}
 		else if(likerOrCommenter.equals("commenter")) {
 	        ExecutorService executor2 = Executors.newFixedThreadPool(12);
-	        System.out.println("Data9pool running");
+	        //System.out.println("Data9pool running");
 	        
 			for(String post : myPosts) {
 	            executor2.submit(() -> {
@@ -577,7 +578,7 @@ public class Instagram{
 				//e.printStackTrace();
 			}
 			
-	        System.out.println("Data9pool finished");
+	        //System.out.println("Data9pool finished");
 
 		}
         
@@ -627,7 +628,7 @@ public class Instagram{
 					}
 				}
 			}
-			System.out.println("Data8-Thread finished");
+			//System.out.println("Data8-Thread finished");
 	    }
 		else if(likerOrCommenter.equals("commenter")) {
 			if(mostCommentedByFollowers != null) {
@@ -677,7 +678,7 @@ public class Instagram{
 			
 			}
 		
-			System.out.println("Data9-Thread finished");
+			//System.out.println("Data9-Thread finished");
 		}
 				
 	}
@@ -784,17 +785,27 @@ public class Instagram{
 			durchlauf++;
 					
 			}while(has_next_page.equals("true") && durchlauf < max);
-		
-			if(likerOrCommenter.equals("liker")) {	
-				postLikeNumber++;
-				this.likes = this.likes + likes;
+
+
+			
+			if(likerOrCommenter.equals("liker")) {
+				synchronized(CountLiker)
+				{
+					postLikeNumber++;
+					this.likes = this.likes + likes;
+				}
 			}
 			else if(likerOrCommenter.equals("commenter")) {
-				postCommentNumber++;
-				this.comments = this.comments + comments;
+				synchronized(CountCommenter)
+				{
+					postCommentNumber++;
+					this.comments = this.comments + comments;
+				}
 			}	
+			
+		} 
 		
-		} catch (Exception e) {
+		catch (Exception e) {
 			
 			if(likerOrCommenter.equals("liker")) {	
 				if(error != null && !error.contains("shortcode_media")) {
@@ -825,32 +836,10 @@ public class Instagram{
 	public boolean getSessionIdValid() {
 		return sessionIdValid;
 	}
+
 	
-	public void startThread(String obj) {
-		if(obj.equals("LogData")) {
-	        synchronized(LogData)
-	        {
-	        	LogData.notify();
-	        }
-		}
-	}
-	
-	public void waitThread(String obj) {
-	    try
-	    {
-	    	if(obj.equals("LogData")) {		
-		      synchronized(LogData)
-		      {
-		    	  LogData.wait();
-		      }
-	    	}
-	    }
-	    catch(InterruptedException ie) { }
-	}
 	
 	private void setDataPoolLog() {
-		String errorLiker = null;
-		String errorCommenter = null;
 		boolean print1 = true;
 		boolean print2 = true;
 		
