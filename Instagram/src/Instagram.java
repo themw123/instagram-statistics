@@ -33,7 +33,6 @@ public class Instagram{
 	
 	private APIRequest r;
 	
-	private boolean data1;
 	private String[] following;
 	private String[] followers;
 	private Vector<String> notFollowingYou;
@@ -89,10 +88,8 @@ public class Instagram{
 	
 
 	
-    public void data1(){
+    public void data(){
 		
-    	data1 = true;
-    	
     	//System.out.println("Data1-Thread running");
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
 		t1.start();
@@ -134,11 +131,39 @@ public class Instagram{
 		t6.start();
 		
 		
+		
+		
     	//System.out.println("Data7-Thread running");
 		Thread t7 = new Thread(() -> setMyPosts());
 		t7.start();
 		
-
+		//Auf Posts warten
+		try {
+			t7.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		Thread t8 = null;
+		Thread t9 = null;
+		if(following != null && followers != null && myPosts != null) {
+			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
+		    //System.out.println("Data8-Thread running");
+			t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
+			t8.start();
+			
+			
+		    //System.out.println("Data9-Thread running");
+			t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
+			t9.start();
+			
+		}
+		
+		
+		
+		
 		
 		
 		
@@ -151,70 +176,18 @@ public class Instagram{
     		}
 			t5.join();
 			t6.join();
-			t7.join();
+    		if(following != null && followers != null && myPosts != null) {
+				t8.join();
+				t9.join();
+		        setDataPoolLog();
+				//System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-    	
+
 	}
 	
-    
-    
-    
-    
-    
-    
-    
-    public void data2() {
-    	//username, sessionId und ds_user_id aus App holen und den constructor übergeben!!!!!
-		//posts und Follower/Following holen ODER posts und Follower/Following aus App holen
-    	if(!data1) {
-        	//System.out.println("Data1-Thread running");
-    		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
-    		t1.start();
-    		
-        	//System.out.println("Data2-Thread running");
-    		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
-    		t2.start();
-    		
-    		Thread t7 = new Thread(() -> setMyPosts());
-    		t7.start();
-    		
-			try {
-				t1.join();
-				t2.join();
-				t7.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-    	}
-    	
-    	
-		if(following != null && followers != null && myPosts != null) {
-			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
-		    //System.out.println("Data8-Thread running");
-			Thread t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
-			t8.start();
-			
-			
-		    //System.out.println("Data9-Thread running");
-			Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
-			t9.start();
-			
-			
-			try {
-				t8.join();
-				t9.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-	        setDataPoolLog();
-			//System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
-		}
-		
-		
-    }
 	
 	
 	
