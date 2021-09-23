@@ -2,7 +2,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -463,10 +462,9 @@ public class Instagram{
 				else {
 					jsonObj = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
 				}
-						
+					
 				has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
-						
-						
+								
 				if(has_next_page.equals("true")) {
 					end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
 				}
@@ -475,7 +473,14 @@ public class Instagram{
 				int length = jsonArr.length();
 				for(int i=0;i<length;i++) {
 					JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
-							
+				
+					try {
+						likes = likes + Integer.parseInt(post.getJSONObject("edge_liked_by").get("count").toString());
+					}catch(Exception e) {
+						likes = likes + Integer.parseInt(post.getJSONObject("edge_media_preview_like").get("count").toString());
+					}
+					comments = comments + Integer.parseInt(post.getJSONObject("edge_media_to_comment").get("count").toString());
+					
 					String shortcode = post.getString("shortcode");
 					myPosts.add(shortcode);
 				}
@@ -675,9 +680,10 @@ public class Instagram{
 			int count = 5000000;
 			String end_cursor = null;
 			String has_next_page = "false";
+			/*
 			int likes = 0;
 			int comments = 0;
-
+			*/
 		
 			do {
 				
@@ -708,17 +714,21 @@ public class Instagram{
 				
 		        if(likerOrCommenter.equals("liker")) {	
 		        	jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_liked_by");
-					if(durchlauf == 0) {
+					/*
+		        	if(durchlauf == 0) {
 						likes = likes + Integer.parseInt(jsonObj.get("count").toString());
 					}
+					*/
 		        }
 				else if(likerOrCommenter.equals("commenter")) {
 					jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_parent_comment");
+					/*
 					if(durchlauf == 0) {
 						comments = comments + Integer.parseInt(jsonObj.get("count").toString());
 					}
+					*/
 				}
-
+				 
 
 							
 				has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
@@ -771,14 +781,14 @@ public class Instagram{
 				synchronized(CountLiker)
 				{
 					postLikeNumber++;
-					this.likes = this.likes + likes;
+					//this.likes = this.likes + likes;
 				}
 			}
 			else if(likerOrCommenter.equals("commenter")) {
 				synchronized(CountCommenter)
 				{
 					postCommentNumber++;
-					this.comments = this.comments + comments;
+					//this.comments = this.comments + comments;
 				}
 			}	
 			
