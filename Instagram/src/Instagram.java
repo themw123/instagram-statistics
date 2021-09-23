@@ -87,7 +87,7 @@ public class Instagram{
 	
 
 	
-    public void data(){
+    public void data1(){
 		
     	//System.out.println("Data1-Thread running");
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
@@ -144,25 +144,7 @@ public class Instagram{
 		}
 		
 		
-		
-		Thread t8 = null;
-		Thread t9 = null;
-		if(following != null && followers != null && myPosts != null) {
-			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
-		    //System.out.println("Data8-Thread running");
-			t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
-			t8.start();
-			
-			
-		    //System.out.println("Data9-Thread running");
-			t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
-			t9.start();
-			
-		}
-		
-		
-		
-		
+	
 		
 		
 		
@@ -175,12 +157,7 @@ public class Instagram{
     		}
 			t5.join();
 			t6.join();
-    		if(following != null && followers != null && myPosts != null) {
-				t8.join();
-				t9.join();
-		        setDataPoolLog();
-				//System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
-			}
+			t7.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -189,6 +166,46 @@ public class Instagram{
 	
 	
 	
+    
+    
+    
+    
+    
+    
+    
+    public void data2() {
+
+		if(following != null && followers != null && myPosts != null) {
+			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
+		    //System.out.println("Data8-Thread running");
+			Thread t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
+			t8.start();
+			
+			
+		    //System.out.println("Data9-Thread running");
+			Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
+			t9.start();
+			
+			
+			try {
+				t8.join();
+				t9.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+	        setDataPoolLog();
+			//System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
+		}
+		
+		
+    }
+    
+    
+    
+    
+    
+    
+    
 	
 	private void setSession() {
 		//session id mit Instagram4j holen
