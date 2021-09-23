@@ -486,7 +486,7 @@ public class Instagram{
 				}
 			} catch (Exception e) {
 				System.out.println("setMyPosts Post: " + durchlauf + " failed -> " + error);
-				myPosts = null;
+				//myPosts = null;
 				//e.printStackTrace();
 				break;
 			}
