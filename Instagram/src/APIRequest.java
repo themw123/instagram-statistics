@@ -28,7 +28,7 @@ public class APIRequest {
 			.method("GET", null)
 			.addHeader("X-IG-App-ID", "936619743392459")
 			.addHeader("Cookie", "sessionid=" + sessionId)
-			.build();;
+			.build();
 
 		try {
 			response = client.newCall(request).execute();
