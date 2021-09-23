@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.CookieStore;
@@ -17,7 +18,6 @@ import okhttp3.Response;
 public class Instagram{
 	private Object CountLiker = new Object();
 	private Object CountCommenter = new Object();
-
 	
 	private String username;
 	private String password;
@@ -525,61 +525,42 @@ public class Instagram{
 		
 		
 		//Maximal 12 Threads laufen gleichzeitig.
-		if(likerOrCommenter.equals("liker")) {
-	        ExecutorService executor1 = Executors.newFixedThreadPool(12);
-	        //System.out.println("Data8pool running");
-	        
-			for(String post : myPosts) {
-	            executor1.submit(() -> {
-	            	boolean answer = true;
-	                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
-	                
-		            if(!answer) {
-		    			executor1.shutdownNow();
-		            }
-	            	
-	            });
-			}
-			executor1.shutdown();
-			try {
-			    if (!executor1.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
-			        executor1.shutdownNow();
-			    } 
-			} catch (InterruptedException e) {
-			    executor1.shutdownNow();
-			}
-			
-	        //System.out.println("Data8pool finished");
-
-		}
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(12);
+        if(likerOrCommenter.equals("liker")) {
+        	//System.out.println("Data8pool running");
+        }
 		else if(likerOrCommenter.equals("commenter")) {
-	        ExecutorService executor2 = Executors.newFixedThreadPool(12);
-	        //System.out.println("Data9pool running");
-	        
-			for(String post : myPosts) {
-	            executor2.submit(() -> {
-	            	boolean answer = true;
-	                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
-	                
-		            if(!answer) {
-		    			executor2.shutdownNow();
-		            }
-	            	
-	            });
-			}
-			executor2.shutdown();
-			try {
-			    if (!executor2.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
-			        executor2.shutdownNow();
-			    } 
-			} catch (InterruptedException e) {
-			    executor2.shutdownNow();
-			}
-			
-	        //System.out.println("Data9pool finished");
-
+    		//System.out.println("Data9pool running");
+        }
+		for(String post : myPosts) {
+            executor.submit(() -> {
+            	boolean answer = true;
+                answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
+                
+	            if(!answer) {
+	            	executor.shutdownNow();
+	            }
+            	
+            });
 		}
-        
+		executor.shutdown();
+		try {
+			while (!executor.awaitTermination(24L, TimeUnit.HOURS)) {
+			    System.out.println("Not yet. Still waiting for termination");
+			}
+		} catch (InterruptedException e) {
+			System.out.println("Waiting for Threads failed.");
+			//e.printStackTrace();
+		}
+		
+		/*
+        if(likerOrCommenter.equals("liker")) {
+        	System.out.println("Data8pool finished");
+        }
+		else if(likerOrCommenter.equals("commenter")) {
+        	System.out.println("Data9pool finished");
+		}
+        */
         		
 		
         if(likerOrCommenter.equals("liker")) {
@@ -813,14 +794,6 @@ public class Instagram{
 					dataPoolLog.add("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 				answer = false;
-			}
-			else {
-				if(likerOrCommenter.equals("liker")) {	
-					dataPoolLog.add("setMostLikedByFollowers REQUESTGING Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
-				}
-				else if(likerOrCommenter.equals("commenter")) {
-					dataPoolLog.add("setMostCommentedByFollowers REQUESTGING Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
-				}
 			}
 			
 		}
