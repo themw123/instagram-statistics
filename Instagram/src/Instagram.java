@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
@@ -32,11 +34,11 @@ public class Instagram{
 	
 	private APIRequest r;
 	
-	private String[] following;
-	private String[] followers;
-	private Vector<String> notFollowingYou;
-	private Vector<String> youFollowingNot;
-	private Vector<String> mutual = new Vector<String>();
+	private Object[][] following;
+	private Object[][] followers;
+	private Vector<Object[]> notFollowingYou;
+	private Vector<Object[]> youFollowingNot;
+	private Vector<Object[]> mutual = new Vector<Object[]>();
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
 	private Vector<Object[]> myPosts;
@@ -190,11 +192,14 @@ public class Instagram{
 			try {
 				t8.join();
 				t9.join();
-				sortPosts();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 	        setDataPoolLog();
+			sortVec(myPosts, "likes", "down");
+			sortVec(youFollowingNot, "likes", "down");
+			sortVec(mutual, "likes", "down");
+			sortObj(followers, "likes", "down");
 			//System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
 		}
 		
@@ -253,28 +258,35 @@ public class Instagram{
 			
 			JSONArray ja_users = jsonObj.getJSONArray("users");
 			int length = ja_users.length();
-					
-			String[] user = new String[length];
+			
+			if(urlParameter.equals("following") && following == null) {
+				following = new Object[length][2];
+			}
+			else if(urlParameter.equals("followers") && followers == null) {
+				followers = new Object[length][4];
+			}
+
+			
 			for(int i=0;i<length;i++) {
 				JSONObject userJson = ja_users.getJSONObject(i);
 				String username = userJson.getString("username");
-				user[i] = username;
-			}
-					
-			if(urlParameter.equals("following")) {
-				this.following = user;
-			}
-			else if(urlParameter.equals("followers")) {
-				this.followers = user;
+				if(urlParameter.equals("following")) {
+					this.following[i][0] = username; 
+				}
+				else if(urlParameter.equals("followers")) {
+					this.followers[i][0] = username;
+					this.followers[i][1] = 0;
+					this.followers[i][2] = 0; 
+				}
 			}
 					
 		} catch (Exception e) {
 			System.out.println("setFollowingAndFollowers failed -> " + error);
 			if(urlParameter.equals("following")) {
-				following = null;
+				//following = null;
 			}
 			else if(urlParameter.equals("followers")) {
-				followers = null;
+				//followers = null;
 			}
 			//e.printStackTrace();
 		}
@@ -293,19 +305,21 @@ public class Instagram{
 	
 	private void setNotFollowingYou() {
 				
-		notFollowingYou = new Vector<String>();
+		notFollowingYou = new Vector<Object[]>();
 
 		boolean drin = false;
-		for(String foing : following) {
-			for(String foers : followers) {
+		for(Object[] foingObj : following) {
+			String foing = (String) foingObj[0];
+			for(Object[] foersObj : followers) {
+				String foers = (String) foersObj[0];
 				if(foing.equals(foers)) {
 					drin = true;
-					mutual.add(foing);
+					mutual.add(foingObj);
 					break;
 				}
 			}
 			if(!drin) {
-				notFollowingYou.add(foing);
+				notFollowingYou.add(foingObj);
 			}
 			drin = false;
 		}
@@ -316,21 +330,23 @@ public class Instagram{
 	}
 	
 	private void setYouFollowingNot() {
-		youFollowingNot = new Vector<String>();
+		youFollowingNot = new Vector<Object[]>();
 
 		boolean drin = false;
-		for(String foers : followers) {
-			for(String foing : following) {
+		for(Object[] foersObj : followers) {
+			String foers = (String) foersObj[0];
+			for(Object[] foingObj : following) {
+				String foing = (String) foingObj[0];
 				if(foing.equals(foers)) {
 					drin = true;
-					if(!mutual.contains(foers)) {
-					mutual.add(foers);
+					if(!mutual.contains(foersObj)) {
+					mutual.add(foersObj);
 					}
 					break;
 				}
 			}
 			if(!drin) {
-				youFollowingNot.add(foers);
+				youFollowingNot.add(foersObj);
 			}
 			drin = false;
 		}
@@ -528,23 +544,6 @@ public class Instagram{
 	}
 	
 	
-	
-	private void sortPosts() {
-		/*
-		Arrays.sort(myPosts, new Comparator<Vector<Object[]>> {
-			@Override
-			public int compare(Object[] o1, Object[] o2) {
-		            Integer quantityOne = (Integer) o1[1];
-			    Integer quantityTwo = (Integer) o2[1];
-			   
-			    return quantityTwo.compareTo(quantityOne);
-
-			}
-		});
-		*/
-	}
-	
-
 
 	
 	
@@ -552,28 +551,7 @@ public class Instagram{
 				
 		dataPoolLog = new Vector<String>();
 
-		
-		int length = followers.length;
-		int counter = 0;
-		
-		if(likerOrCommenter.equals("liker")) {
-			mostLikedByFollowers = new Object[length][2];
-			for(String name : followers) {
-				mostLikedByFollowers[counter][0] = name;
-				mostLikedByFollowers[counter][1] = 0;
-				counter++;
-			}
-		}
-		else if(likerOrCommenter.equals("commenter")) {
-			mostCommentedByFollowers = new Object[length][2];
-			for(String name : followers) {
-				mostCommentedByFollowers[counter][0] = name;
-				mostCommentedByFollowers[counter][1] = 0;
-				counter++;
-			}
-		}
-		
-		
+	
 		//Maximal 12 Threads laufen gleichzeitig.
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(12);
         /*
@@ -616,6 +594,7 @@ public class Instagram{
         */
         		
 		
+		/*
         if(likerOrCommenter.equals("liker")) {
 			if(mostLikedByFollowers != null) {
 				Arrays.sort(mostLikedByFollowers, new Comparator<Object[]>() {
@@ -712,6 +691,7 @@ public class Instagram{
 		
 			//System.out.println("Data9-Thread finished");
 		}
+        */
 				
 	}
 	
@@ -795,10 +775,10 @@ public class Instagram{
 						JSONObject liker = jsonArr.getJSONObject(i).getJSONObject("node");
 						String username = liker.getString("username");
 									
-						for(int k=0;k<mostLikedByFollowers.length;k++) {
-							if(mostLikedByFollowers[k][0].equals(username)) {
-								int likesFollower = ((int) mostLikedByFollowers[k][1])+1;
-								mostLikedByFollowers[k][1] = likesFollower;
+						for(int k=0;k<followers.length;k++) {
+							if(followers[k][0].equals(username)) {
+								int likesFollower = ((int) followers[k][1])+1;
+								followers[k][1] = likesFollower;
 							}
 						}
 									
@@ -808,10 +788,10 @@ public class Instagram{
 					for(int i=0;i<len;i++) {
 						JSONObject commenter = jsonArr.getJSONObject(i).getJSONObject("node").getJSONObject("owner");
 						String username = commenter.getString("username");
-						for(int k=0;k<mostCommentedByFollowers.length;k++) {
-							if(mostCommentedByFollowers[k][0].equals(username)) {
-								int likesCommenter = ((int) mostCommentedByFollowers[k][1])+1;
-								mostCommentedByFollowers[k][1] = likesCommenter;
+						for(int k=0;k<followers.length;k++) {
+							if(followers[k][0].equals(username)) {
+								int likesCommenter = ((int) followers[k][2])+1;
+								followers[k][2] = likesCommenter;
 							}
 						}
 									
@@ -892,6 +872,91 @@ public class Instagram{
 		
 	}
 	
+	public void sortVec(Vector<Object[]> vec, String likesOrcomments, String order) {
+		
+		boolean run;
+		int count1 = 0, count2 = 0;
+		while(true) { 
+			run = false;
+			for(int k=0;k<vec.size()-1;k++) {
+				Object[] obj1 = vec.get(k);
+				Object[] obj2 = vec.get(k+1);
+	
+				if(likesOrcomments.equals("likes")) {
+					count1 = (int) obj1[1];
+					count2 = (int) obj2[1];
+				}
+				else if(likesOrcomments.equals("comments")) {
+					count1 = (int) obj1[2];
+					count2 = (int) obj2[2];
+				}
+				
+				if(order.equals("down")) {
+					if(count2 > count1) {
+						Collections.swap(vec,k,k+1);
+						run = true;
+					}
+				}
+				else if(order.equals("up")) {
+					if(count2 < count1) {
+						Collections.swap(vec,k,k+1);
+						run = true;
+					}
+				}
+			}
+			if(!run) {
+				break;
+			}
+		}
+		//System.out.println("");
+	}
+	
+	public void sortObj(Object[][] obj, String likesOrcomments, String order) {
+		
+		boolean run;
+		int count1 = 0, count2 = 0;
+		while(true) { 
+			run = false;
+			for(int k=0;k<obj.length-1;k++) {
+				
+				
+				Object[] obj1 = obj[k];
+				Object[] obj2 = obj[k+1];
+				
+				if(likesOrcomments.equals("likes")) {
+					count1 = (int) obj1[1];
+					count2 = (int) obj2[1];
+				}
+				else if(likesOrcomments.equals("comments")) {
+					count1 = (int) obj1[2];
+					count2 = (int) obj2[2];
+				}
+				
+
+				if(order.equals("down")) {
+					if(count2 > count1) {
+						Object[] hilf = obj1;
+						obj[k] = obj2;
+						obj[k+1] = hilf;
+						run = true;
+					}
+				}
+				else if(order.equals("up")) {
+					if(count2 < count1) {
+						Object[] hilf = obj1;
+						obj[k] = obj2;
+						obj[k+1] = hilf;
+						run = true;
+					}
+				}
+				
+			}
+			if(!run) {
+				break;
+			}
+		}
+		//System.out.println("");
+	}
 	
 	public int getPostLikeNumber() {
 		return postLikeNumber;
