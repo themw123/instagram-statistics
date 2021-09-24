@@ -19,7 +19,6 @@ import okhttp3.Response;
 public class Instagram{
 	private Object CountLiker = new Object();
 	private Object CountCommenter = new Object();
-	private Object mutualObj = new Object();
 	
 	private String username;
 	private String password;
@@ -118,6 +117,12 @@ public class Instagram{
 			t3 = new Thread(() -> setNotFollowingYou());
 			t3.start();
 			
+			try {
+				t3.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	    	//System.out.println("Data4-Thread running");
 			t4 = new Thread(() -> setYouFollowingNot());
 			t4.start();
@@ -320,10 +325,7 @@ public class Instagram{
 				String foers = (String) foersObj[0];
 				if(foing.equals(foers)) {
 					drin = true;
-					
-					synchronized(mutualObj) {
-						mutual.add(foersObj);
-					}
+					mutual.add(foersObj);
 					break;
 				}
 			}
@@ -350,14 +352,14 @@ public class Instagram{
 					drin = true;
 					
 					boolean in = false;
-					synchronized(mutualObj) {
-						for(Object[] m : mutual) {
-							if(m[0].equals(foers)) {
-								in = true;
-								break;
-							}
+				
+					for(Object[] m : mutual) {
+						if(m[0].equals(foers)) {
+							in = true;
+							break;
 						}
 					}
+					
 					if(!in) {
 						mutual.add(foersObj);
 					}
