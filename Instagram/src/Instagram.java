@@ -211,7 +211,6 @@ public class Instagram{
 	}
 	
 	private void setFollowingAndFollowers(String urlParameter) {
-		
 		int count = 1000000000;
 		String error = null;
 		
