@@ -39,7 +39,7 @@ public class Instagram{
 	private Vector<String> mutual = new Vector<String>();
 	private Vector<String> OpenFriendRequestOut;
 	private Vector<String> OpenFriendRequestIn;
-	private Vector<String> myPosts;
+	private Vector<Object[]> myPosts;
 	private int postLikeNumber = 0;
 	private int postCommentNumber = 0;
 	private int likes = 0;
@@ -190,6 +190,7 @@ public class Instagram{
 			try {
 				t8.join();
 				t9.join();
+				sortPosts();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -447,17 +448,15 @@ public class Instagram{
 		17863787143139595 = post suggestions
 		*/
 		
-		myPosts = new Vector<String>();
+		myPosts = new Vector<Object[]>();
 		int count = 1000;
 		String has_next_page = "false";
 		String end_cursor = null;
 		String error = null;
-		
 		int durchlauf = 0;
 		
 		
 		do {
-			
 			String url = "";	
 			if(has_next_page.equals("false")) {
 				url = "https://www.instagram.com/" + username + "/?__a=1";
@@ -489,17 +488,29 @@ public class Instagram{
 				JSONArray jsonArr = jsonObj.getJSONArray("edges");
 				int length = jsonArr.length();
 				for(int i=0;i<length;i++) {
+					int likes = 0;
+					int comments = 0;
+					
 					JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
-				
+					Object[] postObj = new Object[3];
+					
 					try {
-						likes = likes + Integer.parseInt(post.getJSONObject("edge_liked_by").get("count").toString());
+						likes = Integer.parseInt(post.getJSONObject("edge_liked_by").get("count").toString());
 					}catch(Exception e) {
-						likes = likes + Integer.parseInt(post.getJSONObject("edge_media_preview_like").get("count").toString());
+						likes = Integer.parseInt(post.getJSONObject("edge_media_preview_like").get("count").toString());
 					}
-					comments = comments + Integer.parseInt(post.getJSONObject("edge_media_to_comment").get("count").toString());
+					comments = Integer.parseInt(post.getJSONObject("edge_media_to_comment").get("count").toString());
 					
 					String shortcode = post.getString("shortcode");
-					myPosts.add(shortcode);
+					
+					postObj[0] = shortcode;
+					postObj[1] = likes;
+					postObj[2] = comments;
+					
+					this.likes = this.likes + likes;
+					this.comments = this.comments + comments;
+					
+					myPosts.add(postObj);
 				}
 			} catch (Exception e) {
 				System.out.println("setMyPosts Post: " + durchlauf + " failed -> " + error);
@@ -513,10 +524,29 @@ public class Instagram{
 		}while(has_next_page.equals("true") && durchlauf < max);		
 				
 		//System.out.println("Data7-Thread finished");
+		
+	}
+	
+	
+	
+	private void sortPosts() {
+		/*
+		Arrays.sort(myPosts, new Comparator<Vector<Object[]>> {
+			@Override
+			public int compare(Object[] o1, Object[] o2) {
+		            Integer quantityOne = (Integer) o1[1];
+			    Integer quantityTwo = (Integer) o2[1];
+			   
+			    return quantityTwo.compareTo(quantityOne);
 
+			}
+		});
+		*/
 	}
 	
 
+
+	
 	
 	private void setMostLikedOrCommentedByFollowers(String likerOrCommenter) {
 				
@@ -554,7 +584,8 @@ public class Instagram{
     		System.out.println("Data9pool running");
         }
         */
-		for(String post : myPosts) {
+		for(Object[] postObj : myPosts) {
+			String post = (String) postObj[0];
             executor.submit(() -> {
             	boolean answer = true;
                 answer = mostLikedOrCommentedByFollowers(post, likerOrCommenter);
