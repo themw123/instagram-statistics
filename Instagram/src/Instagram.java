@@ -748,11 +748,13 @@ public class Instagram{
 		
 	}
 	
-	private void getPosts(String likesOrcomments, String order) {
+	public Object[] getPosts(String likesOrcomments, String order) {
 		
-		Vector<Object> posts = new Vector<Object>();
-		for(Object post : posts) {
-			
+		Object[] posts = new Object[myPosts.size()];
+		int count = 0;
+		for(Object post : myPosts) {
+			posts[count] = (Object[]) post;
+			count++;
 		}
 		
 		
@@ -760,10 +762,11 @@ public class Instagram{
 		int count1 = 0, count2 = 0;
 		while(true) { 
 			run = false;
-			for(int k=0;k<myPosts.size()-1;k++) {
-				Object[] obj1 = myPosts.get(k);
-				Object[] obj2 = myPosts.get(k+1);
-	
+			for(int k=0;k<posts.length-1;k++) {
+						
+				Object[] obj1 = (Object[]) posts[k];
+				Object[] obj2 = (Object[]) posts[k+1];
+				
 				if(likesOrcomments.equals("likes")) {
 					count1 = (int) obj1[1];
 					count2 = (int) obj2[1];
@@ -775,13 +778,17 @@ public class Instagram{
 				
 				if(order.equals("down")) {
 					if(count2 > count1) {
-						Collections.swap(myPosts,k,k+1);
+						Object[] hilf = obj1;
+						posts[k] = obj2;
+						posts[k+1] = hilf;
 						run = true;
 					}
 				}
 				else if(order.equals("up")) {
 					if(count2 < count1) {
-						Collections.swap(myPosts,k,k+1);
+						Object[] hilf = obj1;
+						posts[k] = obj2;
+						posts[k+1] = hilf;
 						run = true;
 					}
 				}
@@ -791,6 +798,7 @@ public class Instagram{
 			}
 		}
 		//System.out.println("");
+		return posts;
 	}
 	
 	public Object[] getMostLikesandCommentsFrom(String likesOrComments, String order) {
