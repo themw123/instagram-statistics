@@ -1,7 +1,4 @@
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Executors;
@@ -45,13 +42,7 @@ public class Instagram{
 	private int postLikeNumber = 0;
 	private int postCommentNumber = 0;
 	private int likes = 0;
-	private int comments = 0;
-	
-	private Object[][] mostLikedByFollowers;
-	private Object[][] mostCommentedByFollowers;
-	
-	private String[] ghostedLikeByFollowers;
-	private String[] ghostedCommentByFollowers;
+	private int comments = 0;	
 	
 	
 	public Instagram(String username, String sessionId, String ds_user_id) {
@@ -90,14 +81,19 @@ public class Instagram{
 
 	
     public void data1(){
+
+		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
+		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
+		Thread t3 = new Thread(() -> setNotFollowingYou());
+		Thread t4 = new Thread(() -> setYouFollowingNot());
+		Thread t5 = new Thread(() -> setOpenFriendRequestOut());
+		Thread t6 = new Thread(() -> setOpenFriendRequestIn());
+		Thread t7 = new Thread(() -> setMyPosts());
+
 		
     	//System.out.println("Data1-Thread running");
-		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
 		t1.start();
-		
-		
     	//System.out.println("Data2-Thread running");
-		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
 		t2.start();
 		
 		//Auf following/follower warten. Bei fail, nur Thread 5,6 und 7 starten
@@ -110,65 +106,35 @@ public class Instagram{
 		}
 		
 		
-		Thread t3 = null;
-		Thread t4 = null;
 		if(following != null && followers != null) {
 	    	//System.out.println("Data3-Thread running");
-			t3 = new Thread(() -> setNotFollowingYou());
 			t3.start();
-			
-			try {
-				t3.join();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    	//System.out.println("Data4-Thread running");
-			t4 = new Thread(() -> setYouFollowingNot());
+			//System.out.println("Data4-Thread running");
 			t4.start();
 		}
-		
-		
     	//System.out.println("Data5-Thread running");
-		Thread t5 = new Thread(() -> setOpenFriendRequestOut());
 		t5.start();
-		
     	//System.out.println("Data6-Thread running");
-		Thread t6 = new Thread(() -> setOpenFriendRequestIn());
 		t6.start();
-		
-		
-		
-		
     	//System.out.println("Data7-Thread running");
-		Thread t7 = new Thread(() -> setMyPosts());
 		t7.start();
 		
-		//Auf Posts warten
+		
 		try {
-			t7.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		
-	
-		
-		
-		
-		
-		//Auf übrige Threads warten
-    	try {
-    		if(following != null && followers != null) {
+			if(following != null && followers != null) {
 				t3.join();
 				t4.join();
-    		}
+			}
+			
 			t5.join();
 			t6.join();
 			t7.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+
 
 	}
 	
@@ -183,17 +149,15 @@ public class Instagram{
     
     public void data2() {
 
+		Thread t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
+		Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
+
 		if(following != null && followers != null && myPosts != null) {
 			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
 		    //System.out.println("Data8-Thread running");
-			Thread t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 			t8.start();
-			
-			
 		    //System.out.println("Data9-Thread running");
-			Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
 			t9.start();
-			
 			
 			try {
 				t8.join();
@@ -212,7 +176,7 @@ public class Instagram{
     
     
     
-    
+
     
     
     
@@ -277,16 +241,16 @@ public class Instagram{
 				String picture = userJson.getString("profile_pic_url");
 				if(urlParameter.equals("following")) {
 					this.following[i][0] = username;
-					this.following[i][1] = picture;
+					this.following[i][1] = 0;
 					this.following[i][2] = 0;
-					this.following[i][3] = 0;
+					this.following[i][3] = picture;
 
 				}
 				else if(urlParameter.equals("followers")) {
 					this.followers[i][0] = username;
-					this.followers[i][1] = picture;
+					this.followers[i][1] = 0;
 					this.followers[i][2] = 0;
-					this.followers[i][3] = 0;
+					this.followers[i][3] = picture;
 				}
 			}
 					
@@ -314,13 +278,12 @@ public class Instagram{
 	
 	
 	private void setNotFollowingYou() {
-		
 		notFollowingYou = new Vector<Object[]>();
 
+		
 		boolean drin = false;
 		for(Object[] foingObj : following) {
 			String foing = (String) foingObj[0];
-			
 			for(Object[] foersObj : followers) {
 				String foers = (String) foersObj[0];
 				if(foing.equals(foers)) {
@@ -350,19 +313,6 @@ public class Instagram{
 				String foing = (String) foingObj[0];
 				if(foing.equals(foers)) {
 					drin = true;
-					
-					boolean in = false;
-				
-					for(Object[] m : mutual) {
-						if(m[0].equals(foers)) {
-							in = true;
-							break;
-						}
-					}
-					
-					if(!in) {
-						mutual.add(foersObj);
-					}
 					break;
 				}
 			}
@@ -529,7 +479,7 @@ public class Instagram{
 					int comments = 0;
 					
 					JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
-					Object[] postObj = new Object[3];
+					Object[] postObj = new Object[4];
 					
 					try {
 						likes = Integer.parseInt(post.getJSONObject("edge_liked_by").get("count").toString());
@@ -540,9 +490,14 @@ public class Instagram{
 					
 					String shortcode = post.getString("shortcode");
 					
+					String display_url = post.getString("display_url");
+
+					
 					postObj[0] = shortcode;
 					postObj[1] = likes;
 					postObj[2] = comments;
+					postObj[3] = display_url;
+
 					
 					this.likes = this.likes + likes;
 					this.comments = this.comments + comments;
@@ -699,8 +654,8 @@ public class Instagram{
 									
 						for(int k=0;k<followers.length;k++) {
 							if(followers[k][0].equals(username)) {
-								int likesFollower = ((int) followers[k][2])+1;
-								followers[k][2] = likesFollower;
+								int likesFollower = ((int) followers[k][1])+1;
+								followers[k][1] = likesFollower;
 							}
 						}
 									
@@ -712,8 +667,8 @@ public class Instagram{
 						String username = commenter.getString("username");
 						for(int k=0;k<followers.length;k++) {
 							if(followers[k][0].equals(username)) {
-								int likesCommenter = ((int) followers[k][3])+1;
-								followers[k][3] = likesCommenter;
+								int likesCommenter = ((int) followers[k][2])+1;
+								followers[k][2] = likesCommenter;
 							}
 						}
 									
@@ -846,12 +801,12 @@ public class Instagram{
 				Object[] obj2 = followers[k+1];
 				
 				if(likesOrcomments.equals("likes")) {
-					count1 = (int) obj1[2];
-					count2 = (int) obj2[2];
+					count1 = (int) obj1[1];
+					count2 = (int) obj2[1];
 				}
 				else if(likesOrcomments.equals("comments")) {
-					count1 = (int) obj1[3];
-					count2 = (int) obj2[3];
+					count1 = (int) obj1[2];
+					count2 = (int) obj2[2];
 				}
 				
 
