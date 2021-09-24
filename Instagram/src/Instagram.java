@@ -167,8 +167,7 @@ public class Instagram{
 			}
 			
 	        setDataPoolLog();
-			sortPosts("likes", "down");
-			sortFollower("likes", "down");
+			
 		}
 		
 		
@@ -222,6 +221,7 @@ public class Instagram{
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			error = jsonObj.toString();
+
 			
 			JSONArray ja_users = jsonObj.getJSONArray("users");
 			int length = ja_users.length();
@@ -748,7 +748,13 @@ public class Instagram{
 		
 	}
 	
-	private void sortPosts(String likesOrcomments, String order) {
+	private void getPosts(String likesOrcomments, String order) {
+		
+		Vector<Object> posts = new Vector<Object>();
+		for(Object post : posts) {
+			
+		}
+		
 		
 		boolean run;
 		int count1 = 0, count2 = 0;
@@ -787,7 +793,20 @@ public class Instagram{
 		//System.out.println("");
 	}
 	
-	public void sortFollower(String likesOrcomments, String order) {
+	public Object[] getMostLikesandCommentsFrom(String likesOrComments, String order) {
+		
+		int count = 0;
+		for(Object[] f : followers) {
+			count++;
+		}
+		Object[] followers = new Object[count];
+		count = 0;
+		for(Object f : this.followers) {
+			followers[count] = f;
+			count++;
+		}
+		
+		
 		
 		boolean run;
 		int count1 = 0, count2 = 0;
@@ -796,14 +815,14 @@ public class Instagram{
 			for(int k=0;k<followers.length-1;k++) {
 				
 				
-				Object[] obj1 = followers[k];
-				Object[] obj2 = followers[k+1];
+				Object[] obj1 = (Object[]) followers[k];
+				Object[] obj2 = (Object[]) followers[k+1];
 				
-				if(likesOrcomments.equals("likes")) {
+				if(likesOrComments.equals("likes")) {
 					count1 = (int) obj1[1];
 					count2 = (int) obj2[1];
 				}
-				else if(likesOrcomments.equals("comments")) {
+				else if(likesOrComments.equals("comments")) {
 					count1 = (int) obj1[2];
 					count2 = (int) obj2[2];
 				}
@@ -831,7 +850,86 @@ public class Instagram{
 				break;
 			}
 		}
+		
+		
+		count = 0;
+		int c = 0;
+		for(int i=0;i<followers.length;i++) {
+			Object[] f = (Object[]) followers[i];
+			if(likesOrComments.equals("likes")) {
+				c = (int)f[1];
+			}
+			else if(likesOrComments.equals("comments")) {
+				c = (int)f[2];
+			}
+			
+			if(order.equals("down") && c == 0) {
+				break;
+			}
+			else if(order.equals("up") && c != 0) {
+				break;
+			}
+			
+			count++;
+		}
+		
+		
+		Object[] onlyMost = new Object[count];
+		count = 0;
+		c = 0;
+		for(int i=0;i<followers.length;i++) {
+			Object[] f = (Object[]) followers[i];
+			if(likesOrComments.equals("likes")) {
+				c = (int)f[1];
+			}
+			else if(likesOrComments.equals("comments")) {
+				c = (int)f[2];
+			}
+			
+			if(order.equals("down") && c == 0) {
+				break;
+			}
+			else if(order.equals("up") && c != 0) {
+				break;
+			}
+			onlyMost[count] = followers[i];
+			count++;
+		}
+		
+		return onlyMost;
 		//System.out.println("");
+	}
+
+	public int getPostsNumber() {
+		return myPosts.size();
+	}
+	
+	public Object[][] getFollowers() {
+		return followers;
+	}
+	
+	public Object[][] getFollowings() {
+		return following;
+	}
+	
+	public int getLikes() {
+		return likes;
+	}
+	
+	public int getComments() {
+		return comments;
+	}
+	
+	public Vector<Object[]> getNotFollowingYou() {
+		return notFollowingYou;
+	}
+	
+	public Vector<Object[]> getYouFollowingNot() {
+		return youFollowingNot;
+	}
+	
+	public Vector<Object[]> getMutual() {
+		return mutual;
 	}
 	
 	public int getPostLikeNumber() {
