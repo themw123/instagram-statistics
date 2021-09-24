@@ -195,10 +195,11 @@ public class Instagram{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
 	        setDataPoolLog();
 			sortVec(myPosts, "likes", "down");
-			sortVec(youFollowingNot, "likes", "down");
-			sortVec(mutual, "likes", "down");
+			//sortVec(youFollowingNot, "likes", "down");
+			//sortVec(mutual, "likes", "down");
 			sortObj(followers, "likes", "down");
 			//System.out.println("!!!!!!!!HEAVY!!!!!!!!\n");
 		}
@@ -304,17 +305,18 @@ public class Instagram{
 	
 	
 	private void setNotFollowingYou() {
-				
+		
 		notFollowingYou = new Vector<Object[]>();
 
 		boolean drin = false;
 		for(Object[] foingObj : following) {
 			String foing = (String) foingObj[0];
+			
 			for(Object[] foersObj : followers) {
 				String foers = (String) foersObj[0];
 				if(foing.equals(foers)) {
 					drin = true;
-					mutual.add(foingObj);
+					mutual.add(foersObj);
 					break;
 				}
 			}
@@ -339,8 +341,17 @@ public class Instagram{
 				String foing = (String) foingObj[0];
 				if(foing.equals(foers)) {
 					drin = true;
-					if(!mutual.contains(foersObj)) {
-					mutual.add(foersObj);
+					
+					boolean in = false;
+					for(Object[] m : mutual) {
+						if(m[0].equals(foers)) {
+							in = true;
+							break;
+						}
+					}
+					
+					if(!in) {
+						mutual.add(foersObj);
 					}
 					break;
 				}
@@ -593,105 +604,6 @@ public class Instagram{
 		}
         */
         		
-		
-		/*
-        if(likerOrCommenter.equals("liker")) {
-			if(mostLikedByFollowers != null) {
-				Arrays.sort(mostLikedByFollowers, new Comparator<Object[]>() {
-					@Override
-					public int compare(Object[] o1, Object[] o2) {
-				            Integer quantityOne = (Integer) o1[1];
-					    Integer quantityTwo = (Integer) o2[1];
-					   
-					    return quantityTwo.compareTo(quantityOne);
-		
-					}
-				});
-				
-				Object[][] mostLikedByFollowers2 = mostLikedByFollowers;
-				
-				int counterLiker = 0;
-				int counterGhoster = 0;
-				for(Object[] follower : mostLikedByFollowers2) {
-					if((int) follower[1] != 0) {
-						counterLiker++;
-					}
-					else {
-						counterGhoster++;
-					}
-				}
-				
-				mostLikedByFollowers = new Object [counterLiker][2];
-				ghostedLikeByFollowers = new String [counterGhoster];
-				
-				counterLiker = 0;
-				counterGhoster = 0;
-				
-				for(Object[] follower : mostLikedByFollowers2) {
-					if((int) follower[1] != 0) {
-						mostLikedByFollowers[counterLiker][0] = follower[0];
-						mostLikedByFollowers[counterLiker][1] = follower[1];
-						counterLiker++;
-					}
-					else {
-						ghostedLikeByFollowers[counterGhoster] = (String) follower[0];
-						counterGhoster++;
-					}
-				}
-			}
-			//System.out.println("Data8-Thread finished");
-	    }
-		else if(likerOrCommenter.equals("commenter")) {
-			if(mostCommentedByFollowers != null) {
-				
-				Arrays.sort(mostCommentedByFollowers, new Comparator<Object[]>() {
-					@Override
-					public int compare(Object[] o1, Object[] o2) {
-				            Integer quantityOne = (Integer) o1[1];
-					    Integer quantityTwo = (Integer) o2[1];
-					   
-					    return quantityTwo.compareTo(quantityOne);
-		
-					}
-				});
-				
-				
-				Object[][] mostCommentedByFollowers2 = mostCommentedByFollowers;
-				
-				int counterCommenter = 0;
-				int counterGhoster = 0;
-				for(Object[] follower : mostCommentedByFollowers2) {
-					if((int) follower[1] != 0) {
-						counterCommenter++;
-					}
-					else {
-						counterGhoster++;
-					}
-				}
-				
-				mostCommentedByFollowers = new Object [counterCommenter][2];
-				ghostedCommentByFollowers = new String [counterGhoster];
-				
-				counterCommenter = 0;
-				counterGhoster = 0;
-				
-				for(Object[] follower : mostCommentedByFollowers2) {
-					if((int) follower[1] != 0) {
-						mostCommentedByFollowers[counterCommenter][0] = follower[0];
-						mostCommentedByFollowers[counterCommenter][1] = follower[1];
-						counterCommenter++;
-					}
-					else {
-						ghostedCommentByFollowers[counterGhoster] = (String) follower[0];
-						counterGhoster++;
-					}
-				}
-			
-			}
-		
-			//System.out.println("Data9-Thread finished");
-		}
-        */
 				
 	}
 	
