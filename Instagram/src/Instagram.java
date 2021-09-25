@@ -330,6 +330,7 @@ public class Instagram{
 	
 	private void setOpenFriendRequestOut() {
 		
+		int max = 100;//faktor 10
 		openFriendRequestOut = new Vector<String>();
 		String cursor = null;
 		String error = null;
@@ -373,7 +374,7 @@ public class Instagram{
 				break;
 			}
 			durchlauf++;
-		}while(cursor != null);
+		}while(cursor != null && durchlauf < max);
 		if(openFriendRequestOut.isEmpty()) {
 			openFriendRequestOut = null;
 		}
