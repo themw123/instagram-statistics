@@ -15,6 +15,7 @@ import okhttp3.Response;
 public class Instagram{
 	private Object CountLiker = new Object();
 	private Object CountCommenter = new Object();
+	
 	private String username;
 	private String password;
 	private String sessionId;
@@ -211,6 +212,7 @@ public class Instagram{
 		int count = 1000000000;
 		String error = null;
 		
+		
 		String url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "";
 		
 		Response response = r.doRequest(url);
@@ -252,11 +254,8 @@ public class Instagram{
 			}
 					
 		} catch (Exception e) {
-			System.out.println("setFollowingAndFollowers failed -> " + error);
-			if(urlParameter.equals("following")) {
-			}
-			else if(urlParameter.equals("followers")) {
-			}
+			System.out.println("setFollowingAndFollowers failed -> "  + error);
+
 			//e.printStackTrace();
 		}
 		/*
@@ -292,8 +291,6 @@ public class Instagram{
 		}
 		if(notFollowingYou.isEmpty()) {
 			notFollowingYou = null;
-		}
-		if(mutual.isEmpty()) {
 			mutual = null;
 		}
 		//System.out.println("Data3-Thread finished");
@@ -369,7 +366,7 @@ public class Instagram{
 						
 						
 			} catch (Exception e) {
-				System.out.println("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + "failed -> " + error);
+				System.out.println("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + " failed -> " + error);
 				//e.printStackTrace();
 				break;
 			}
@@ -928,6 +925,12 @@ public class Instagram{
 		
 		if(onlyMost != null && onlyMost.length == 0) {
 			onlyMost = null;
+		}
+		
+		if(order.equals("up")) {
+			if(onlyMost.length == followers.length) {
+				onlyMost = null;
+			}
 		}
 		return onlyMost;
 		//System.out.println("");

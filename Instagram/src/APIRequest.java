@@ -6,13 +6,8 @@ import okhttp3.Response;
 public class APIRequest {
 
 	private OkHttpClient client;
-	private Request request;
 	private String sessionId;
-	private double time;
-	/*
-	time = -System.currentTimeMillis();
-	System.out.println((time + System.currentTimeMillis())/1000 + " Sekunden");
-	*/
+
 	
 	APIRequest(String sessionId) {
 		this.client = new OkHttpClient().newBuilder().build();
@@ -23,7 +18,7 @@ public class APIRequest {
 	public Response doRequest(String url) {
 		Response response = null;
 		
-		this.request = new Request.Builder()
+		Request request = new Request.Builder()
 			.url(url)
 			.method("GET", null)
 			.addHeader("X-IG-App-ID", "936619743392459")
@@ -43,7 +38,7 @@ public class APIRequest {
 		
 		boolean sessionIdValid = false;
 		
-		this.request = new Request.Builder()
+		Request request = new Request.Builder()
 			.url(url)
 			.method("GET", null)
 			.addHeader("X-IG-App-ID", "936619743392459")
