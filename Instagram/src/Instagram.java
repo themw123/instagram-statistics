@@ -35,7 +35,7 @@ public class Instagram{
 	private Vector<Object[]> youFollowingNot;
 	private Vector<Object[]> mutual;
 	private Vector<String> openFriendRequestOut;
-	private Vector<String> openFriendRequestIn;
+	private Vector<String[]> openFriendRequestIn;
 	private Vector<Object[]> myPosts;
 	private int postLikeNumber = 0;
 	private int postCommentNumber = 0;
@@ -259,7 +259,6 @@ public class Instagram{
 			}
 			//e.printStackTrace();
 		}
-		
 		/*
 		if(urlParameter.equals("following")) {
 			System.out.println("Data1-Thread finished");
@@ -299,7 +298,6 @@ public class Instagram{
 		}
 		//System.out.println("Data3-Thread finished");
 
-	    
 	}
 	
 	private void setYouFollowingNot() {
@@ -385,7 +383,7 @@ public class Instagram{
 	
 	private void setOpenFriendRequestIn() {
 		
-		openFriendRequestIn = new Vector<String>();
+		openFriendRequestIn = new Vector<String[]>();
 		
 		String url = "https://i.instagram.com/api/v1/friendships/pending/";
 
@@ -404,7 +402,11 @@ public class Instagram{
 			for(int i=0;i<length;i++) {
 				JSONObject userJson = jsonArr.getJSONObject(i);
 				String username = userJson.getString("username");
-				openFriendRequestIn.add(username);
+				String picture = userJson.getString("profile_pic_url");
+				String[] person = new String[2];
+				person[0] = username;
+				person[1] = picture;
+				openFriendRequestIn.add(person);
 			}
 					
 		} catch (Exception e) {
@@ -923,7 +925,7 @@ public class Instagram{
 			onlyMost = null;
 		}
 		
-		if(onlyMost.length == 0) {
+		if(onlyMost != null && onlyMost.length == 0) {
 			onlyMost = null;
 		}
 		return onlyMost;
