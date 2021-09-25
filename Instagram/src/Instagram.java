@@ -723,12 +723,11 @@ public class Instagram{
 	
 	
 	
+
 	
 	
 	
-	public boolean getSessionIdValid() {
-		return sessionIdValid;
-	}
+	
 
 	
 	
@@ -1053,6 +1052,11 @@ public class Instagram{
 	
 	public int getPostCommentNumber() {
 		return postCommentNumber;
+	}
+	
+	
+	public boolean getSessionIdValid() {
+		return sessionIdValid;
 	}
 	
 	public int getPostNumber() {
