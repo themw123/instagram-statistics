@@ -1,4 +1,3 @@
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Executors;
@@ -16,7 +15,6 @@ import okhttp3.Response;
 public class Instagram{
 	private Object CountLiker = new Object();
 	private Object CountCommenter = new Object();
-	
 	private String username;
 	private String password;
 	private String sessionId;
@@ -35,7 +33,7 @@ public class Instagram{
 	private Object[][] followers;
 	private Vector<Object[]> notFollowingYou;
 	private Vector<Object[]> youFollowingNot;
-	private Vector<Object[]> mutual = new Vector<Object[]>();
+	private Vector<Object[]> mutual;
 	private Vector<String> openFriendRequestOut;
 	private Vector<String> openFriendRequestIn;
 	private Vector<Object[]> myPosts;
@@ -256,14 +254,11 @@ public class Instagram{
 		} catch (Exception e) {
 			System.out.println("setFollowingAndFollowers failed -> " + error);
 			if(urlParameter.equals("following")) {
-				//following = null;
 			}
 			else if(urlParameter.equals("followers")) {
-				//followers = null;
 			}
 			//e.printStackTrace();
 		}
-		
 		
 		/*
 		if(urlParameter.equals("following")) {
@@ -278,7 +273,7 @@ public class Instagram{
 	
 	private void setNotFollowingYou() {
 		notFollowingYou = new Vector<Object[]>();
-
+		mutual = new Vector<Object[]>();
 		
 		boolean drin = false;
 		for(Object[] foingObj : following) {
@@ -296,7 +291,12 @@ public class Instagram{
 			}
 			drin = false;
 		}
-		
+		if(notFollowingYou.isEmpty()) {
+			notFollowingYou = null;
+		}
+		if(mutual.isEmpty()) {
+			mutual = null;
+		}
 		//System.out.println("Data3-Thread finished");
 
 	    
@@ -320,7 +320,9 @@ public class Instagram{
 			}
 			drin = false;
 		}
-	    
+		if(youFollowingNot.isEmpty()) {
+			youFollowingNot = null;
+		}
 		//System.out.println("Data4-Thread finished");
 
 		
@@ -369,13 +371,14 @@ public class Instagram{
 						
 			} catch (Exception e) {
 				System.out.println("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + "failed -> " + error);
-				openFriendRequestOut = null;
 				//e.printStackTrace();
 				break;
 			}
 			durchlauf++;
 		}while(cursor != null);
-		
+		if(openFriendRequestOut.isEmpty()) {
+			openFriendRequestOut = null;
+		}
 		//System.out.println("Data5-Thread finished");
 
 	}
@@ -406,11 +409,11 @@ public class Instagram{
 					
 		} catch (Exception e) {
 			System.out.println("setOpenFriendRequestIn failed -> " + error);
-			openFriendRequestIn = null;
-			//e.printStackTrace();
-			
+			//e.printStackTrace();	
 		}
-			
+		if(openFriendRequestIn.isEmpty()) {
+			openFriendRequestIn = null;
+		}	
 		//System.out.println("Data6-Thread finished");
 
 	}
@@ -513,7 +516,9 @@ public class Instagram{
 			durchlauf++;
 				
 		}while(has_next_page.equals("true") && durchlauf < max);		
-				
+		if(myPosts.isEmpty()) {
+			myPosts = null;
+		}			
 		//System.out.println("Data7-Thread finished");
 		
 	}
@@ -809,6 +814,8 @@ public class Instagram{
 	
 	public Object[] getMostLikesandCommentsFrom(String likesOrComments, String order) {
 		
+		Object[] onlyMost;
+		
 		if(followers != null) {
 		
 			int count = 0;
@@ -890,7 +897,7 @@ public class Instagram{
 			}
 			
 			
-			Object[] onlyMost = new Object[count];
+			onlyMost = new Object[count];
 			count = 0;
 			c = 0;
 			for(int i=0;i<followers.length;i++) {
@@ -911,12 +918,15 @@ public class Instagram{
 				onlyMost[count] = followers[i];
 				count++;
 			}
-			return onlyMost;
-
 		}
 		else {
-			return null;
+			onlyMost = null;
 		}
+		
+		if(onlyMost.length == 0) {
+			onlyMost = null;
+		}
+		return onlyMost;
 		//System.out.println("");
 	}
 
