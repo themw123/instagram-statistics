@@ -56,4 +56,13 @@ public class APIRequest {
 		}
 		return sessionIdValid;
 	}
+	
+	public Response xcsrfToken() {
+		Response response = null;
+
+		
+		return response;
+	}
+	
+	
 }
