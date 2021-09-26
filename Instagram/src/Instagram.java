@@ -18,7 +18,7 @@ public class Instagram{
 	private String sessionId;
 	private boolean sessionIdValid;
 	private String ds_user_id;
-	private Vector<String> dataPoolLog;
+	private Vector<String> errorLog;
 
 	/*
 	time = -System.currentTimeMillis();
@@ -66,7 +66,7 @@ public class Instagram{
 		openFriendRequestOut = new Vector<String[]>();
 		openFriendRequestIn = new Vector<String[]>();
 		myPosts = new Vector<Object[]>();
-		dataPoolLog = new Vector<String>();
+		errorLog = new Vector<String>();
 	}
 	
 	public void login() {
@@ -175,9 +175,7 @@ public class Instagram{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
-	        setDataPoolLog();
-			
+		
 		}
 		
 		
@@ -250,7 +248,7 @@ public class Instagram{
 					
 		} catch (Exception e) {
 			//e.printStackTrace();
-			System.out.println("setFollowingAndFollowers failed -> "  + error);
+			errorLog.add("setFollowingAndFollowers failed -> "  + error);
 			/*
 			if(urlParameter.equals("following")) {
 				following = null;
@@ -364,7 +362,7 @@ public class Instagram{
 						
 			} catch (Exception e) {
 				//e.printStackTrace();
-				System.out.println("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + " failed -> " + error);
+				errorLog.add("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + " failed -> " + error);
 				break;
 			}
 			durchlauf++;
@@ -402,7 +400,7 @@ public class Instagram{
 					
 		} catch (Exception e) {
 			//e.printStackTrace();	
-			System.out.println("setOpenFriendRequestIn failed -> " + error);
+			errorLog.add("setOpenFriendRequestIn failed -> " + error);
 		}
 		//System.out.println("Data6-Thread finished");
 
@@ -497,7 +495,7 @@ public class Instagram{
 				}
 			} catch (Exception e) {
 				//e.printStackTrace();
-				System.out.println("setMyPosts Post: " + durchlauf + " failed -> " + error);
+				errorLog.add("setMyPosts Post: " + durchlauf + " failed -> " + error);
 				break;
 			}
 					
@@ -688,10 +686,10 @@ public class Instagram{
 			
 			if(error.contains("message")) {
 				if(likerOrCommenter.equals("liker")) {	
-					dataPoolLog.add("setMostLikedByFollowers Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+					errorLog.add("setMostLikedByFollowers Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 				else if(likerOrCommenter.equals("commenter")) {
-					dataPoolLog.add("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
+					errorLog.add("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 				answer = false;
 			}
@@ -712,25 +710,39 @@ public class Instagram{
 
 	
 	
-	private void setDataPoolLog() {
+	public String[] getErrorLog() {
+		
 		boolean print1 = true;
 		boolean print2 = true;
+
 		
-		for(String error : dataPoolLog) {
+		for(int i=0;i<errorLog.size();i++) {
+			String error = errorLog.get(i);
 			if(error.contains("setMostLikedByFollowers")) {
 				if(print1) {
-				System.out.println(error);
-				print1 = false;
+					print1 = false;
+				}
+				else {
+					errorLog.remove(i);
+					i--;
 				}
 			}
 			else if(error.contains("setMostCommentedByFollowers")) {
 				if(print2) {
-				System.out.println(error);
-				print2 = false;
+					print2 = false;
+				}
+				else {
+					errorLog.remove(i);
+					i--;
 				}
 			}
 		}
 		
+		String[] errorLogString = new String[errorLog.size()];
+		for(int i=0;i<errorLog.size();i++) {
+			errorLogString[i] = errorLog.get(i);
+		}
+		return errorLogString;
 	}
 	
 	public Object[] getPosts(String likesOrcomments, String order) {
