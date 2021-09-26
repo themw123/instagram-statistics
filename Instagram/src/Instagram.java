@@ -1032,38 +1032,24 @@ public class Instagram{
 		
 	}
 	
-	public Object[] getOpenFriendRequestOutIds() {
+	public void setOpenFriendRequestOutIds() {
 		
-		if(openFriendRequestOut != null) {
-			Object[] o = new Object[openFriendRequestOut.size()];
-			int count = 0;
-			for(Object op : openFriendRequestOut) {
-				o[count] = op;
-				count++;
-			}
-	
-	
-			count = 0;
-			for(Object ofro: o) {
-				String url = "https://www.instagram.com/" + ofro + "/?__a=1";
+			for(int i=0;i<openFriendRequestOut.size();i++) {
+				String url = "https://www.instagram.com/" +  openFriendRequestOut.get(i)[0] + "/?__a=1";
 				Response response = r.doRequest(url);
 	
 				try {
 					String output = response.body().string();
 					JSONObject jsonObj = new JSONObject(output);
-					long id = jsonObj.getJSONObject("graphql").getJSONObject("user").getLong("id");
+					String id = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("id");
 					
-					String[] ofro2 = openFriendRequestOut[count];
+					openFriendRequestOut.get(i)[1] = id;
 					
 				} catch (IOException e) {
 					System.out.println("getOpenFriendRequestOutIds error");
 				}
-				count++;
 			}
-		
-		}
-				
-		return null;
+
 	}
 	
 	public Object[] getOpenFriendRequestIn() {
@@ -1109,5 +1095,9 @@ public class Instagram{
 	
 	public String getSessionId() {
 		return sessionId;
+	}
+	
+	public int getRequestsCount() {
+		return r.getRequestsCount();
 	}
 }

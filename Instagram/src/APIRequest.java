@@ -12,7 +12,8 @@ public class APIRequest {
 
 	private OkHttpClient client;
 	private String sessionId;
-
+	private static int requestsCount = 0;
+	
 	APIRequest() {
 		this.client = new OkHttpClient().newBuilder().build();
 	}
@@ -39,6 +40,7 @@ public class APIRequest {
 			//System.out.println("Error in Request");
 			//e.printStackTrace()
 		}
+		requestsCount++;
 		return response;
 	}
 	
@@ -62,6 +64,7 @@ public class APIRequest {
 			System.out.println();
 			//e.printStackTrace(
 		}
+		requestsCount++;
 		return sessionIdValid;
 	}
 	
@@ -81,7 +84,7 @@ public class APIRequest {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-		
+		requestsCount++;
 		return response;
 	}
 	
@@ -107,9 +110,13 @@ public class APIRequest {
 					e.printStackTrace();
 				}
 	
-	
+		requestsCount++;
 		return response;
 	
+	}
+	
+	public int getRequestsCount() {
+		return requestsCount;
 	}
 
 }
