@@ -180,7 +180,13 @@ public class Instagram{
     
 	
 	private void setSession() {
-		//session id mit Instagram4j holen
+		
+		InstagramLogin InstagramLogin = new InstagramLogin(username, password);
+		String[] session = InstagramLogin.getSession();
+		ds_user_id = session[0];
+		sessionId = session[1];
+		/*
+		session id mit Instagram4j holen
 		try {
 		Instagram4j instagram = Instagram4j.builder().username(username).password(password).build();
 		instagram.setup();
@@ -205,6 +211,7 @@ public class Instagram{
 			ds_user_id = null;
 			//e.printStackTrace();
 		}
+		*/
 	
 	}
 	
@@ -927,7 +934,7 @@ public class Instagram{
 		}
 		
 		if(order.equals("up")) {
-			if(onlyMost.length == followers.length) {
+			if(onlyMost != null && onlyMost.length == followers.length) {
 				onlyMost = null;
 			}
 		}
@@ -1067,4 +1074,12 @@ public class Instagram{
 			return -1;
 		}
 	}	
+	
+	public String getds_user_id() {
+		return ds_user_id;
+	}
+	
+	public String getSessionId() {
+		return sessionId;
+	}
 }

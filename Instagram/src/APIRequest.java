@@ -90,19 +90,17 @@ public class APIRequest {
 				  .build();
 				MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
 				@SuppressWarnings("deprecation")
-				RequestBody body = RequestBody.create(mediaType, enc_password + "&username=" + username);
+				RequestBody body = RequestBody.create(mediaType, "enc_password=" + enc_password + "&username=" + username);
 				Request request = new Request.Builder()
 				  .url("https://www.instagram.com/accounts/login/ajax/")
 				  .method("POST", body)
-				  .addHeader("Content-Type", "application/x-www-form-urlencoded")
-				  .addHeader("Content-Length", "345")
-				  .addHeader("Host", "www.instagram.com")
 				  .addHeader("X-CSRFToken", XCSRFToken)
 				  .addHeader("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Mobile Safari/537.36")
 				  .build();
 				try {
 					response = client.newCall(request).execute();
 				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	
