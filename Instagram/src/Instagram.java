@@ -1052,7 +1052,7 @@ public class Instagram{
 			return myPosts.size(); 
 		}
 		else {
-			return -1;
+			return 0;
 		}
 	}	
 	
