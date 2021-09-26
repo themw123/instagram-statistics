@@ -18,7 +18,7 @@ public class InstagramLogin {
 	private String sessionId;
 
 	public InstagramLogin(String username, String password) {
-		rq = new APIRequest("");
+		rq = new APIRequest();
 		this.username = username;
 		this.password = password;
 		XCSRFToken();

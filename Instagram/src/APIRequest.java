@@ -13,6 +13,9 @@ public class APIRequest {
 	private OkHttpClient client;
 	private String sessionId;
 
+	APIRequest() {
+		this.client = new OkHttpClient().newBuilder().build();
+	}
 	
 	APIRequest(String sessionId) {
 		this.client = new OkHttpClient().newBuilder().build();

@@ -1,12 +1,8 @@
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.client.CookieStore;
-import org.apache.http.cookie.Cookie;
-import org.brunocvcunha.instagram4j.Instagram4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
