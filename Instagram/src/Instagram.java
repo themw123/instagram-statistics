@@ -921,11 +921,21 @@ public class Instagram{
 	}
 	
 	public int getFollowersNumber() {
-		return followers.length;
+		if(followers != null) {
+			return followers.length;
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getFollowingNumber() {
-		return following.length;
+		if(following != null) {
+			return following.length;
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getLikes() {
