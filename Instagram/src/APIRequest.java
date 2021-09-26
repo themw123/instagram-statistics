@@ -1,6 +1,11 @@
 import java.io.IOException;
+
+import org.json.JSONObject;
+
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class APIRequest {
@@ -57,12 +62,53 @@ public class APIRequest {
 		return sessionIdValid;
 	}
 	
-	public Response xcsrfToken() {
+	public Response XCSRFToken() {
 		Response response = null;
-
+		
+		OkHttpClient client = new OkHttpClient().newBuilder()
+				  .build();
+				Request request = new Request.Builder()
+				  .url("https://www.instagram.com/data/shared_data/")
+				  .method("GET", null)
+				  .addHeader("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Mobile Safari/537.36")
+				  .build();
+				try {
+					response = client.newCall(request).execute();
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 		
 		return response;
 	}
 	
+	public Response doLogin(String XCSRFToken, String enc_password, String username) {
+		
+		Response response = null;
+
+		OkHttpClient client = new OkHttpClient().newBuilder()
+				  .build();
+				MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+				@SuppressWarnings("deprecation")
+				RequestBody body = RequestBody.create(mediaType, enc_password + "&username=" + username);
+				Request request = new Request.Builder()
+				  .url("https://www.instagram.com/accounts/login/ajax/")
+				  .method("POST", body)
+				  .addHeader("Content-Type", "application/x-www-form-urlencoded")
+				  .addHeader("Content-Length", "345")
+				  .addHeader("Host", "www.instagram.com")
+				  .addHeader("X-CSRFToken", XCSRFToken)
+				  .addHeader("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Mobile Safari/537.36")
+				  .build();
+				try {
+					response = client.newCall(request).execute();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 	
+	
+		return response;
+	
+	}
+
 }
