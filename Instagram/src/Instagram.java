@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,7 +32,7 @@ public class Instagram{
 	private Vector<Object[]> notFollowingYou;
 	private Vector<Object[]> youFollowingNot;
 	private Vector<Object[]> mutual;
-	private Vector<String> openFriendRequestOut;
+	private Vector<String[]> openFriendRequestOut;
 	private Vector<String[]> openFriendRequestIn;
 	private Vector<Object[]> myPosts;
 	private int postLikeNumber = 0;
@@ -319,7 +320,7 @@ public class Instagram{
 	private void setOpenFriendRequestOut() {
 		
 		int max = 10;//faktor 10
-		openFriendRequestOut = new Vector<String>();
+		openFriendRequestOut = new Vector<String[]>();
 		String cursor = null;
 		String error = null;
 		int durchlauf = 0;
@@ -350,10 +351,16 @@ public class Instagram{
 				JSONArray jsonArr = jsonObj.getJSONArray("data");
 				int length = jsonArr.length();
 				for(int i=0;i<length;i++) {
-					
 					JSONObject userJson = jsonArr.getJSONObject(i);
 					String username = userJson.getString("text");
-					openFriendRequestOut.add(username);
+					//platzhalter für picture und id, weil nicht in request vorhanden
+					String picture = "https://scontent-hel3-1.cdninstagram.com/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=scontent-hel3-1.cdninstagram.com&_nc_ohc=isg9IBAnxdAAX-Wj2Wc&edm=AEsR1pMBAAAA&ccb=7-4&oh=fbaa5b506be987e7c37fb50eface7cf2&oe=615717CF&_nc_sid=3f45ac&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-4";
+					String id = "0";
+					String[] person = new String[3];
+					person[0] = username;
+					person[1] = id;
+					person[2] = picture;
+					openFriendRequestOut.add(person);
 				}
 						
 						
@@ -1023,6 +1030,40 @@ public class Instagram{
 			return null;
 		}
 		
+	}
+	
+	public Object[] getOpenFriendRequestOutIds() {
+		
+		if(openFriendRequestOut != null) {
+			Object[] o = new Object[openFriendRequestOut.size()];
+			int count = 0;
+			for(Object op : openFriendRequestOut) {
+				o[count] = op;
+				count++;
+			}
+	
+	
+			count = 0;
+			for(Object ofro: o) {
+				String url = "https://www.instagram.com/" + ofro + "/?__a=1";
+				Response response = r.doRequest(url);
+	
+				try {
+					String output = response.body().string();
+					JSONObject jsonObj = new JSONObject(output);
+					long id = jsonObj.getJSONObject("graphql").getJSONObject("user").getLong("id");
+					
+					String[] ofro2 = openFriendRequestOut[count];
+					
+				} catch (IOException e) {
+					System.out.println("getOpenFriendRequestOutIds error");
+				}
+				count++;
+			}
+		
+		}
+				
+		return null;
 	}
 	
 	public Object[] getOpenFriendRequestIn() {
