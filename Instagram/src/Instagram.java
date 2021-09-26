@@ -181,33 +181,6 @@ public class Instagram{
 		String[] session = InstagramLogin.getSession();
 		ds_user_id = session[0];
 		sessionId = session[1];
-		/*
-		session id mit Instagram4j holen
-		try {
-		Instagram4j instagram = Instagram4j.builder().username(username).password(password).build();
-		instagram.setup();
-		instagram.login();
-		
-		CookieStore cookies = instagram.getCookieStore();
-		List<Cookie> cookieList = cookies.getCookies();
-		String cookieS1 = cookieList.get(4).toString();
-		String cookieS2 = cookieS1.substring(cookieS1.indexOf("value:")+7, cookieS1.length());
-		String sessionId = cookieS2.substring(0, cookieS2.indexOf("]"));
-		
-		cookieS1 = cookieList.get(1).toString();
-		cookieS2 = cookieS1.substring(cookieS1.indexOf("value:")+7, cookieS1.length());
-		String ds_user_id = cookieS2.substring(0, cookieS2.indexOf("]"));
-		
-		this.sessionId = sessionId;
-		this.ds_user_id = ds_user_id;
-		
-		} catch (Exception e) {
-			System.out.println("Login fehlgeschlagen");
-			sessionId = null;
-			ds_user_id = null;
-			//e.printStackTrace();
-		}
-		*/
 	
 	}
 	
