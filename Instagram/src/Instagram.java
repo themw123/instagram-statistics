@@ -203,10 +203,10 @@ public class Instagram{
 			int length = ja_users.length();
 			
 			if(urlParameter.equals("following") && following == null) {
-				following = new Object[length][4];
+				following = new Object[length][5];
 			}
 			else if(urlParameter.equals("followers") && followers == null) {
-				followers = new Object[length][4];
+				followers = new Object[length][5];
 			}
 
 			
@@ -214,25 +214,38 @@ public class Instagram{
 				JSONObject userJson = ja_users.getJSONObject(i);
 				String username = userJson.getString("username");
 				String picture = userJson.getString("profile_pic_url");
+				long id = userJson.getLong("pk");
+				
 				if(urlParameter.equals("following")) {
 					this.following[i][0] = username;
 					this.following[i][1] = 0;
 					this.following[i][2] = 0;
-					this.following[i][3] = picture;
+					this.following[i][3] = id;
+					this.following[i][4] = picture;
 
 				}
 				else if(urlParameter.equals("followers")) {
 					this.followers[i][0] = username;
 					this.followers[i][1] = 0;
 					this.followers[i][2] = 0;
-					this.followers[i][3] = picture;
+					this.followers[i][3] = id;
+					this.followers[i][4] = picture;
 				}
 			}
 					
 		} catch (Exception e) {
-			System.out.println("setFollowingAndFollowers failed -> "  + error);
+			e.printStackTrace();
 
+			/*
+			System.out.println("setFollowingAndFollowers failed -> "  + error);
+			if(urlParameter.equals("following")) {
+				following = null;
+			}
+			else if(urlParameter.equals("followers")) {
+				followers = null;
+			}
 			//e.printStackTrace();
+			 */
 		}
 		/*
 		if(urlParameter.equals("following")) {
@@ -267,6 +280,8 @@ public class Instagram{
 		}
 		if(notFollowingYou.isEmpty()) {
 			notFollowingYou = null;
+		}
+		if(mutual.isEmpty()) {
 			mutual = null;
 		}
 		//System.out.println("Data3-Thread finished");
@@ -303,7 +318,7 @@ public class Instagram{
 	
 	private void setOpenFriendRequestOut() {
 		
-		int max = 100;//faktor 10
+		int max = 10;//faktor 10
 		openFriendRequestOut = new Vector<String>();
 		String cursor = null;
 		String error = null;
@@ -335,6 +350,7 @@ public class Instagram{
 				JSONArray jsonArr = jsonObj.getJSONArray("data");
 				int length = jsonArr.length();
 				for(int i=0;i<length;i++) {
+					
 					JSONObject userJson = jsonArr.getJSONObject(i);
 					String username = userJson.getString("text");
 					openFriendRequestOut.add(username);
@@ -377,9 +393,11 @@ public class Instagram{
 				JSONObject userJson = jsonArr.getJSONObject(i);
 				String username = userJson.getString("username");
 				String picture = userJson.getString("profile_pic_url");
-				String[] person = new String[2];
+				String id = userJson.get("pk").toString();
+				String[] person = new String[3];
 				person[0] = username;
-				person[1] = picture;
+				person[1] = id;
+				person[2] = picture;
 				openFriendRequestIn.add(person);
 			}
 					
