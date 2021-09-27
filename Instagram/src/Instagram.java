@@ -1,4 +1,4 @@
-import java.io.IOException;
+
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -90,7 +90,6 @@ public class Instagram{
 			sessionIdValid = r.checkSessionId(username);
 		}
 		
-		System.out.println("Login-Thread finished");
 	}
 	
 	
@@ -137,7 +136,7 @@ public class Instagram{
 			//System.out.println("Data4-Thread running");
 			t4.start();
 		}
-    	//System.out.println("Data5-Thread running");
+    	//System.out.println("Data6-Thread running");
 		t5.start();
     	//System.out.println("Data6-Thread running");
 		t6.start();
@@ -150,7 +149,6 @@ public class Instagram{
 				t3.join();
 				t4.join();
 			}
-			
 			t5.join();
 			t6.join();
 			t7.join();
@@ -162,15 +160,19 @@ public class Instagram{
 	}
 	
 	
-	
     
     
     
+	public void data2() {
+		setOpenFriendRequestOutExtras();
+	}
     
     
     
+
     
-    public void data2() {
+    
+    public void data3() {
 
 		Thread t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 		Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
@@ -263,7 +265,7 @@ public class Instagram{
 			System.out.println("Data1-Thread finished");
 		}
 		else if(urlParameter.equals("followers")) {
-			System.out.println("Data2-Thread finished");
+			System.out.println("Data3-Thread finished");
 		}
 		*/
 	}
@@ -369,6 +371,70 @@ public class Instagram{
 		}while(cursor != null && durchlauf < max);
 		//System.out.println("Data5-Thread finished");
 	}
+	
+	public void setOpenFriendRequestOutExtras() {
+
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(12);
+
+		for(int i=0;i<openFriendRequestOut.size();i++) {
+			int ip = i;
+			String username = openFriendRequestOut.get(i)[0];
+            executor.submit(() -> {
+            	boolean answer = true;
+                answer = openFriendRequestOutExtras(username, ip);
+                
+	            if(!answer) {
+	            	executor.shutdownNow();
+	            }
+            	
+            });
+		}
+		executor.shutdown();
+		try {
+			while (!executor.awaitTermination(24L, TimeUnit.HOURS)) {
+			    System.out.println("Not yet. Still waiting for termination");
+			}
+		} catch (InterruptedException e) {
+			System.out.println("Waiting for Threads failed.");
+			//e.printStackTrace();
+		}
+
+	}
+	
+	public boolean openFriendRequestOutExtras(String username, int i) {
+		
+		String error = "";
+		boolean answer = true;
+		String url = "https://www.instagram.com/" + username + "/?__a=1";
+		Response response = r.doRequest(url);
+		try {
+			String output = response.body().string();
+			JSONObject jsonObj = new JSONObject(output);
+			error = jsonObj.toString();
+			String id = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("id");
+			String picture = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("profile_pic_url_hd");
+
+			openFriendRequestOut.get(i)[1] = id;
+			openFriendRequestOut.get(i)[2] = picture;
+			
+			synchronized(sync1)
+			{
+				outNumber++;
+			}
+			
+	
+			
+		} catch (Exception e) {
+			if(error.contains("message")) {
+				errorLog.add("getOpenFriendRequestOutIds outNumber: " + outNumber + " failed -> " + error);
+			}
+
+			answer = false;
+		}
+		
+		return answer;
+	}
+	
 	
 	private void setOpenFriendRequestIn() {
 
@@ -561,7 +627,7 @@ public class Instagram{
 	private boolean mostLikedOrCommentedByFollowers(String post, String likerOrCommenter) {
 		boolean answer = true;
 		int durchlauf = 0;
-		String error = null;
+		String error = "";
 		
 		
 		try {	
@@ -684,15 +750,15 @@ public class Instagram{
 		
 		catch (Exception e) {
 			
-			if(error.contains("message")) {
+ 			if(error.contains("message")) {
 				if(likerOrCommenter.equals("liker")) {	
 					errorLog.add("setMostLikedByFollowers Post: " + postLikeNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
 				else if(likerOrCommenter.equals("commenter")) {
 					errorLog.add("setMostCommentedByFollowers Post: " + postCommentNumber + " Durchlauf: " + durchlauf + " failed -> " + error);
 				}
-				answer = false;
 			}
+			answer = false;
 			
 		}
 		
@@ -1032,65 +1098,6 @@ public class Instagram{
 		
 	}
 	
-	public void setOpenFriendRequestOutIds() {
-
-		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(12);
-
-		for(int i=0;i<openFriendRequestOut.size();i++) {
-			int ip = i;
-			String username = openFriendRequestOut.get(i)[0];
-            executor.submit(() -> {
-            	boolean answer = true;
-                answer = openFriendRequestOutIds(username, ip);
-                
-	            if(!answer) {
-	            	executor.shutdownNow();
-	            }
-            	
-            });
-		}
-		executor.shutdown();
-		try {
-			while (!executor.awaitTermination(24L, TimeUnit.HOURS)) {
-			    System.out.println("Not yet. Still waiting for termination");
-			}
-		} catch (InterruptedException e) {
-			System.out.println("Waiting for Threads failed.");
-			//e.printStackTrace();
-		}
-
-	}
-	
-	public boolean openFriendRequestOutIds(String username, int i) {
-		String error = "";
-		boolean answer = true;
-		String url = "https://www.instagram.com/" + username + "/?__a=1";
-		Response response = r.doRequest(url);
-		try {
-			String output = response.body().string();
-			JSONObject jsonObj = new JSONObject(output);
-			error = jsonObj.toString();
-			String id = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("id");
-			
-			openFriendRequestOut.get(i)[1] = id;
-			
-			synchronized(sync1)
-			{
-				outNumber++;
-			}
-			
-	
-			
-		} catch (Exception e) {
-			if(error.contains("message")) {
-				errorLog.add("getOpenFriendRequestOutIds outNumber: " + outNumber + " failed -> " + error);
-				answer = false;
-			}
-
-		}
-		
-		return answer;
-	}
 	
 	public Object[] getOpenFriendRequestIn() {
 		if(!openFriendRequestIn.isEmpty()) {
