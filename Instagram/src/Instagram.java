@@ -13,6 +13,7 @@ public class Instagram{
 	private Object sync1 = new Object();
 	private Object sync2 = new Object();
 	
+	private String chooseLoginprocess = "session";
 	private String username;
 	private String password;
 	private String sessionId;
@@ -33,29 +34,32 @@ public class Instagram{
 	private Vector<Object[]> myPosts;
 	private int postLikeNumber;
 	private int postCommentNumber;
+	private int outNumber;
 	private int likes;
 	private int comments;	
 	
 	
-	public Instagram(String username, String sessionId, String ds_user_id) {
-		this.username = username;
-		this.sessionIdValid = false;
-		this.sessionId = sessionId;
-		this.ds_user_id = ds_user_id;
+	public Instagram(String chooseLoginprocess, String data1, String data2) {
+		
+		this.chooseLoginprocess = chooseLoginprocess;
+		
+		if(chooseLoginprocess.equals("session")) {
+			this.sessionId = data1;
+			this.ds_user_id = data2;
+		}
+		
+		else if(chooseLoginprocess.equals("login")) {
+			this.username = data1;
+			this.password = data2;
+		}
 		
 		initialDatastructures();
 		
 	}
 	
-	public Instagram(String username, String password) {
-		this.username = username;
-		this.password = password;
-		this.sessionIdValid = false;
-		
-		initialDatastructures();
-	}
 	
 	private void initialDatastructures() {
+		this.sessionIdValid = false;
 		notFollowingYou = new Vector<Object[]>();
 		mutual = new Vector<Object[]>();
 		youFollowingNot = new Vector<Object[]>();
@@ -66,27 +70,38 @@ public class Instagram{
 		
 		postLikeNumber = 0;
 		postCommentNumber = 0;
+		outNumber = 0;
 		likes = 0;
 		comments = 0;
 	}
 	
 	public void login() {
-		//(String username, String sessionId, String ds_user_id)
-		if(sessionId != null && ds_user_id != null) {
-			this.r = new APIRequest(sessionId);
-			//check if sessionId still works
-			sessionIdValid = r.checkSessionId("https://www.instagram.com/" + username + "/?__a=1");
+
+		if(chooseLoginprocess.equals("login")){
+			setSession();
 		}
 		
-		//(String username, String password)
-		else {
-			setSession();
-			if(sessionId != null && ds_user_id != null) {
-				this.r = new APIRequest(sessionId);
-				sessionIdValid = r.checkSessionId("https://www.instagram.com/" + username + "/?__a=1");
+		if(sessionId != null && ds_user_id != null) {
+			this.r = new APIRequest(sessionId);
+			if(username == null || username.isEmpty()) {
+				username = r.getUsername(ds_user_id);
 			}
+			//check if sessionId still works
+			sessionIdValid = r.checkSessionId(username);
 		}
+		
 		System.out.println("Login-Thread finished");
+	}
+	
+	
+	
+	private void setSession() {
+		
+		InstagramLogin InstagramLogin = new InstagramLogin(username, password);
+		String[] session = InstagramLogin.getSession();
+		ds_user_id = session[0];
+		sessionId = session[1];
+	
 	}
 	
 
@@ -139,7 +154,6 @@ public class Instagram{
 			t5.join();
 			t6.join();
 			t7.join();
-
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -161,7 +175,7 @@ public class Instagram{
 		Thread t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 		Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
 
-		if(following != null && followers != null && myPosts != null) {
+		if(following != null && followers != null && !myPosts.isEmpty()) {
 			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
 		    //System.out.println("Data8-Thread running");
 			t8.start();
@@ -181,20 +195,7 @@ public class Instagram{
     }
     
     
-    
 
-    
-    
-    
-	
-	private void setSession() {
-		
-		InstagramLogin InstagramLogin = new InstagramLogin(username, password);
-		String[] session = InstagramLogin.getSession();
-		ds_user_id = session[0];
-		sessionId = session[1];
-	
-	}
 	
 	private void setFollowingAndFollowers(String urlParameter) {
 		int count = 1000000000;
@@ -713,7 +714,7 @@ public class Instagram{
 		
 		boolean print1 = true;
 		boolean print2 = true;
-
+		boolean print3 = true;
 		
 		for(int i=0;i<errorLog.size();i++) {
 			String error = errorLog.get(i);
@@ -729,6 +730,15 @@ public class Instagram{
 			else if(error.contains("setMostCommentedByFollowers")) {
 				if(print2) {
 					print2 = false;
+				}
+				else {
+					errorLog.remove(i);
+					i--;
+				}
+			}
+			else if(error.contains("getOpenFriendRequestOutIds")) {
+				if(print3) {
+					print3 = false;
 				}
 				else {
 					errorLog.remove(i);
@@ -1023,23 +1033,63 @@ public class Instagram{
 	}
 	
 	public void setOpenFriendRequestOutIds() {
-		
-			for(int i=0;i<openFriendRequestOut.size();i++) {
-				String url = "https://www.instagram.com/" +  openFriendRequestOut.get(i)[0] + "/?__a=1";
-				Response response = r.doRequest(url);
+
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(12);
+
+		for(int i=0;i<openFriendRequestOut.size();i++) {
+			int ip = i;
+			String username = openFriendRequestOut.get(i)[0];
+            executor.submit(() -> {
+            	boolean answer = true;
+                answer = openFriendRequestOutIds(username, ip);
+                
+	            if(!answer) {
+	            	executor.shutdownNow();
+	            }
+            	
+            });
+		}
+		executor.shutdown();
+		try {
+			while (!executor.awaitTermination(24L, TimeUnit.HOURS)) {
+			    System.out.println("Not yet. Still waiting for termination");
+			}
+		} catch (InterruptedException e) {
+			System.out.println("Waiting for Threads failed.");
+			//e.printStackTrace();
+		}
+
+	}
 	
-				try {
-					String output = response.body().string();
-					JSONObject jsonObj = new JSONObject(output);
-					String id = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("id");
-					
-					openFriendRequestOut.get(i)[1] = id;
-					
-				} catch (IOException e) {
-					System.out.println("getOpenFriendRequestOutIds error");
-				}
+	public boolean openFriendRequestOutIds(String username, int i) {
+		String error = "";
+		boolean answer = true;
+		String url = "https://www.instagram.com/" + username + "/?__a=1";
+		Response response = r.doRequest(url);
+		try {
+			String output = response.body().string();
+			JSONObject jsonObj = new JSONObject(output);
+			error = jsonObj.toString();
+			String id = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("id");
+			
+			openFriendRequestOut.get(i)[1] = id;
+			
+			synchronized(sync1)
+			{
+				outNumber++;
+			}
+			
+	
+			
+		} catch (Exception e) {
+			if(error.contains("message")) {
+				errorLog.add("getOpenFriendRequestOutIds outNumber: " + outNumber + " failed -> " + error);
+				answer = false;
 			}
 
+		}
+		
+		return answer;
 	}
 	
 	public Object[] getOpenFriendRequestIn() {
@@ -1055,6 +1105,10 @@ public class Instagram{
 		else {
 			return null;
 		}
+	}
+	
+	public int getOutNumber() {
+		return outNumber;
 	}
 	
 	public int getPostLikeNumber() {

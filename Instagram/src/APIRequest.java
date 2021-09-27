@@ -1,4 +1,7 @@
 import java.io.IOException;
+
+import org.json.JSONObject;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -41,14 +44,37 @@ public class APIRequest {
 		return response;
 	}
 	
-	public boolean checkSessionId(String url) {
+	
+	public String getUsername(String ds_user_id) {
+		String username = null;
+		OkHttpClient client = new OkHttpClient().newBuilder()
+				  .build();
+				Request request = new Request.Builder()
+				  .url("https://i.instagram.com/api/v1/users/" + ds_user_id + "/info/")
+				  .method("GET", null)
+				  .addHeader("User-Agent", "Instagram 87.0.0.21.100 Android (23/6.5.1; 558dpi; 1440x2560; LGE; LG-E525f; vee3e; en_US")
+				  .addHeader("Cookie", "sessionid=" + sessionId)
+				  .build();
+				try {
+					Response response = client.newCall(request).execute();
+					String output = response.body().string();
+					JSONObject jsonObj = new JSONObject(output);
+					username = jsonObj.getJSONObject("user").getString("username");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		return username;
+		
+	}
+	
+	
+	public boolean checkSessionId(String username) {
 		
 		boolean sessionIdValid = false;
 		
 		Request request = new Request.Builder()
-			.url(url)
+			.url("https://www.instagram.com/" + username + "/?__a=1")
 			.method("GET", null)
-			.addHeader("X-IG-App-ID", "936619743392459")
 			.addHeader("Cookie", "sessionid=" + sessionId)
 			.build();
 		
@@ -58,8 +84,7 @@ public class APIRequest {
 				sessionIdValid = true;
 			}
 		} catch (IOException e) {
-			System.out.println();
-			//e.printStackTrace(
+			e.printStackTrace();
 		}
 		requestsCount++;
 		return sessionIdValid;
@@ -103,7 +128,6 @@ public class APIRequest {
 				try {
 					response = client.newCall(request).execute();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	
