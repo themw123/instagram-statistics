@@ -10,8 +10,8 @@ import org.json.JSONObject;
 import okhttp3.Response;
 
 public class Instagram{
-	private Object CountLiker = new Object();
-	private Object CountCommenter = new Object();
+	private Object sync1 = new Object();
+	private Object sync2 = new Object();
 	
 	private String username;
 	private String password;
@@ -20,10 +20,6 @@ public class Instagram{
 	private String ds_user_id;
 	private Vector<String> errorLog;
 
-	/*
-	time = -System.currentTimeMillis();
-	System.out.println((time + System.currentTimeMillis())/1000 + " Sekunden");
-	*/
 	
 	private APIRequest r;
 	
@@ -35,10 +31,10 @@ public class Instagram{
 	private Vector<String[]> openFriendRequestOut;
 	private Vector<String[]> openFriendRequestIn;
 	private Vector<Object[]> myPosts;
-	private int postLikeNumber = 0;
-	private int postCommentNumber = 0;
-	private int likes = 0;
-	private int comments = 0;	
+	private int postLikeNumber;
+	private int postCommentNumber;
+	private int likes;
+	private int comments;	
 	
 	
 	public Instagram(String username, String sessionId, String ds_user_id) {
@@ -67,6 +63,11 @@ public class Instagram{
 		openFriendRequestIn = new Vector<String[]>();
 		myPosts = new Vector<Object[]>();
 		errorLog = new Vector<String>();
+		
+		postLikeNumber = 0;
+		postCommentNumber = 0;
+		likes = 0;
+		comments = 0;
 	}
 	
 	public void login() {
@@ -111,7 +112,6 @@ public class Instagram{
 			t1.join();
 			t2.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -141,7 +141,6 @@ public class Instagram{
 			t7.join();
 
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -487,9 +486,11 @@ public class Instagram{
 					postObj[2] = comments;
 					postObj[3] = display_url;
 
-					
-					this.likes = this.likes + likes;
-					this.comments = this.comments + comments;
+					synchronized(sync1)
+					{
+						this.likes = this.likes + likes;
+						this.comments = this.comments + comments;
+					}
 					
 					myPosts.add(postObj);
 				}
@@ -666,17 +667,15 @@ public class Instagram{
 
 			
 			if(likerOrCommenter.equals("liker")) {
-				synchronized(CountLiker)
+				synchronized(sync1)
 				{
 					postLikeNumber++;
-					//this.likes = this.likes + likes;
 				}
 			}
 			else if(likerOrCommenter.equals("commenter")) {
-				synchronized(CountCommenter)
+				synchronized(sync2)
 				{
 					postCommentNumber++;
-					//this.comments = this.comments + comments;
 				}
 			}	
 			
@@ -811,9 +810,11 @@ public class Instagram{
 		if(followers != null) {
 		
 			int count = 0;
-			for(Object[] f : followers) {
+			
+			for(int i=0;i<followers.length;i++) {
 				count++;
 			}
+			
 			Object[] followers = new Object[count];
 			count = 0;
 			for(Object f : this.followers) {

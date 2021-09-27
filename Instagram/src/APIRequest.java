@@ -1,7 +1,4 @@
 import java.io.IOException;
-
-import org.json.JSONObject;
-
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
