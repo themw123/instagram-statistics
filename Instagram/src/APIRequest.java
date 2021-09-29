@@ -52,8 +52,7 @@ public class APIRequest {
 				Request request = new Request.Builder()
 				  .url("https://i.instagram.com/api/v1/users/" + ds_user_id + "/info/")
 				  .method("GET", null)
-				  .addHeader("User-Agent", "Instagram 87.0.0.21.100 Android (23/6.5.1; 558dpi; 1440x2560; LGE; LG-E525f; vee3e; en_US")
-				  .addHeader("Cookie", "sessionid=" + sessionId)
+				  .addHeader("User-Agent", "Instagram 87.0.3.21.100 Android (23/6.4.1; 558dpi; 1440x2560; LGE; LG-E525f; vee3e; en_US")
 				  .build();
 				try {
 					Response response = client.newCall(request).execute();
