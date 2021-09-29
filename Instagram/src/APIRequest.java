@@ -54,6 +54,7 @@ public class APIRequest {
 				Request request = new Request.Builder()
 				  .url("https://i.instagram.com/api/v1/users/" + ds_user_id + "/info/")
 				  .method("GET", null)
+				  .addHeader("Cookie", "sessionid=" + sessionId)
 				  .addHeader("User-Agent", userAgent)
 				  .build();
 				try {

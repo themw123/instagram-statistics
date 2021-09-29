@@ -19,19 +19,29 @@ public class Instagram{
 	private String sessionId;
 	private boolean sessionIdValid;
 	private String ds_user_id;
+	
 	private Vector<String> errorLog;
-
+	private Vector<String> sortedErrorLog;
 	
 	private APIRequest r;
 	
 	private Object[][] following;
+	private int followingCount;
+	
 	private Object[][] followers;
+	private Object[][] sortedFollowers;
+	private int followersCount;
+	
 	private Vector<Object[]> notFollowingYou;
 	private Vector<Object[]> youFollowingNot;
 	private Vector<Object[]> mutual;
 	private Vector<String[]> openFriendRequestOut;
 	private Vector<String[]> openFriendRequestIn;
+	
 	private Vector<Object[]> myPosts;
+	private Vector<Object[]> sortedPosts;
+	private int myPostsCount;
+	
 	private int postLikeNumber;
 	private int postCommentNumber;
 	private int outNumber;
@@ -54,9 +64,8 @@ public class Instagram{
 		}
 		
 		initialDatastructures();
-		
 	}
-	
+
 	
 	private void initialDatastructures() {
 		this.sessionIdValid = false;
@@ -75,8 +84,35 @@ public class Instagram{
 		comments = 0;
 	}
 	
+	
+	
+	public void start() {
+		login();
+		if(sessionIdValid) {
+			//sessionid und ds_user_id in App abspeichern
+			System.out.println("Login successful");
+			data();
+			//errors. In UI error anzeigen
+			setErrorLog();
+			for(String e : errorLog) {
+			    System.out.println(e);
+			}
+		}
+		else {
+			System.out.println("Login failed");
+			//login page fehlermeldung ausgeben
+			if(sessionId == null) {
+				System.out.println("Wrong password or username");
+			}
+			else if(sessionId == "two_factor_required") {
+				System.out.println("please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
+			}
+		}
+	}
+	
+	
+	
 	public void login() {
-
 		if(chooseLoginprocess.equals("login")){
 			setSession();
 		}
@@ -105,7 +141,7 @@ public class Instagram{
 	
 
 	
-    public void data1(){
+    public void data(){
 
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
@@ -114,8 +150,15 @@ public class Instagram{
 		Thread t5 = new Thread(() -> setOpenFriendRequestOut());
 		Thread t6 = new Thread(() -> setOpenFriendRequestIn());
 		Thread t7 = new Thread(() -> setMyPosts());
-
 		
+		Thread t8 = new Thread(() -> setOpenFriendRequestOutExtras());
+
+		Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
+		Thread t10 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
+		
+		
+		System.out.println("Threads-1-7 running");
+
     	//System.out.println("Data1-Thread running");
 		t1.start();
     	//System.out.println("Data2-Thread running");
@@ -142,6 +185,10 @@ public class Instagram{
 		t6.start();
     	//System.out.println("Data7-Thread running");
 		t7.start();
+	
+		
+		//load Main UI and show waiting symbols on general and second page
+
 		
 		
 		try {
@@ -152,53 +199,85 @@ public class Instagram{
 			t5.join();
 			t6.join();
 			t7.join();
+			System.out.println("Threads-1-7 finished");
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 
+		//data1 fertig
+	    setSortedPosts("comments", "down"); //mostCommentsPosts
+	    setSortedPosts("likes", "up"); //leastLikesPosts
+	    setSortedPosts("comments", "up"); //leastCommentsPosts
+	    setSortedPosts("likes", "down"); //mostLikesPosts
+		//get data1 into general page
+		/*
+		myPostsCount
+		followersCount
+		followingCount
+		likes
+		comments
 
-	}
-	
-	
-    
-    
-    
-	public void data2() {
-		setOpenFriendRequestOutExtras();
-	}
-    
-    
-    
-
-    
-    
-    public void data3() {
-
-		Thread t8 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
-		Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
-
-		if(following != null && followers != null && !myPosts.isEmpty()) {
+		notFollowingYou
+		youFollowingNot
+		mutual
+		openFriendRequestIn
+		*/
+		
+		//get data1+ into second page
+		/*
+	    mostLikesPosts
+	    mostCommentsPosts
+	    leastLikesPosts
+	    leastCommentsPosts
+	    */
+		if(openFriendRequestOut != null) {
+			System.out.println("Thread-8 running");
+			t8.start();
+		}
+		if(this.following != null && this.followers != null && !myPosts.isEmpty()) {
 			//System.out.println("\n!!!!!!!!HEAVY!!!!!!!!");
 		    //System.out.println("Data8-Thread running");
-			t8.start();
-		    //System.out.println("Data9-Thread running");
+			System.out.println("Thread-9-10 running");
 			t9.start();
-			
-			try {
-				t8.join();
-				t9.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		    //System.out.println("Data9-Thread running");
+			t10.start();
+		}
 		
+
+		try {
+			if(openFriendRequestOut != null) {
+				t8.join();
+				System.out.println("Threads-8 finished");
+				//data2 fertig
+				//get data2 into first page
+				//getOpenFriendRequestOut
+				
+			}
+			//data2 fertig
+			if(this.following != null && this.followers != null && !myPosts.isEmpty()) {
+				t9.join();
+				t10.join();
+				System.out.println("Threads-9-10 finished");
+				//data3 fertig
+				//get data3 into second page
+			    setSortedFollowers("comments", "down");
+			    setSortedFollowers("likes", "up");
+			    setSortedFollowers("comments", "up");
+			    setSortedFollowers("likes", "down");
+
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		
 		
-    }
-    
-    
-
+	}
 	
+
+    
+    
+    
+    
 	private void setFollowingAndFollowers(String urlParameter) {
 		int count = 1000000000;
 		String error = null;
@@ -268,6 +347,21 @@ public class Instagram{
 			System.out.println("Data3-Thread finished");
 		}
 		*/
+		if(following != null && followers != null) {
+			followingCount = following.length;
+			followersCount = followers.length;
+		}
+		else {
+			followingCount = 0;
+			followersCount = 0;
+		}
+		
+		if (following != null && following.length == 0) {
+			following = null;
+		}
+		if (followers != null && followers.length == 0) {
+			followers = null;
+		}
 	}
 	
 	
@@ -288,7 +382,12 @@ public class Instagram{
 			}
 			drin = false;
 		}
-
+		if (notFollowingYou.isEmpty()) {
+			notFollowingYou = null;
+		}
+		if (mutual.isEmpty()) {
+			mutual = null;
+		}
 		//System.out.println("Data3-Thread finished");
 
 	}
@@ -309,6 +408,9 @@ public class Instagram{
 				youFollowingNot.add(foersObj);
 			}
 			drin = false;
+		}
+		if (youFollowingNot.isEmpty()) {
+			youFollowingNot = null;
 		}
 		//System.out.println("Data4-Thread finished");
 		
@@ -370,6 +472,9 @@ public class Instagram{
 			durchlauf++;
 		}while(cursor != null && durchlauf < max);
 		//System.out.println("Data5-Thread finished");
+		if (openFriendRequestOut.isEmpty()) {
+			openFriendRequestOut = null;
+		}
 	}
 	
 	public void setOpenFriendRequestOutExtras() {
@@ -467,6 +572,9 @@ public class Instagram{
 		} catch (Exception e) {
 			//e.printStackTrace();	
 			errorLog.add("setOpenFriendRequestIn failed -> " + error);
+		}
+		if (openFriendRequestIn.isEmpty()) {
+			openFriendRequestIn = null;
 		}
 		//System.out.println("Data6-Thread finished");
 
@@ -569,7 +677,14 @@ public class Instagram{
 					
 			durchlauf++;
 				
-		}while(has_next_page.equals("true") && durchlauf < max);		
+		}while(has_next_page.equals("true") && durchlauf < max);
+		if (myPosts.isEmpty()) {
+			myPosts = null;
+			myPostsCount = 0;
+		}
+		else {
+			myPostsCount = myPosts.size();
+		}
 		//System.out.println("Data7-Thread finished");
 	}
 	
@@ -776,7 +891,7 @@ public class Instagram{
 
 	
 	
-	public String[] getErrorLog() {
+	private void setErrorLog() {
 		
 		boolean print1 = true;
 		boolean print2 = true;
@@ -812,23 +927,15 @@ public class Instagram{
 				}
 			}
 		}
-		
-		String[] errorLogString = new String[errorLog.size()];
-		for(int i=0;i<errorLog.size();i++) {
-			errorLogString[i] = errorLog.get(i);
-		}
-		return errorLogString;
 	}
 	
-	public Object[] getPosts(String likesOrcomments, String order) {
-		
-		if(!myPosts.isEmpty()) {
-		
-			Object[] posts = new Object[myPosts.size()];
-			int count = 0;
+	public void setSortedPosts(String likesOrcomments, String order) {
+				
+		if(myPosts != null) {
+			
+			Vector<Object[]> posts = new Vector<Object[]>();
 			for(Object post : myPosts) {
-				posts[count] = (Object[]) post;
-				count++;
+				posts.add((Object[]) post);
 			}
 			
 			
@@ -836,10 +943,10 @@ public class Instagram{
 			int count1 = 0, count2 = 0;
 			while(true) { 
 				run = false;
-				for(int k=0;k<posts.length-1;k++) {
-							
-					Object[] obj1 = (Object[]) posts[k];
-					Object[] obj2 = (Object[]) posts[k+1];
+				for(int k=0;k<posts.size()-1;k++) {
+					
+					Object[] obj1 = posts.get(k);
+					Object[] obj2 = posts.get(k+1);
 					
 					if(likesOrcomments.equals("likes")) {
 						count1 = (int) obj1[1];
@@ -853,16 +960,16 @@ public class Instagram{
 					if(order.equals("down")) {
 						if(count2 > count1) {
 							Object[] hilf = obj1;
-							posts[k] = obj2;
-							posts[k+1] = hilf;
+							posts.set(k, obj2);
+							posts.set(k+1, hilf);
 							run = true;
 						}
 					}
 					else if(order.equals("up")) {
 						if(count2 < count1) {
 							Object[] hilf = obj1;
-							posts[k] = obj2;
-							posts[k+1] = hilf;
+							posts.set(k, obj2);
+							posts.set(k+1, hilf);
 							run = true;
 						}
 					}
@@ -872,16 +979,16 @@ public class Instagram{
 				}
 			}
 			//System.out.println("");
-			return posts;
+			sortedPosts = posts;;
 		}
 		else {
-			return null;
+			sortedPosts = null;
 		}
 	}
 	
-	public Object[] getMostLikesandCommentsFrom(String likesOrComments, String order) {
+	public void setSortedFollowers(String likesOrComments, String order) {
 		
-		Object[] onlyMost;
+		Object[][] onlyMost;
 		
 		if(followers != null) {
 		
@@ -966,7 +1073,7 @@ public class Instagram{
 			}
 			
 			
-			onlyMost = new Object[count];
+			onlyMost = new Object[count][5];
 			count = 0;
 			c = 0;
 			for(int i=0;i<followers.length;i++) {
@@ -984,7 +1091,7 @@ public class Instagram{
 				else if(order.equals("up") && c != 0) {
 					break;
 				}
-				onlyMost[count] = followers[i];
+				onlyMost[count][0] = followers[i];
 				count++;
 			}
 		}
@@ -1001,151 +1108,8 @@ public class Instagram{
 				onlyMost = null;
 			}
 		}
-		return onlyMost;
+		sortedFollowers = onlyMost;
 		//System.out.println("");
-	}
-
-	public int getPostsNumber() {
-		return myPosts.size();
-	}
-	
-	public int getFollowersNumber() {
-		if(followers != null) {
-			return followers.length;
-		}
-		else {
-			return 0;
-		}
-	}
-	
-	public int getFollowingNumber() {
-		if(following != null) {
-			return following.length;
-		}
-		else {
-			return 0;
-		}
-	}
-	
-	public int getLikes() {
-		return likes;
-	}
-	
-	public int getComments() {
-		return comments;
-	}
-	
-	public Object[] getNotFollowingYou() {
-		if(!notFollowingYou.isEmpty()) {
-			Object[] not = new Object[notFollowingYou.size()];
-			int count = 0;
-			for(Object nf : notFollowingYou) {
-				not[count] = nf;
-				count++;
-			}
-			return not;
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public Object[] getYouFollowingNot() {
-		if(!youFollowingNot.isEmpty()) {
-			Object[] you = new Object[youFollowingNot.size()];
-			int count = 0;
-			for(Object fy : youFollowingNot) {
-				you[count] = fy;
-				count++;
-			}
-			return you;
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public Object[] getMutual() {
-		
-		if(!mutual.isEmpty()) {
-			Object[] m = new Object[mutual.size()];
-			int count = 0;
-			for(Object mo : mutual) {
-				m[count] = mo;
-				count++;
-			}
-			return m;
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public Object[] getOpenFriendRequestOut() {
-		
-		if(!openFriendRequestOut.isEmpty()) {
-			Object[] o = new Object[openFriendRequestOut.size()];
-			int count = 0;
-			for(Object op : openFriendRequestOut) {
-				o[count] = op;
-				count++;
-			}
-			return o;
-		}
-		else {
-			return null;
-		}
-		
-	}
-	
-	
-	public Object[] getOpenFriendRequestIn() {
-		if(!openFriendRequestIn.isEmpty()) {
-			Object[] i = new Object[openFriendRequestIn.size()];
-			int count = 0;
-			for(Object in : openFriendRequestIn) {
-				i[count] = in;
-				count++;
-			}
-			return i;
-		}
-		else {
-			return null;
-		}
-	}
-	
-	public int getOutNumber() {
-		return outNumber;
-	}
-	
-	public int getPostLikeNumber() {
-		return postLikeNumber;
-	}
-	
-	public int getPostCommentNumber() {
-		return postCommentNumber;
-	}
-	
-	
-	public boolean getSessionIdValid() {
-		return sessionIdValid;
-	}
-	
-	public int getPostNumber() {
-		if(!myPosts.isEmpty()) { 
-			return myPosts.size(); 
-		}
-		else {
-			return 0;
-		}
-	}	
-	
-	public String getds_user_id() {
-		return ds_user_id;
-	}
-	
-	public String getSessionId() {
-		return sessionId;
 	}
 	
 	public int getRequestsCount() {
