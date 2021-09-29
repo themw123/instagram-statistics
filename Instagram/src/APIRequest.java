@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Random;
 
 import org.json.JSONObject;
 
@@ -47,12 +48,13 @@ public class APIRequest {
 	
 	public String getUsername(String ds_user_id) {
 		String username = null;
+		String userAgent = getUserAgent(1);
 		OkHttpClient client = new OkHttpClient().newBuilder()
 				  .build();
 				Request request = new Request.Builder()
 				  .url("https://i.instagram.com/api/v1/users/" + ds_user_id + "/info/")
 				  .method("GET", null)
-				  .addHeader("User-Agent", "Instagram 87.0.3.21.100 Android (23/6.4.1; 558dpi; 1440x2560; LGE; LG-E525f; vee3e; en_US")
+				  .addHeader("User-Agent", userAgent)
 				  .build();
 				try {
 					Response response = client.newCall(request).execute();
@@ -91,13 +93,14 @@ public class APIRequest {
 	
 	public Response XCSRFToken() {
 		Response response = null;
-		
+		String userAgent = getUserAgent(2);
+
 		OkHttpClient client = new OkHttpClient().newBuilder()
 				  .build();
 				Request request = new Request.Builder()
 				  .url("https://www.instagram.com/data/shared_data/")
 				  .method("GET", null)
-				  .addHeader("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Mobile Safari/537.36")
+				  .addHeader("User-Agent", userAgent)
 				  .build();
 				try {
 					response = client.newCall(request).execute();
@@ -112,6 +115,7 @@ public class APIRequest {
 	public Response doLogin(String XCSRFToken, String enc_password, String username) {
 		
 		Response response = null;
+		String userAgent = getUserAgent(2);
 
 		OkHttpClient client = new OkHttpClient().newBuilder()
 				  .build();
@@ -122,7 +126,7 @@ public class APIRequest {
 				  .url("https://www.instagram.com/accounts/login/ajax/")
 				  .method("POST", body)
 				  .addHeader("X-CSRFToken", XCSRFToken)
-				  .addHeader("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Mobile Safari/537.36")
+				  .addHeader("User-Agent", userAgent)
 				  .build();
 				try {
 					response = client.newCall(request).execute();
@@ -138,5 +142,25 @@ public class APIRequest {
 	public int getRequestsCount() {
 		return requestsCount;
 	}
+	
+	private String getUserAgent(int zahl) {
+		Random r = new Random();
+		String userAgent = null;
+		if(zahl == 1) {
+			int zahl1 = r.nextInt(101);	
+			int zahl2 = r.nextInt(11);
+			int zahl3 = r.nextInt(51);
+			userAgent =  "Instagram " + zahl1 + ".0.3." + zahl2 + ".100 Android ("+ zahl3 +"/6.4.1; 558dpi; 1440x2560; LGE; LG-E525f; vee3e; en_US";
+		}
+		else if(zahl == 2) {
+			int zahl1 = r.nextInt(11);
+			int zahl2 = r.nextInt(11);
+			int zahl3 = r.nextInt(11);
+			int zahl4 = r.nextInt(101);
+			userAgent = "Mozilla/" + zahl1 + ".0 (Linux; Android " + zahl2 + ".0; Nexus " + zahl3 + " Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/" + zahl4 + ".0.4577.82 Mobile Safari/537.36";
+		}
+		return userAgent;
+	}
+	
 
 }
