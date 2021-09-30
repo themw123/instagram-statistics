@@ -28,8 +28,8 @@ public class Instagram{
 	
 	private APIRequest r;
 	
-	private Object[][] following;
-	private Object[][] followers;
+	private Vector<Object[]> following;
+	private Vector<Object[]> followers;
 	private Vector<Object[]> notFollowingYou;
 	private Vector<Object[]> youFollowingNot;
 	private Vector<Object[]> mutual;
@@ -63,6 +63,8 @@ public class Instagram{
 	
 	private void initialDatastructures() {
 		this.sessionIdValid = false;
+		following = new Vector<Object[]>();
+		followers = new Vector<Object[]>();
 		notFollowingYou = new Vector<Object[]>();
 		mutual = new Vector<Object[]>();
 		youFollowingNot = new Vector<Object[]>();
@@ -183,7 +185,7 @@ public class Instagram{
 		}
 		
 		
-		if(this.following.length != 0 || this.followers.length != 0) {
+		if(this.following.size() != 0 || this.followers.size() != 0) {
 	    	//System.out.println("Data3-Thread running");
 			t3.start();
 			//System.out.println("Data4-Thread running");
@@ -202,7 +204,7 @@ public class Instagram{
 		
 		
 		try {
-			if(this.following.length != 0 || this.followers.length != 0) {
+			if(this.following.size() != 0 || this.followers.size() != 0) {
 				t3.join();
 				t4.join();
 			}
@@ -237,7 +239,7 @@ public class Instagram{
 			System.out.println("Thread:8 running");
 			t8.start();
 		}
-		if(this.followers.length != 0 && !myPosts.isEmpty()) {
+		if(this.followers.size() != 0 && !myPosts.isEmpty()) {
 		    //System.out.println("Data8-Thread running");
 			System.out.println("Thread:9-10 running");
 			t9.start();
@@ -261,7 +263,7 @@ public class Instagram{
 		
 		
 		
-		if(this.followers.length != 0 && !myPosts.isEmpty()) {
+		if(this.followers.size() != 0 && !myPosts.isEmpty()) {
 			try {
 				//data2 fertig
 				t9.join();
@@ -304,74 +306,70 @@ public class Instagram{
 
 	
 	private void setFollowingAndFollowers(String urlParameter) {
-		int count = 1000000000;
+		int max = 1;
+		int durchlauf = 0;
+		int count = 100000;
 		String error = null;
+		String next_max_id = null;
 		
-		
-		String url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "";
-		
-		Response response = r.doRequest(url);
-		
-		try {
-			String output = response.body().string();
-			JSONObject jsonObj = new JSONObject(output);
-			error = jsonObj.toString();
-
-			
-			JSONArray ja_users = jsonObj.getJSONArray("users");
-			int length = ja_users.length();
-			
-			if(urlParameter.equals("following") && following == null) {
-				following = new Object[length][5];
-			}
-			else if(urlParameter.equals("followers") && followers == null) {
-				followers = new Object[length][5];
-			}
-
-			
-			for(int i=0;i<length;i++) {
-				JSONObject userJson = ja_users.getJSONObject(i);
-				String username = userJson.getString("username");
-				String picture = userJson.getString("profile_pic_url");
-				long id = userJson.getLong("pk");
+		do {
+	
+			String url = null;
+			if(next_max_id == null) {
+				url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "";
+			}	
+			else {
+				url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "&max_id=" + next_max_id;
+			}	
 				
-				if(urlParameter.equals("following")) {
-					this.following[i][0] = username;
-					this.following[i][1] = 0;
-					this.following[i][2] = 0;
-					this.following[i][3] = id;
-					this.following[i][4] = picture;
-
+			Response response = r.doRequest(url);
+			
+			try {
+				String output = response.body().string();
+				JSONObject jsonObj = new JSONObject(output);
+				error = jsonObj.toString();
+	
+				try {
+					next_max_id = jsonObj.getString("next_max_id");
 				}
-				else if(urlParameter.equals("followers")) {
-					this.followers[i][0] = username;
-					this.followers[i][1] = 0;
-					this.followers[i][2] = 0;
-					this.followers[i][3] = id;
-					this.followers[i][4] = picture;
+				catch(Exception e) {
+					next_max_id = null;
 				}
-			}
+				
+				JSONArray ja_users = jsonObj.getJSONArray("users");
+				int length = ja_users.length();
+	
+				
+				for(int i=0;i<length;i++) {
+					JSONObject userJson = ja_users.getJSONObject(i);
+					String username = userJson.getString("username");
+					String picture = userJson.getString("profile_pic_url");
+					long id = userJson.getLong("pk");
 					
-		} catch (Exception e) {
-			//e.printStackTrace();
-			errorLog.add("setFollowingAndFollowers failed -> "  + error);
-			/*
-			if(urlParameter.equals("following")) {
-				following = null;
+					Object[] person = new Object[5];
+					person[0] = username;
+					person[1] = 0;
+					person[2] = 0;
+					person[3] = id;
+					person[4] = picture;
+					
+					if(urlParameter.equals("following")) {
+						this.following.add(person);	
+	
+					}
+					else if(urlParameter.equals("followers")) {
+						this.followers.add(person);	
+					}
+				}
+						
+			} catch (Exception e) {
+				//e.printStackTrace();
+				errorLog.add("setFollowingAndFollowers failed -> "  + error);
+	
 			}
-			else if(urlParameter.equals("followers")) {
-				followers = null;
-			}
-			*/
-		}
-		/*
-		if(urlParameter.equals("following")) {
-			System.out.println("Data1-Thread finished");
-		}
-		else if(urlParameter.equals("followers")) {
-			System.out.println("Data3-Thread finished");
-		}
-		*/
+			durchlauf++;
+		}while(next_max_id != null && durchlauf < max);
+
 	}
 	
 	
@@ -630,6 +628,10 @@ public class Instagram{
 				if(has_next_page.equals("true")) {
 					end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
 				}
+				
+				if(has_next_page.equals("false")) {
+					end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
+				}
 						
 				JSONArray jsonArr = jsonObj.getJSONArray("edges");
 				int length = jsonArr.length();
@@ -735,21 +737,17 @@ public class Instagram{
 	
 	
 	private boolean mostLikedOrCommentedByFollowers(String post, String likerOrCommenter) {
+		
+		int max = 200; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
+		int count = 5000000;
+		String end_cursor = null;
+		String has_next_page = "false";
+		
 		boolean answer = true;
 		int durchlauf = 0;
 		String error = "";
 		
-		
 		try {	
-			
-			int max = 200; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
-			int count = 5000000;
-			String end_cursor = null;
-			String has_next_page = "false";
-			/*
-			int likes = 0;
-			int comments = 0;
-			*/
 		
 			do {
 				
@@ -809,14 +807,14 @@ public class Instagram{
 				
 		        if(likerOrCommenter.equals("liker")) {	
 					for(int i=0;i<len;i++) {
-								
 						JSONObject liker = jsonArr.getJSONObject(i).getJSONObject("node");
-						String username = liker.getString("username");
-									
-						for(int k=0;k<followers.length;k++) {
-							if(followers[k][0].equals(username)) {
-								int likesFollower = ((int) followers[k][1])+1;
-								followers[k][1] = likesFollower;
+						String username = liker.getString("username");	
+						for(int k=0;k<followers.size();k++) {
+							Object[] follower = followers.get(k);
+							if(follower[0].equals(username)) {
+								int likesFollower = ((int) follower[1])+1;
+								follower[1] = likesFollower;
+								followers.set(k, follower);
 							}
 						}
 									
@@ -826,10 +824,12 @@ public class Instagram{
 					for(int i=0;i<len;i++) {
 						JSONObject commenter = jsonArr.getJSONObject(i).getJSONObject("node").getJSONObject("owner");
 						String username = commenter.getString("username");
-						for(int k=0;k<followers.length;k++) {
-							if(followers[k][0].equals(username)) {
-								int likesCommenter = ((int) followers[k][2])+1;
-								followers[k][2] = likesCommenter;
+						for(int k=0;k<followers.size();k++) {
+							Object[] follower = followers.get(k);
+							if(follower[0].equals(username)) {		
+								int likesFollower = ((int) follower[2])+1;
+								follower[2] = likesFollower;
+								followers.set(k, follower);
 							}
 						}
 									
@@ -992,11 +992,7 @@ public class Instagram{
 		
 			int count = 0;
 			
-			for(int i=0;i<followers.length;i++) {
-				count++;
-			}
-			
-			Object[] followers = new Object[count];
+			Object[] followers = new Object[this.followers.size()];
 			count = 0;
 			for(Object f : this.followers) {
 				followers[count] = f;
@@ -1102,7 +1098,7 @@ public class Instagram{
 		}
 		
 		if(order.equals("up")) {
-			if(onlyMost != null && onlyMost.length == followers.length) {
+			if(onlyMost != null && onlyMost.length == followers.size()) {
 				onlyMost = null;
 			}
 		}
@@ -1116,7 +1112,7 @@ public class Instagram{
 	
 	public int getFollowersNumber() {
 		if(followers != null) {
-			return followers.length;
+			return followers.size();
 		}
 		else {
 			return 0;
@@ -1125,7 +1121,7 @@ public class Instagram{
 	
 	public int getFollowingNumber() {
 		if(following != null) {
-			return following.length;
+			return following.size();
 		}
 		else {
 			return 0;
