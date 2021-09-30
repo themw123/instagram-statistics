@@ -45,18 +45,19 @@ public class Instagram{
 	public Instagram(String chooseLoginprocess, String data1, String data2) {
 		
 		this.chooseLoginprocess = chooseLoginprocess;
-		
+			
 		if(chooseLoginprocess.equals("session")) {
 			this.sessionId = data1;
 			this.ds_user_id = data2;
 		}
-		
+			
 		else if(chooseLoginprocess.equals("login")) {
 			this.username = data1;
 			this.password = data2;
 		}
-		
+			
 		initialDatastructures();
+
 	}
 
 	
@@ -80,40 +81,48 @@ public class Instagram{
 	
 	
 	public void start() {
-		login();
-		if(sessionIdValid) {	
-			//sessionid und ds_user_id in App abspeichern
-			if(chooseLoginprocess.equals("login")) {
-				System.out.println("Login successful\n");
+		
+		if(chooseLoginprocess.equals("session") || chooseLoginprocess.equals("login")) {
+			login();
+			if(sessionIdValid) {	
+				//sessionid und ds_user_id in App abspeichern
+				if(chooseLoginprocess.equals("login")) {
+					System.out.println("Login successful\n");
+				}
+				else if(chooseLoginprocess.equals("session")) {
+					System.out.println("Session valid\n");
+				}
+				if(username == null) {
+					username = r.getUsername(ds_user_id);	
+				}	
+				data();
+				//errors. In UI error anzeigen
+				setErrorLog();
+				for(String e : errorLog) {
+				    System.out.println("\n" + e);
+				}
 			}
-			else if(chooseLoginprocess.equals("session")) {
-				System.out.println("session valid\n");
+			else {
+				if(chooseLoginprocess.equals("login")) {
+					System.out.println("Login failed\n");
+				}
+				else if(chooseLoginprocess.equals("session")) {
+					System.out.println("Session error\n");
+				}
+				//login page fehlermeldung ausgeben
+				if(sessionId == null) {
+					System.out.println("Wrong password or username");
+				}
+				else if(sessionId == "two_factor_required") {
+					System.out.println("Please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
+				}
 			}
-			if(username == null) {
-				username = r.getUsername(ds_user_id);	
-			}	
-			data();
-			//errors. In UI error anzeigen
-			setErrorLog();
-			for(String e : errorLog) {
-			    System.out.println("\n" + e);
-			}
+			
 		}
 		else {
-			if(chooseLoginprocess.equals("login")) {
-				System.out.println("Login failed\n");
-			}
-			else if(chooseLoginprocess.equals("session")) {
-				System.out.println("session error\n");
-			}
-			//login page fehlermeldung ausgeben
-			if(sessionId == null) {
-				System.out.println("Wrong password or username");
-			}
-			else if(sessionId == "two_factor_required") {
-				System.out.println("please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
-			}
+			System.out.println("Wrong parameter in constructor");
 		}
+		
 	}
 	
 	
@@ -1245,7 +1254,13 @@ public class Instagram{
 	}
 	
 	public int getRequestsCount() {
-		return r.getRequestsCount();
+		int count = 0;
+		try {
+			count = r.getRequestsCount();
+		}
+		catch(Exception e) {
+		}
+		return count;
 	}
 	
 	public Object[] getData() {
