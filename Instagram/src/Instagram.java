@@ -12,10 +12,6 @@ import okhttp3.Response;
 public class Instagram{
 	
 	private Object[] data;
-
-	
-	private Object sync1 = new Object();
-	private Object sync2 = new Object();
 	
 	private String chooseLoginprocess = "session";
 	private String username;
@@ -186,6 +182,8 @@ public class Instagram{
     
     private void data(){
    	
+    	int playvalue = 4;
+    	
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
 		Thread t3 = new Thread(() -> setNotFollowingYou());
@@ -216,7 +214,7 @@ public class Instagram{
 		}
 		
 		
-		if((this.following.length != 0 || this.followers.length != 0) && getFollowersCount() >= myRealFollowersCount && getFollowingCount() >= myRealFollowingCount) {
+		if((this.following.length != 0 || this.followers.length != 0) && getFollowersCount()+playvalue >= myRealFollowersCount && getFollowingCount()+playvalue >= myRealFollowingCount) {
 	    	//System.out.println("Data3-Thread running");
 			t3.start();
 			//System.out.println("Data4-Thread running");
@@ -235,7 +233,7 @@ public class Instagram{
 		
 		
 		try {
-			if(this.following.length != 0 || this.followers.length != 0 && getFollowersCount() >= myRealFollowersCount && getFollowingCount() >= myRealFollowingCount) {
+			if(this.following.length != 0 || this.followers.length != 0 && getFollowersCount()+playvalue >= myRealFollowersCount && getFollowingCount()+playvalue >= myRealFollowingCount) {
 				t3.join();
 				t4.join();
 			}
@@ -255,19 +253,18 @@ public class Instagram{
 		//data1 fertig
 		//data 1-7 into general page
 		int postsCount = getPostsCount();
-		if(postsCount < myRealPostCount) {
+		if(postsCount+playvalue < myRealPostCount) {
 			//In UI fehler anzeigen(bla von bla posts).
-			errorLog.add("Post: " + postsCount + " from " + myRealPostCount + " failed -> Too much posts. Only round about 600 possible.");
 			postsCount = myRealPostCount;
 		}
 		int followers = getFollowersCount();
-		if(followers < myRealFollowersCount) {
+		if(followers+playvalue < myRealFollowersCount) {
 			//wert von myRealFollowersCount anzeigen.
 			errorLog.add("Followers: " + followers + " from " + myRealFollowersCount + " failed -> Too much followers. Only round about 10.000 possible.");
 			followers = myRealFollowersCount;
 		}
 		int following = getFollowingCount();
-		if(following < myRealFollowingCount) {
+		if(following+playvalue < myRealFollowingCount) {
 			//wert von myRealFollowingCount anzeigen.
 			errorLog.add("Following: " + following + " from " + myRealFollowingCount + " failed -> Too much following. Only round about 10.000 possible.");
 			following = myRealFollowingCount;
@@ -278,7 +275,7 @@ public class Instagram{
 		Object[] notFollowingYou = getNotFollowingYou();
 		Object[] youFollowingNot = getYouFollowingNot();
 		Object[] mutual = getMutual();
-		if(followers < myRealFollowersCount || following < myRealFollowingCount) {
+		if(followers+playvalue < myRealFollowersCount || following+playvalue < myRealFollowingCount) {
 			//In UI fehler bei allen drei anzeigen. Fehler: follower/following limit
 		}
 		
@@ -290,7 +287,7 @@ public class Instagram{
 	    Object[] mostCommentsPosts= getPosts("comments", "down");
 	    Object[] leastLikesPosts= getPosts("likes", "up");
 	    Object[] leastCommentsPosts= getPosts("comments", "up");
-	    if(postsCount < myRealPostCount) {
+	    if(postsCount+playvalue < myRealPostCount) {
 			//In UI fehler bei allen vier anzeigen. Fehler: Post limit aber zeigt die geholten an.
 	    }
 		
@@ -302,7 +299,7 @@ public class Instagram{
 			System.out.println("Thread:8 running");
 			t8.start();
 		}
-		if(this.followers != null && this.followers.length != 0 && getFollowersCount() >= myRealFollowersCount && !myPosts.isEmpty()) {
+		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= myRealFollowersCount && !myPosts.isEmpty()) {
 		    //System.out.println("Data8-Thread running");
 			System.out.println("Thread:9-10 running");
 			t9.start();
@@ -329,7 +326,7 @@ public class Instagram{
 		
 		
 		
-		if(this.followers != null && this.followers.length != 0 && getFollowersCount() >= myRealFollowersCount && !myPosts.isEmpty()) {
+		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= myRealFollowersCount && !myPosts.isEmpty()) {
 			try {
 				//data2 fertig
 				t9.join();
@@ -349,7 +346,7 @@ public class Instagram{
 	   	Object[] mostCommentsFrom = getMostLikesandCommentsFrom("comments", "down");
 	   	Object[] leastLikesFrom = getMostLikesandCommentsFrom("likes", "up");
 	   	Object[] leastCommentsFrom = getMostLikesandCommentsFrom("comments", "up");
-		if(getFollowersCount() < myRealFollowersCount) {
+		if(getFollowersCount()+playvalue < myRealFollowersCount) {
 			//In UI fehler bei allen vier anzeigen. Fehler: follower limit
 		}
 		else if(postLikeCount < getPostsCount()) {
@@ -602,10 +599,8 @@ public class Instagram{
 			openFriendRequestOut.get(i)[1] = id;
 			openFriendRequestOut.get(i)[2] = picture;
 			
-			synchronized(sync1)
-			{
-				outCount++;
-			}
+			outCount++;
+			
 			
 	
 			
@@ -740,11 +735,9 @@ public class Instagram{
 					postObj[2] = comments;
 					postObj[3] = display_url;
 
-					synchronized(sync1)
-					{
-						this.likes = this.likes + likes;
-						this.comments = this.comments + comments;
-					}
+
+					this.likes = this.likes + likes;
+					this.comments = this.comments + comments;
 					
 					myPosts.add(postObj);
 				}
@@ -918,8 +911,8 @@ public class Instagram{
 									
 					}
 				}
-		
-						
+
+		        
 			durchlauf++;
 					
 			}while(has_next_page.equals("true") && durchlauf < max);
@@ -927,16 +920,11 @@ public class Instagram{
 
 			
 			if(likerOrCommenter.equals("liker")) {
-				synchronized(sync1)
-				{
-					postLikeCount++;
-				}
+				postLikeCount++;
+				
 			}
 			else if(likerOrCommenter.equals("commenter")) {
-				synchronized(sync2)
-				{
-					postCommentCount++;
-				}
+				postCommentCount++;
 			}	
 			
 		} 
