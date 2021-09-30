@@ -70,16 +70,18 @@ public class APIRequest {
 	}
 	
 	
-	public boolean checkSessionId(String username) {
+	public boolean checkSessionId() {
 		
 		boolean sessionIdValid = false;
 		
-		Request request = new Request.Builder()
-			.url("https://www.instagram.com/" + username + "/?__a=1")
-			.method("GET", null)
-			.addHeader("Cookie", "sessionid=" + sessionId)
-			.build();
-		
+		OkHttpClient client = new OkHttpClient().newBuilder()
+				  .build();
+				Request request = new Request.Builder()
+				  .url("https://i.instagram.com/api/v1/friendships/pending/")
+				  .method("GET", null)
+				  .addHeader("X-IG-App-ID", "936619743392459")
+				  .addHeader("Cookie", "sessionid=" + sessionId)
+				  .build();		
 		try {
 			Response response = client.newCall(request).execute();
 			if(response.code() == 200) {
