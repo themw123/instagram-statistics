@@ -352,10 +352,13 @@ public class Instagram{
 		if(getFollowersCount() < myRealFollowersCount) {
 			//In UI fehler bei allen vier anzeigen. Fehler: follower limit
 		}
-		else if(getFollowersCount() < myRealFollowersCount) {
-			//In UI fehler bei allen vier anzeigen. Fehler: nicht alle Posts möglich aber bis dato werden angezeigt
+		else if(postLikeCount < getPostsCount()) {
+			//In UI fehler allen mostLikeFrom und leastLikesFrom anzeigen. Fehler: nicht alle Posts möglich, aber bis dato werden angezeigt
 			//postLikeCount
-			//postCommentCOunt
+		}
+		else if(postCommentCount < getPostsCount()) {
+			//In UI fehler bei mostCommentsFrom und leastCommentsFrom anzeigen. Fehler: nicht alle Posts möglich, aber bis dato werden angezeigt
+			//postCommentCount
 		}
 		
 	   	
