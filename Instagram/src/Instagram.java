@@ -967,7 +967,7 @@ public class Instagram{
 				if(print1) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached max Post: " + postLikeCount + end;
+					error = beg + " reached not more than Post " + postLikeCount + end;
 					errorLog.set(i, error);
 					print1 = false;
 				}
@@ -980,7 +980,7 @@ public class Instagram{
 				if(print2) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached max Post: " + postCommentCount + end;
+					error = beg + " reached not more than Post " + postCommentCount + end;
 					errorLog.set(i, error);
 					print2 = false;
 				}
