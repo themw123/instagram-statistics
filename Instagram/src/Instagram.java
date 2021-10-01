@@ -34,9 +34,9 @@ public class Instagram{
 	private Vector<Object[]> myPosts;
 	
 	
-	private int postLikeCount;
-	private int postCommentCount;
-	private int outCount;
+	private int reachedLikes;
+	private int reachedComments;
+	private int reachedOut;
 	private long likes;
 	private long comments;	
 	
@@ -44,7 +44,6 @@ public class Instagram{
 	private int myRealFollowersCount;
 	private int myRealFollowingCount;
 		
-	
 	private boolean runThread8;
 	private boolean runThread9;
 	private boolean runThread10;
@@ -80,9 +79,9 @@ public class Instagram{
 		myPosts = new Vector<Object[]>();
 		errorLog = new Vector<String>();
 		
-		postLikeCount = 0;
-		postCommentCount = 0;
-		outCount = 0;
+		reachedLikes = 0;
+		reachedComments = 0;
+		reachedOut = 0;
 		likes = 0;
 		comments = 0;
 		
@@ -364,11 +363,11 @@ public class Instagram{
 		if(getFollowersCount()+playvalue < myRealFollowersCount) {
 			//In UI fehler bei allen vier anzeigen. Fehler: follower limit
 		}
-		else if(postLikeCount < getPostsCount()) {
+		else if(reachedLikes < getPostsCount()) {
 			//In UI fehler allen mostLikeFrom und leastLikesFrom anzeigen. Fehler: nicht alle Posts möglich, aber bis dato werden angezeigt
 			//postLikeCount
 		}
-		else if(postCommentCount < getPostsCount()) {
+		else if(reachedComments < getPostsCount()) {
 			//In UI fehler bei mostCommentsFrom und leastCommentsFrom anzeigen. Fehler: nicht alle Posts möglich, aber bis dato werden angezeigt
 			//postCommentCount
 		}
@@ -610,7 +609,7 @@ public class Instagram{
 				openFriendRequestOut.get(i)[1] = id;
 				openFriendRequestOut.get(i)[2] = picture;
 				
-				outCount++;
+				reachedOut++;
 				
 			} catch (Exception e) {
 				runThread8 = false;
@@ -873,7 +872,13 @@ public class Instagram{
 					JSONArray jsonArr = jsonObj.getJSONArray("edges");
 					int len = jsonArr.length();
 					
-					
+				    if(likerOrCommenter.equals("liker")) {	
+						reachedLikes = reachedLikes + len;
+					}
+				    else if(likerOrCommenter.equals("commenter")) {
+						reachedComments = reachedComments + len;
+				    }
+				    
 				    if(likerOrCommenter.equals("liker")) {	
 						for(int i=0;i<len;i++) {
 											
@@ -930,15 +935,6 @@ public class Instagram{
 				
 			}
 			
-			finally {
-				if(likerOrCommenter.equals("liker")) {
-					postLikeCount++;
-				}
-				else if(likerOrCommenter.equals("commenter")) {
-					postCommentCount++;
-				}
-				
-			}	
 		}
 
 	}
@@ -967,7 +963,7 @@ public class Instagram{
 				if(print1) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached not more than Post " + postLikeCount + end;
+					error = beg + " analysed first " + reachedLikes + end;
 					errorLog.set(i, error);
 					print1 = false;
 				}
@@ -980,7 +976,7 @@ public class Instagram{
 				if(print2) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached not more than Post " + postCommentCount + end;
+					error = beg + " analysed first " + reachedComments + end;
 					errorLog.set(i, error);
 					print2 = false;
 				}
@@ -993,7 +989,7 @@ public class Instagram{
 				if(print3) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached max friendRequestOut: " + outCount + end;
+					error = beg + " reached max friendRequestOut: " + reachedOut + end;
 					errorLog.set(i, error);
 					print3 = false;
 				}
