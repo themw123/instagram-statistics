@@ -274,13 +274,13 @@ public class Instagram{
 		int followers = getFollowersCount();
 		if(followers+playvalue < myRealFollowersCount) {
 			//wert von myRealFollowersCount anzeigen.
-			errorLog.add("Followers: " + followers + " from " + myRealFollowersCount + " failed -> Too much followers. Only round about 10.000 possible.");
+			errorLog.add("Followers failed: " + followers + " from " + myRealFollowersCount);
 			followers = myRealFollowersCount;
 		}
 		int following = getFollowingCount();
 		if(following+playvalue < myRealFollowingCount) {
 			//wert von myRealFollowingCount anzeigen.
-			errorLog.add("Following: " + following + " from " + myRealFollowingCount + " failed -> Too much following. Only round about 10.000 possible.");
+			errorLog.add("Following: failed " + following + " from " + myRealFollowingCount);
 			following = myRealFollowingCount;
 		}
 		long likes = getLikes();
