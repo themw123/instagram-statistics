@@ -218,6 +218,19 @@ public class Instagram{
 		t1.start();
     	//System.out.println("Data2-Thread running");
 		t2.start();
+    	//System.out.println("Data6-Thread running");
+		t5.start();
+    	//System.out.println("Data6-Thread running");
+		t6.start();
+    	//System.out.println("Data7-Thread running");
+		t7.start();
+		
+		
+		
+		//load Main UI and show waiting symbols on general and second page
+		
+		
+		
 		
 		//Auf following/follower warten. Bei fail, nur Thread 5,6 und 7 starten
 		try {
@@ -227,27 +240,14 @@ public class Instagram{
 			e.printStackTrace();
 		}
 		
-		
-		if((this.following.length != 0 || this.followers.length != 0) && getFollowersCount()+playvalue >= myRealFollowersCount && getFollowingCount()+playvalue >= myRealFollowingCount) {
-	    	//System.out.println("Data3-Thread running");
-			t3.start();
-			//System.out.println("Data4-Thread running");
-			t4.start();
-		}
-    	//System.out.println("Data6-Thread running");
-		t5.start();
-    	//System.out.println("Data6-Thread running");
-		t6.start();
-    	//System.out.println("Data7-Thread running");
-		t7.start();
-	
-		
-		//load Main UI and show waiting symbols on general and second page
 
-		
-		
 		try {
 			if(this.following.length != 0 || this.followers.length != 0 && getFollowersCount()+playvalue >= myRealFollowersCount && getFollowingCount()+playvalue >= myRealFollowingCount) {
+		    	//System.out.println("Data3-Thread running");
+				t3.start();
+				//System.out.println("Data4-Thread running");
+				t4.start();
+				
 				t3.join();
 				t4.join();
 			}
@@ -971,7 +971,7 @@ public class Instagram{
 				if(print1) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached max Post: " + postLikeCount + end;
+					error = beg + " reached around Post: " + postLikeCount + end;
 					errorLog.set(i, error);
 					print1 = false;
 				}
@@ -984,7 +984,7 @@ public class Instagram{
 				if(print2) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached max Post: " + postCommentCount + end;
+					error = beg + " reached around Post: " + postCommentCount + end;
 					errorLog.set(i, error);
 					print2 = false;
 				}
