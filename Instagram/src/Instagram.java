@@ -3,6 +3,7 @@ import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,6 +13,7 @@ import okhttp3.Response;
 public class Instagram{
 	
 	private Object[] data;
+	private Logger logger;
 	
 	private String chooseLoginprocess = "session";
 	private String username;
@@ -73,6 +75,7 @@ public class Instagram{
 	
 	private void initialDatastructures() {
 		this.sessionIdValid = false;
+		logger = Logger.getLogger(Instagram.class.getName());
 		notFollowingYou = new Vector<Object[]>();
 		mutual = new Vector<Object[]>();
 		youFollowingNot = new Vector<Object[]>();
@@ -107,10 +110,12 @@ public class Instagram{
 			if(sessionIdValid) {	
 				//sessionid und ds_user_id in App abspeichern
 				if(chooseLoginprocess.equals("login")) {
-					System.out.println("Login successful\n");
+					logger.info("Login successful");
+					//System.out.println("Login successful\n");
 				}
 				else if(chooseLoginprocess.equals("session")) {
-					System.out.println("Session valid\n");
+					logger.info("Session valid");
+					//System.out.println("Session valid\n");
 				}
 				if(username == null) {
 					username = r.getUsername(ds_user_id);	
