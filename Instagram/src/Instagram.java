@@ -241,7 +241,7 @@ public class Instagram{
 		
 
 		try {
-			if(this.following.length != 0 || this.followers.length != 0 && getFollowersCount()+playvalue >= myRealFollowersCount && getFollowingCount()+playvalue >= myRealFollowingCount) {
+			if((this.following.length != 0 || this.followers.length != 0) && getFollowersCount()+playvalue >= myRealFollowersCount && getFollowingCount()+playvalue >= myRealFollowingCount) {
 		    	//System.out.println("Data3-Thread running");
 				t3.start();
 				//System.out.println("Data4-Thread running");
@@ -447,14 +447,6 @@ public class Instagram{
 		} catch (Exception e) {
 			//e.printStackTrace();
 			errorLog.add("setFollowingAndFollowers failed -> "  + error);
-			/*
-			if(urlParameter.equals("following")) {
-				following = null;
-			}
-			else if(urlParameter.equals("followers")) {
-				followers = null;
-			}
-			*/
 		}
 		/*
 		if(urlParameter.equals("following")) {
@@ -956,6 +948,33 @@ public class Instagram{
 		boolean print3 = true;
 		boolean print4 = true;
 		
+				
+		int reachedPostLikes = 0;
+		int likes = 0;
+		if(reachedLikes != 0) {
+			for(int i=0;i<myPosts.size();i++) {
+				Object[] p = myPosts.get(i);
+				likes = likes + (int)p[1];
+				reachedPostLikes++;
+				if(likes >= reachedLikes) {
+					break;
+				}
+			}
+		}
+		
+		int reachedPostComments = 0;
+		int comments = 0;
+		
+		if(reachedComments != 0) {
+			for(int i=0;i<myPosts.size();i++) {
+				Object[] p = myPosts.get(i);
+				comments = comments + (int)p[2];
+				reachedPostComments++;
+				if(comments >= reachedComments) {
+					break;
+				}
+			}
+		}
 		
 		for(int i=0;i<errorLog.size();i++) {
 			String error = errorLog.get(i);
@@ -963,7 +982,7 @@ public class Instagram{
 				if(print1) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " analysed first " + reachedLikes + end;
+					error = beg + " analysed first " + reachedPostLikes + end;
 					errorLog.set(i, error);
 					print1 = false;
 				}
@@ -976,7 +995,7 @@ public class Instagram{
 				if(print2) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " analysed first " + reachedComments + end;
+					error = beg + " analysed first " + reachedPostComments + end;
 					errorLog.set(i, error);
 					print2 = false;
 				}
