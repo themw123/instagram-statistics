@@ -819,7 +819,8 @@ public class Instagram{
 		
 			String error = "";
 			int durchlauf = 0;	
-	
+			boolean runThrough = false;
+			
 			try {
 			
 				int max = 200; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
@@ -904,11 +905,14 @@ public class Instagram{
 					durchlauf++;
 							
 					}while(has_next_page.equals("true") && durchlauf < max);
-		
 				
+					runThrough = true;
 			} 
 			
 			catch (Exception e) {
+				
+				runThrough = true;
+				
 		        if(likerOrCommenter.equals("liker")) {
 		        	runThread9 = false;
 		        }
@@ -929,12 +933,14 @@ public class Instagram{
 			}
 			
 			finally {
-				if(likerOrCommenter.equals("liker")) {
-					postLikeCount++;
-								
-				}
-				else if(likerOrCommenter.equals("commenter")) {
-					postCommentCount++;
+				if(runThrough) {
+					if(likerOrCommenter.equals("liker")) {
+						postLikeCount++;
+									
+					}
+					else if(likerOrCommenter.equals("commenter")) {
+						postCommentCount++;
+					}
 				}
 			}	
 		}
@@ -959,10 +965,10 @@ public class Instagram{
 		boolean print4 = true;
 		
 		if(postLikeCount == 12) {
-			postLikeCount = 0;
+			//postLikeCount = 0;
 		}
 		if(postCommentCount == 12) {
-			postCommentCount = 0;
+			//postCommentCount = 0;
 		}
 		
 		for(int i=0;i<errorLog.size();i++) {
