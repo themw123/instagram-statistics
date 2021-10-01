@@ -819,7 +819,6 @@ public class Instagram{
 		
 			String error = "";
 			int durchlauf = 0;	
-			boolean runThrough = false;
 			
 			try {
 			
@@ -862,6 +861,7 @@ public class Instagram{
 					else if(likerOrCommenter.equals("commenter")) {
 						jsonObj = jsonObj.getJSONObject("data").getJSONObject("shortcode_media").getJSONObject("edge_media_to_parent_comment");
 					}
+				    
 					
 					has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
 									
@@ -872,7 +872,8 @@ public class Instagram{
 									
 					JSONArray jsonArr = jsonObj.getJSONArray("edges");
 					int len = jsonArr.length();
-						
+					
+					
 				    if(likerOrCommenter.equals("liker")) {	
 						for(int i=0;i<len;i++) {
 											
@@ -906,12 +907,9 @@ public class Instagram{
 							
 					}while(has_next_page.equals("true") && durchlauf < max);
 				
-					runThrough = true;
 			} 
 			
 			catch (Exception e) {
-				
-				runThrough = true;
 				
 		        if(likerOrCommenter.equals("liker")) {
 		        	runThread9 = false;
@@ -933,15 +931,13 @@ public class Instagram{
 			}
 			
 			finally {
-				if(runThrough) {
-					if(likerOrCommenter.equals("liker")) {
-						postLikeCount++;
-									
-					}
-					else if(likerOrCommenter.equals("commenter")) {
-						postCommentCount++;
-					}
+				if(likerOrCommenter.equals("liker")) {
+					postLikeCount++;
 				}
+				else if(likerOrCommenter.equals("commenter")) {
+					postCommentCount++;
+				}
+				
 			}	
 		}
 
@@ -964,12 +960,6 @@ public class Instagram{
 		boolean print3 = true;
 		boolean print4 = true;
 		
-		if(postLikeCount == 12) {
-			//postLikeCount = 0;
-		}
-		if(postCommentCount == 12) {
-			//postCommentCount = 0;
-		}
 		
 		for(int i=0;i<errorLog.size();i++) {
 			String error = errorLog.get(i);
@@ -977,7 +967,7 @@ public class Instagram{
 				if(print1) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached around Post: " + postLikeCount + end;
+					error = beg + " reached max Post: " + postLikeCount + end;
 					errorLog.set(i, error);
 					print1 = false;
 				}
@@ -990,7 +980,7 @@ public class Instagram{
 				if(print2) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached around Post: " + postCommentCount + end;
+					error = beg + " reached max Post: " + postCommentCount + end;
 					errorLog.set(i, error);
 					print2 = false;
 				}
