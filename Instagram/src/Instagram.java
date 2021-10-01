@@ -37,6 +37,8 @@ public class Instagram{
 	private int reachedLikes;
 	private int reachedComments;
 	private int reachedOut;
+	private int reachedPostLikes;
+	private int reachedPostComments;
 	private long likes;
 	private long comments;	
 	
@@ -82,6 +84,8 @@ public class Instagram{
 		reachedLikes = 0;
 		reachedComments = 0;
 		reachedOut = 0;
+		reachedPostLikes = 0;
+		reachedPostComments = 0;
 		likes = 0;
 		comments = 0;
 		
@@ -600,15 +604,16 @@ public class Instagram{
 	
 				openFriendRequestOut.get(i)[1] = id;
 				openFriendRequestOut.get(i)[2] = picture;
-				
-				reachedOut++;
-				
+								
 			} catch (Exception e) {
 				runThread8 = false;
 				
 				if(error.contains("message")) {
 					errorLog.add("getOpenFriendRequestOutIds -> " + error);
 				}
+			}
+			finally {
+				reachedOut++;
 			}
 		
 		}
@@ -924,6 +929,14 @@ public class Instagram{
 				}
 				
 			}
+			finally {
+				if(likerOrCommenter.equals("liker")) {	
+					reachedPostLikes++;
+				}
+				else if(likerOrCommenter.equals("commenter")) {
+					reachedPostComments++;
+				}
+			}
 			
 		}
 
@@ -947,6 +960,7 @@ public class Instagram{
 		boolean print4 = true;
 		
 				
+		/*
 		int reachedPostLikes = 0;
 		int likes = 0;
 		if(reachedLikes != 0) {
@@ -973,6 +987,8 @@ public class Instagram{
 				}
 			}
 		}
+		*/
+		
 		
 		for(int i=0;i<errorLog.size();i++) {
 			String error = errorLog.get(i);
@@ -980,7 +996,7 @@ public class Instagram{
 				if(print1) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " analysed first " + reachedPostLikes + end;
+					error = beg + " maximum of " + reachedPostLikes + " posts analysed" + end;
 					errorLog.set(i, error);
 					print1 = false;
 				}
@@ -993,7 +1009,7 @@ public class Instagram{
 				if(print2) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " analysed first " + reachedPostComments + end;
+					error = beg + " maximum of " + reachedPostComments + " posts analysed" + end;
 					errorLog.set(i, error);
 					print2 = false;
 				}
@@ -1006,7 +1022,7 @@ public class Instagram{
 				if(print3) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " reached max friendRequestOut: " + reachedOut + end;
+					error = beg + " maximum of " + reachedOut + " persons " + end;
 					errorLog.set(i, error);
 					print3 = false;
 				}
