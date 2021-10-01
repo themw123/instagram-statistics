@@ -39,7 +39,7 @@ public class APIRequest {
 			response = client.newCall(request).execute();
 		} catch (IOException e) {
 			//System.out.println("Error in Request");
-			//e.printStackTrace()
+			//e.printStackTrace();
 		}
 		requestsCount++;
 		return response;

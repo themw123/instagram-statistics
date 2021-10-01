@@ -878,9 +878,8 @@ public class Instagram{
 							String username = liker.getString("username");
 												
 							for(int k=0;k<followers.length;k++) {
-								if(followers[k][0].equals(username)) {
-									int likesFollower = ((int) followers[k][1])+1;
-									followers[k][1] = likesFollower;
+								if(followers[k][0].equals(username)) {;
+									followers[k][1] = (int)followers[k][1]+1;
 								}
 							}
 												
@@ -892,8 +891,7 @@ public class Instagram{
 							String username = commenter.getString("username");
 							for(int k=0;k<followers.length;k++) {
 								if(followers[k][0].equals(username)) {
-									int likesCommenter = ((int) followers[k][2])+1;
-									followers[k][2] = likesCommenter;
+									followers[k][2] = (int)followers[k][2]+1;
 								}
 							}
 											
