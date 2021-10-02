@@ -173,6 +173,7 @@ public class Instagram{
 	
 	private void login() {
 		if(chooseLoginprocess.equals("login")){
+			logger.info("Trying to login ...");
 			setSession();
 		}
 		
