@@ -3,7 +3,10 @@ import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,6 +17,9 @@ public class Instagram{
 	
 	private Object[] data;
 	private Logger logger;
+	ConsoleHandler handler;
+	private Vector<String> prepareLog;
+
 	
 	private String chooseLoginprocess = "session";
 	private String username;
@@ -21,8 +27,6 @@ public class Instagram{
 	private String sessionId;
 	private boolean sessionIdValid;
 	private String ds_user_id;
-	private Vector<String> errorLog;
-
 	
 	private APIRequest r;
 	
@@ -76,13 +80,21 @@ public class Instagram{
 	private void initialDatastructures() {
 		this.sessionIdValid = false;
 		logger = Logger.getLogger(Instagram.class.getName());
+		logger.setLevel(Level.ALL);
+		logger.setUseParentHandlers(false);
+		LoggerFormat formatter = new LoggerFormat();
+		handler = new ConsoleHandler();
+        handler.setFormatter(formatter);
+		handler.setLevel(Level.ALL);
+		logger.addHandler(handler);
+	    
 		notFollowingYou = new Vector<Object[]>();
 		mutual = new Vector<Object[]>();
 		youFollowingNot = new Vector<Object[]>();
 		openFriendRequestOut = new Vector<String[]>();
 		openFriendRequestIn = new Vector<String[]>();
 		myPosts = new Vector<Object[]>();
-		errorLog = new Vector<String>();
+		prepareLog = new Vector<String>();
 		
 		reachedLikes = 0;
 		reachedComments = 0;
@@ -102,54 +114,60 @@ public class Instagram{
 	}
 	
 	
-	
 	public void start() {
-		
+		double time = 0;
 		if(chooseLoginprocess.equals("session") || chooseLoginprocess.equals("login")) {
 			login();
 			if(sessionIdValid) {	
 				//sessionid und ds_user_id in App abspeichern
 				if(chooseLoginprocess.equals("login")) {
-					logger.info("Login successful");
-					//System.out.println("Login successful\n");
+					logger.info("Login successful\n");
 				}
 				else if(chooseLoginprocess.equals("session")) {
-					logger.info("Session valid");
-					//System.out.println("Session valid\n");
+					logger.info("Session valid\n");
 				}
 				if(username == null) {
 					username = r.getUsername(ds_user_id);	
 				}	
 				if(setRealCounts()) {
+					time = -System.currentTimeMillis();
 					data();
+					time = (time + System.currentTimeMillis())/1000;
 				}
 				//errors. In UI error anzeigen
-				setErrorLog();
-				System.out.println();
-				for(String e : errorLog) {
-				    System.out.println(e);
+				setPrepareLog();
+				
+				int count = 0;
+				String br = "";
+				for(String e : prepareLog) {
+					if(count == prepareLog.size()-1) {
+						br = "\n";
+					}
+					logger.warning(e + br);
+					count++;
 				}
-				System.out.println("\nRequests total: " + getRequestsCount());  
+				logger.info("Requests total: " + getRequestsCount());
+				logger.info("data took " + time + " seconds");
 			}
 			else {
 				if(chooseLoginprocess.equals("login")) {
-					System.out.println("Login failed\n");
+					logger.severe("Login failed");
 				}
 				else if(chooseLoginprocess.equals("session")) {
-					System.out.println("Session error\n");
+					logger.severe("Session error");
 				}
 				//login page fehlermeldung ausgeben
 				if(sessionId == null) {
-					System.out.println("Wrong password or username");
+					logger.severe("Wrong password or username");
 				}
-				else if(sessionId == "two_factor_required") {
-					System.out.println("Please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
+				else if(sessionId.equals("two_factor_required")) {
+					logger.severe("Please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
 				}
 			}
 			
 		}
 		else {
-			System.out.println("Wrong parameter in constructor");
+			logger.severe("Wrong parameter in constructor");
 		}
 		
 	}
@@ -194,7 +212,7 @@ public class Instagram{
 			myRealFollowingCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_follow").getInt("count");
 			myRealFollowersCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_followed_by").getInt("count");
 		}catch(Exception e) {
-			errorLog.add("setRealCounts failed -> "  + error);
+			logger.warning("setRealCounts failed -> "  + error);
 			success = false;
 		}
 		return success;
@@ -219,8 +237,7 @@ public class Instagram{
 		Thread t9 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 		Thread t10 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
 		
-		
-		System.out.println("Threads:1-7 running");
+		logger.info("Threads:1-7 running");
 
     	//System.out.println("Data1-Thread running");
 		t1.start();
@@ -262,7 +279,7 @@ public class Instagram{
 			t5.join();
 			t6.join();
 			t7.join();
-			System.out.println("Threads:1-7 finished");
+			logger.info("Threads:1-7 finished");
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -277,19 +294,19 @@ public class Instagram{
 		int postsCount = getPostsCount();
 		if(postsCount+playvalue < myRealPostCount) {
 			//In UI fehler anzeigen(bla von bla posts).
-			errorLog.add("MyPosts: " + postsCount + " from " + myRealPostCount + " failed -> Too much posts. Only round about 600 possible.");
+			logger.warning("MyPosts: " + postsCount + " from " + myRealPostCount + " failed -> Too much posts. Only round about 600 possible.");
 			postsCount = myRealPostCount;
 		}
 		int followers = getFollowersCount();
 		if(followers+playvalue < myRealFollowersCount) {
 			//wert von myRealFollowersCount anzeigen.
-			errorLog.add("Followers failed: " + followers + " from " + myRealFollowersCount);
+			logger.warning("Followers failed: " + followers + " from " + myRealFollowersCount);
 			followers = myRealFollowersCount;
 		}
 		int following = getFollowingCount();
 		if(following+playvalue < myRealFollowingCount) {
 			//wert von myRealFollowingCount anzeigen.
-			errorLog.add("Following: failed " + following + " from " + myRealFollowingCount);
+			logger.warning("Following: failed " + following + " from " + myRealFollowingCount);
 			following = myRealFollowingCount;
 		}
 		long likes = getLikes();
@@ -319,12 +336,12 @@ public class Instagram{
 	    
 	    
 		if(openFriendRequestOut.size() != 0) {
-			System.out.println("Thread:8 running");
+			logger.info("Thread:8 running");
 			t8.start();
 		}
 		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= myRealFollowersCount && !myPosts.isEmpty()) {
 		    //System.out.println("Data8-Thread running");
-			System.out.println("Thread:9-10 running");
+			logger.info("Thread:9-10 running");
 			t9.start();
 		    //System.out.println("Data9-Thread running");
 			t10.start();
@@ -333,8 +350,7 @@ public class Instagram{
 		if(openFriendRequestOut.size() != 0) {
 			try {
 				t8.join();
-				System.out.println("Threads:8 finished");				
-	
+				logger.info("Threads:8 finished");	
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -354,7 +370,7 @@ public class Instagram{
 				//data2 fertig
 				t9.join();
 				t10.join();
-				System.out.println("Threads:9-10 finished");	   	
+				logger.info("Threads:9-10 finished\n");	
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -455,7 +471,7 @@ public class Instagram{
 					
 		} catch (Exception e) {
 			//e.printStackTrace();
-			errorLog.add("setFollowingAndFollowers failed -> "  + error);
+			logger.warning("setFollowingAndFollowers failed -> "  + error); 
 		}
 		/*
 		if(urlParameter.equals("following")) {
@@ -561,7 +577,7 @@ public class Instagram{
 						
 			} catch (Exception e) {
 				//e.printStackTrace();
-				errorLog.add("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + " failed -> " + error);
+				logger.warning("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + " failed -> " + error); 
 				break;
 			}
 			durchlauf++;
@@ -583,10 +599,10 @@ public class Instagram{
 		executor.shutdown();
 		try {
 			while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-			    System.out.println("Not yet. Still waiting for termination");
+				logger.info("Not yet. Still waiting for termination"); 
 			}
 		} catch (InterruptedException e) {
-			System.out.println("Waiting for Threads failed.");
+			logger.warning("Waiting for Threads failed."); 
 			//e.printStackTrace();
 		}
 
@@ -614,7 +630,7 @@ public class Instagram{
 				runThread8 = false;
 				
 				if(error.contains("message")) {
-					errorLog.add("getOpenFriendRequestOutIds -> " + error);
+					prepareLog.add("getOpenFriendRequestOutIds -> " + error); 
 				}
 			}
 			finally {
@@ -655,7 +671,7 @@ public class Instagram{
 					
 		} catch (Exception e) {
 			//e.printStackTrace();	
-			errorLog.add("setOpenFriendRequestIn failed -> " + error);
+			logger.warning("setOpenFriendRequestIn failed -> " + error); 
 		}
 		//System.out.println("Data6-Thread finished");
 
@@ -758,7 +774,7 @@ public class Instagram{
 				else if(durchlauf > 1){
 					durchlauf = 12 + ((durchlauf-1) * 40);  
 				}
-				errorLog.add("setMyPosts Post: " + durchlauf + " failed -> " + error);
+				logger.warning("setMyPosts Post: " + durchlauf + " failed -> " + error); 
 				break;
 			}
 					
@@ -793,10 +809,10 @@ public class Instagram{
 		executor.shutdown();
 		try {
 			while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-			    System.out.println("Not yet. Still waiting for termination");
+				logger.info("Not yet. Still waiting for termination"); 
 			}
 		} catch (InterruptedException e) {
-			System.out.println("Waiting for Threads failed.");
+			logger.warning("Waiting for Threads failed."); 
 			//e.printStackTrace();
 		}
 		
@@ -926,10 +942,10 @@ public class Instagram{
 		        
 	 			if(error.contains("message")) {
 					if(likerOrCommenter.equals("liker")) {	
-						errorLog.add("setMostLikedByFollowers -> " + error);
+						prepareLog.add("setMostLikedByFollowers -> " + error); 
 					}
 					else if(likerOrCommenter.equals("commenter")) {
-						errorLog.add("setMostCommentedByFollowers -> " + error);
+						prepareLog.add("setMostCommentedByFollowers -> " + error); 
 					}
 				}
 				
@@ -957,7 +973,7 @@ public class Instagram{
 
 	
 	
-	public void setErrorLog() {
+	public void setPrepareLog() {
 		
 		boolean print1 = true;
 		boolean print2 = true;
@@ -993,20 +1009,42 @@ public class Instagram{
 			}
 		}
 		*/
+		boolean allNull = true;
+		for(Object[] f : followers) {
+			if((int)f[1] != 0) {
+				allNull = false;
+				break;
+			}
+		}
+		if(allNull) {
+			reachedPostLikes = 0;
+		}
+		
+
+		allNull = true;
+		for(Object[] f : following) {
+			if((int)f[2] != 0) {
+				allNull = false;
+				break;
+			}
+		}
+		if(allNull) {
+			reachedPostComments = 0;
+		}
 		
 		
-		for(int i=0;i<errorLog.size();i++) {
-			String error = errorLog.get(i);
+		for(int i=0;i<prepareLog.size();i++) {
+			String error = prepareLog.get(i);
 			if(error.contains("setMostLikedByFollowers")) {
 				if(print1) {
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
 					error = beg + " maximum of " + reachedPostLikes + " posts analysed" + end;
-					errorLog.set(i, error);
+					prepareLog.set(i, error);
 					print1 = false;
 				}
 				else {
-					errorLog.remove(i);
+					prepareLog.remove(i);
 					i--;
 				}
 			}
@@ -1015,11 +1053,11 @@ public class Instagram{
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
 					error = beg + " maximum of " + reachedPostComments + " posts analysed" + end;
-					errorLog.set(i, error);
+					prepareLog.set(i, error);
 					print2 = false;
 				}
 				else {
-					errorLog.remove(i);
+					prepareLog.remove(i);
 					i--;
 				}
 			}
@@ -1028,11 +1066,11 @@ public class Instagram{
 					String beg = error.substring(0, error.indexOf("->")-1);
 					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
 					error = beg + " maximum of " + reachedOut + " persons " + end;
-					errorLog.set(i, error);
+					prepareLog.set(i, error);
 					print3 = false;
 				}
 				else {
-					errorLog.remove(i);
+					prepareLog.remove(i);
 					i--;
 				}
 			}
@@ -1041,7 +1079,7 @@ public class Instagram{
 					print4 = false;
 				}
 				else {
-					errorLog.remove(i);
+					prepareLog.remove(i);
 					i--;
 				}
 			}
