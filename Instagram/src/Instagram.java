@@ -206,7 +206,7 @@ public class Instagram{
 		try {			
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
-			error = jsonObj.toString();
+			error = output;
 			reachedPostCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media").getInt("count");
 			reachedFollowingCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_follow").getInt("count");
 			reachedFollowersCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_followed_by").getInt("count");
@@ -435,7 +435,7 @@ public class Instagram{
 		try {
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
-			error = jsonObj.toString();
+			error = output;
 
 			
 			JSONArray ja_users = jsonObj.getJSONArray("users");
@@ -552,7 +552,7 @@ public class Instagram{
 			try {
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
-				error = jsonObj.toString();	
+				error = output;	
 				jsonObj = jsonObj.getJSONObject("data");
 				
 						
@@ -620,7 +620,7 @@ public class Instagram{
 			try {
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
-				error = jsonObj.toString();
+				error = output;
 				String id = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("id");
 				String picture = jsonObj.getJSONObject("graphql").getJSONObject("user").getString("profile_pic_url_hd");
 	
@@ -653,7 +653,7 @@ public class Instagram{
 		try {
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
-			error = jsonObj.toString();
+			error = output;
 			JSONArray jsonArr = jsonObj.getJSONArray("users");
 	
 			
@@ -718,7 +718,7 @@ public class Instagram{
 			try {			
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
-				error = jsonObj.toString();
+				error = output;
 				
 				if(has_next_page.equals("false")) {
 					jsonObj = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
@@ -829,10 +829,9 @@ public class Instagram{
 	
 	
 	private void mostLikedOrCommentedByFollowers(String post, String likerOrCommenter) {
-		
-		
+				
         if((likerOrCommenter.equals("liker") && runThread9) || (likerOrCommenter.equals("commenter") && runThread10)) {
-		
+        	
 			String error = "";
 			
 			try {
@@ -866,7 +865,7 @@ public class Instagram{
 					
 					String output = response.body().string();
 					JSONObject jsonObj = new JSONObject(output);
-					error = jsonObj.toString();
+					error = output;
 						
 						
 				    if(likerOrCommenter.equals("liker")) {	
