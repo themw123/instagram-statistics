@@ -110,6 +110,9 @@ public class Instagram{
 		runThread10 = true;
 	}
 	
+	public void setLogLevel(Level level) {
+		logger.setLevel(level);
+	}
 	
 	public void start() {
 		double time = 0;
