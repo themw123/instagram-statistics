@@ -6,8 +6,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -617,7 +615,6 @@ public class Instagram{
 		if(runThread8) {
 			
 			String error = "";
-			boolean answer = true;
 			String url = "https://www.instagram.com/" + username + "/?__a=1";
 			Response response = r.doRequest(url);
 			try {
@@ -840,7 +837,6 @@ public class Instagram{
 			
 			try {
 			
-				int max = 200; //20 durchläufe entsprechen 1000 Likes die betrachtet werden, Faktor 50
 				int count = 5000000;
 				String end_cursor = null;
 				String has_next_page = "false";
