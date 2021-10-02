@@ -20,7 +20,7 @@ public class Instagram{
 	private ConsoleHandler handler;
 	private Vector<String> prepareLog;
 	
-	private String chooseLoginprocess = "session";
+	private String chooseLoginprocess;
 	private APIRequest r;
 	private String username;
 	private String password;
