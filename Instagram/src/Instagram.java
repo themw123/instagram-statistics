@@ -1,4 +1,3 @@
-
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -39,6 +38,8 @@ public class Instagram{
 	
 	private long likes;
 	private long comments;	
+	private double averageLikes;
+	private double averageComments;
 	private int reachedPostCount;
 	private int reachedFollowersCount;
 	private int reachedFollowingCount;
@@ -94,6 +95,8 @@ public class Instagram{
 		
 		likes = 0;
 		comments = 0;
+		averageLikes = 0;
+		averageComments = 0;
 		reachedPostCount = 0;
 		reachedFollowersCount = 0;
 		reachedFollowingCount = 0;
@@ -310,6 +313,8 @@ public class Instagram{
 		}
 		long likes = getLikes();
 		long comments = getComments();
+		double averageLikes = getAverageLikes();
+		double averageComments = getAverageComments();
 		
 		Object[] notFollowingYou = getNotFollowingYou();
 		Object[] youFollowingNot = getYouFollowingNot();
@@ -401,25 +406,27 @@ public class Instagram{
 		}
 		
 	   	
-	   	data = new Object[18];
+	   	data = new Object[20];
     	data[0] = postsCount;
     	data[1] = followers;
     	data[2] = following;
     	data[3] = likes;
     	data[4] = comments;
-    	data[5] = notFollowingYou;
-    	data[6] = youFollowingNot;
-    	data[7] = mutual;
-    	data[8] = openFriendRequestIn;
-    	data[9] = mostLikesPosts;
-    	data[10] = mostCommentsPosts;
-    	data[11] = leastLikesPosts;
-    	data[12] = leastCommentsPosts;
-    	data[13] = OpenFriendRequestOut;
-    	data[14] = mostLikesFrom;
-    	data[15] = mostCommentsFrom;
-    	data[16] = leastLikesFrom;
-    	data[17] = leastCommentsFrom;	   	
+    	data[5] = averageLikes;
+    	data[6] = averageComments;
+    	data[7] = notFollowingYou;
+    	data[8] = youFollowingNot;
+    	data[9] = mutual;
+    	data[10] = openFriendRequestIn;
+    	data[11] = mostLikesPosts;
+    	data[12] = mostCommentsPosts;
+    	data[13] = leastLikesPosts;
+    	data[14] = leastCommentsPosts;
+    	data[15] = OpenFriendRequestOut;
+    	data[16] = mostLikesFrom;
+    	data[17] = mostCommentsFrom;
+    	data[18] = leastLikesFrom;
+    	data[19] = leastCommentsFrom;	   	
 	}
     
   
@@ -781,6 +788,9 @@ public class Instagram{
 				
 		}while(has_next_page.equals("true"));		
 		//System.out.println("Data7-Thread finished");
+		averageLikes =  Math.round(((double) likes / myPosts.size()) * 100.0) / 100.0;
+		averageComments = Math.round(((double) comments / myPosts.size()) * 100.0) / 100.0;
+	    
 	}
 	
 	
@@ -1280,6 +1290,14 @@ public class Instagram{
 	
 	public long getComments() {
 		return comments;
+	}
+	
+	public double getAverageLikes() {
+		return averageLikes;
+	}
+	
+	public double getAverageComments() {
+		return averageComments;
 	}
 	
 	public boolean getSessionIdValid() {
