@@ -278,18 +278,10 @@ public class Instagram{
 				t3.join();
 				t4.join();
 			}
-			else {
-				logger.warning("Thread:3-4 not started");
-			}
 			t5.join();
 			t6.join();
 			t7.join();
-			if(getPostsCount() == 612) {
-				logger.warning("Threads:1-7 finished -> " + "too much Posts. " + getPostsCount() + " from " + reachedPostCount);
-			}
-			else {
-				logger.info("Threads:1-7 finished");
-			}
+			logger.info("Threads:1-7 finished");
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -979,7 +971,7 @@ public class Instagram{
 		        
 	 			if(error.contains("message")) {
 					if(likerOrCommenter.equals("liker")) {	
-						prepareLog.add("setMostLikedByFollowers failed -> " + error); 
+						prepareLog.add("setMostLikedByFollowers failed -> maximum of " + reachedPostLikes + " posts analysed" + error); 
 					}
 					else if(likerOrCommenter.equals("commenter")) {
 						prepareLog.add("setMostCommentedByFollowers failed -> " + error); 
