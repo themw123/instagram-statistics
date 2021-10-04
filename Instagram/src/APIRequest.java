@@ -63,7 +63,7 @@ public class APIRequest {
 					JSONObject jsonObj = new JSONObject(output);
 					username = jsonObj.getJSONObject("user").getString("username");
 				} catch (IOException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 		return username;
 		
@@ -88,7 +88,7 @@ public class APIRequest {
 				sessionIdValid = true;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		requestsCount++;
 		return sessionIdValid;

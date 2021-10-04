@@ -40,9 +40,9 @@ public class Instagram{
 	private long comments;	
 	private double averageLikes;
 	private double averageComments;
-	private int reachedPostCount;
-	private int reachedFollowersCount;
-	private int reachedFollowingCount;
+	private int realPostCount;
+	private int realFollowersCount;
+	private int realFollowingCount;
 	private int reachedRequestOut;
 	private int reachedPostLikes;
 	private int reachedPostComments;
@@ -97,9 +97,9 @@ public class Instagram{
 		comments = 0;
 		averageLikes = 0;
 		averageComments = 0;
-		reachedPostCount = 0;
-		reachedFollowersCount = 0;
-		reachedFollowingCount = 0;
+		realPostCount = 0;
+		realFollowersCount = 0;
+		realFollowingCount = 0;
 		reachedRequestOut = 0;
 		reachedPostLikes = 0;
 		reachedPostComments = 0;
@@ -210,9 +210,9 @@ public class Instagram{
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			error = output;
-			reachedPostCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media").getInt("count");
-			reachedFollowingCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_follow").getInt("count");
-			reachedFollowersCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_followed_by").getInt("count");
+			realPostCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media").getInt("count");
+			realFollowingCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_follow").getInt("count");
+			realFollowersCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_followed_by").getInt("count");
 		}catch(Exception e) {
 			logger.warning("setRealCounts failed -> "  + error);
 			success = false;
@@ -269,7 +269,7 @@ public class Instagram{
 		
 
 		try {
-			if((this.following.length != 0 || this.followers.length != 0) && getFollowersCount()+playvalue >= reachedFollowersCount && getFollowingCount()+playvalue >= reachedFollowingCount) {
+			if((this.following.length != 0 || this.followers.length != 0) && getFollowersCount()+playvalue >= realFollowersCount && getFollowingCount()+playvalue >= realFollowingCount) {
 		    	//System.out.println("Data3-Thread running");
 				t3.start();
 				//System.out.println("Data4-Thread running");
@@ -294,27 +294,27 @@ public class Instagram{
 		//data1 fertig
 		//data 1-7 into general page
 		int postsCount = getPostsCount();
-		if(postsCount+playvalue < reachedPostCount) {
-			//wert von reachedPostCount anzeigen.
-			postsCount = reachedPostCount;
+		if(postsCount+playvalue < realPostCount) {
+			//wert von realPostCount anzeigen.
+			postsCount = realPostCount;
 		}
 
 		int followers = getFollowersCount();
-		if(followers+playvalue < reachedFollowersCount) {
-			//wert von reachedFollowersCount anzeigen.
-			followers = reachedFollowersCount;
+		if(followers+playvalue < realFollowersCount) {
+			//wert von realFollowersCount anzeigen.
+			followers = realFollowersCount;
 		}
 		int following = getFollowingCount();
-		if(following+playvalue < reachedFollowingCount) {
+		if(following+playvalue < realFollowingCount) {
 			//wert von myRealFollowingCount anzeigen.
-			following = reachedFollowingCount;
+			following = realFollowingCount;
 		}
 		long likes = getLikes();
-		if(postsCount+playvalue < reachedPostCount) {
+		if(postsCount+playvalue < realPostCount) {
 			//
 		}
 		long comments = getComments();
-		if(postsCount+playvalue < reachedPostCount) {
+		if(postsCount+playvalue < realPostCount) {
 			//
 		}
 		double averageLikes = getAverageLikes();
@@ -323,19 +323,25 @@ public class Instagram{
 		Object[] notFollowingYou = getNotFollowingYou();
 		Object[] youFollowingNot = getYouFollowingNot();
 		Object[] mutual = getMutual();
-		if(followers+playvalue < reachedFollowersCount || following+playvalue < reachedFollowingCount) {
+		if(followers+playvalue < realFollowersCount || following+playvalue < realFollowingCount) {
 			//In UI fehler bei allen drei anzeigen. Fehler: follower/following limit
 		}
 		
 		Object[] openFriendRequestIn = getOpenFriendRequestIn();
-	
+		for(String e : prepareLog) {
+			if(e.contains("setOpenFriendRequestIn")) {
+				int count = openFriendRequestIn.length;
+				//fehler in UI ausgeben
+				break;
+			}
+		}
 		
 		//get data1+ into second page
 	    Object[] mostLikesPosts = getPosts("likes", "down");
 	    Object[] mostCommentsPosts = getPosts("comments", "down");
 	    Object[] leastLikesPosts = getPosts("likes", "up");
 	    Object[] leastCommentsPosts = getPosts("comments", "up");
-	    if(postsCount+playvalue < reachedPostCount) {
+	    if(postsCount+playvalue < realPostCount) {
 			//In UI fehler bei allen vier anzeigen. Fehler: Post limit aber zeigt die geholten an.
 	    }
 		
@@ -350,24 +356,18 @@ public class Instagram{
 			logger.info("Thread:8 running");
 			t8.start();
 		}
-		else {
-			logger.warning("Thread:8 not started -> OpenFriendRequestOut is empty");
-		}
-		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= reachedFollowersCount && !myPosts.isEmpty()) {
+		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= realFollowersCount && !myPosts.isEmpty()) {
 		    //System.out.println("Data8-Thread running");
 			logger.info("Thread:9-10 running");
 			t9.start();
 		    //System.out.println("Data9-Thread running");
 			t10.start();
 		}
-		else {
-			logger.warning("Thread:9-10 not started");
-		}
 		
 		if(openFriendRequestOut.size() != 0) {
 			try {
 				t8.join();
-				logger.info("Threads:8 finished");	
+				logger.info("Thread:8 finished");	
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -388,7 +388,7 @@ public class Instagram{
 		
 		
 		
-		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= reachedFollowersCount && !myPosts.isEmpty()) {
+		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= realFollowersCount && !myPosts.isEmpty()) {
 			try {
 				//data2 fertig
 				t9.join();
@@ -409,7 +409,7 @@ public class Instagram{
 	   	Object[] mostCommentsFrom = getMostLikesandCommentsFrom("comments", "down");
 	   	Object[] leastLikesFrom = getMostLikesandCommentsFrom("likes", "up");
 	   	Object[] leastCommentsFrom = getMostLikesandCommentsFrom("comments", "up");
-		if(getFollowersCount()+playvalue < reachedFollowersCount) {
+		if(getFollowersCount()+playvalue < realFollowersCount) {
 			//In UI fehler bei allen vier anzeigen. Fehler: follower limit
 		}
 		else if(reachedPostLikes < getPostsCount()) {
@@ -501,11 +501,11 @@ public class Instagram{
 			int realCount = 0;
 			if(urlParameter.equals("following")) {
 				count = getFollowingCount();
-				realCount = reachedFollowingCount;
+				realCount = realFollowingCount;
 			}
 			else if(urlParameter.equals("followers")) {
 				count = getFollowersCount();
-				realCount = reachedFollowersCount;
+				realCount = realFollowersCount;
 			}
 			
 			prepareLog.add("setFollowingAndFollowers failed -> " + count + " from " + realCount + " -> "  + error); 
@@ -634,7 +634,7 @@ public class Instagram{
 		executor.shutdown();
 		try {
 			while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-				logger.info("Not yet. Still waiting for termination"); 
+				//logger.info("Not yet. Still waiting for termination"); 
 			}
 		} catch (InterruptedException e) {
 			logger.warning("Waiting for Threads failed."); 
@@ -805,18 +805,31 @@ public class Instagram{
 				}
 				
 				//In UI fehler anzeigen(bla von bla posts).
-				prepareLog.add("setMyPosts failed -> " + error); 
+				prepareLog.add("setMyPosts failed -> post " + durchlauf + " from " + realPostCount + error); 
 				break;
 			}
 					
 			durchlauf++;
 				
 		}while(has_next_page.equals("true"));		
-		//System.out.println("Data7-Thread finished");
+
 		averageLikes =  Math.round(((double) likes / myPosts.size()) * 100.0) / 100.0;
 		averageComments = Math.round(((double) comments / myPosts.size()) * 100.0) / 100.0;
 	    
+		boolean exist = false;
+		for(String e : prepareLog) {
+			if(e.contains("setMyPosts")) {
+				exist = true;
+				break;
+			}
+		}
+		if(!exist && myPosts.size() < realPostCount) {
+			prepareLog.add("setMyPosts failed -> post " + durchlauf + " from " + realPostCount + " -> a maximum about 600 Posts possible"); 
+		}
+		
+		//System.out.println("Data7-Thread finished");
 	}
+	
 	
 	
 
@@ -843,7 +856,7 @@ public class Instagram{
 		executor.shutdown();
 		try {
 			while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-				logger.info("Not yet. Still waiting for termination"); 
+				//logger.info("Not yet. Still waiting for termination"); 
 			}
 		} catch (InterruptedException e) {
 			logger.warning("Waiting for Threads failed."); 
@@ -971,10 +984,10 @@ public class Instagram{
 		        
 	 			if(error.contains("message")) {
 					if(likerOrCommenter.equals("liker")) {	
-						prepareLog.add("setMostLikedByFollowers failed -> maximum of " + reachedPostLikes + " posts analysed" + error); 
+						prepareLog.add("setMostLikedByFollowers failed -> maximum of " + reachedPostLikes + " posts analysed -> " + error); 
 					}
 					else if(likerOrCommenter.equals("commenter")) {
-						prepareLog.add("setMostCommentedByFollowers failed -> " + error); 
+						prepareLog.add("setMostCommentedByFollowers failed ->  maximum of " + reachedPostLikes + " posts analysed -> " + error); 
 					}
 				}
 				
@@ -1073,13 +1086,7 @@ public class Instagram{
 			String error = prepareLog.get(i);
 			if(error.contains("setMostLikedByFollowers")) {
 				if(print1) {
-					if(error.contains("{")) {
-						String beg = error.substring(0, error.indexOf("->")-1);
-						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-						error = beg + " maximum of " + reachedPostLikes + " posts analysed" + end;
-						prepareLog.set(i, error);
-						print1 = false;
-					}
+					print1 = false;
 				}
 				else {
 					prepareLog.remove(i);
@@ -1088,13 +1095,7 @@ public class Instagram{
 			}
 			else if(error.contains("setMostCommentedByFollowers")) {
 				if(print2) {
-					if(error.contains("{")) {
-						String beg = error.substring(0, error.indexOf("->")-1);
-						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-						error = beg + " maximum of " + reachedPostComments + " posts analysed" + end;
-						prepareLog.set(i, error);
-						print2 = false;
-					}
+					print2 = false;
 				}
 				else {
 					prepareLog.remove(i);
@@ -1103,13 +1104,7 @@ public class Instagram{
 			}
 			else if(error.contains("getOpenFriendRequestOutIds")) {
 				if(print3) {
-					if(error.contains("{")) {
-						String beg = error.substring(0, error.indexOf("->")-1);
-						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-						error = beg + " maximum of " + reachedRequestOut + " persons " + end;
-						prepareLog.set(i, error);
-						print3 = false;
-					}
+					print3 = false;
 				}
 				else {
 					prepareLog.remove(i);
@@ -1118,13 +1113,7 @@ public class Instagram{
 			}
 			else if(error.contains("setMyPosts")) {
 				if(print4) {
-					if(error.contains("{")) {
-						String beg = error.substring(0, error.indexOf("->")-1);
-						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-						error = beg + " " + myPosts.size() + " posts from " + reachedPostCount + " " + end;
-						prepareLog.set(i, error);
-						print4 = false;
-					}
+					print4 = false;
 				}
 				else {
 					prepareLog.remove(i);
