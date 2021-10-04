@@ -203,10 +203,10 @@ public class Instagram{
     	boolean success = true;
 		String error = null;
 		String url = "https://www.instagram.com/" + username + "/?__a=1";
-			
-		Response response = r.doRequest(url);
-			
+						
 		try {			
+			Response response = r.doRequest(url);
+
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			error = output;
@@ -278,10 +278,18 @@ public class Instagram{
 				t3.join();
 				t4.join();
 			}
+			else {
+				logger.warning("Thread:3-4 not started");
+			}
 			t5.join();
 			t6.join();
 			t7.join();
-			logger.info("Threads:1-7 finished");
+			if(getPostsCount() == 612) {
+				logger.warning("Threads:1-7 finished -> " + "too much Posts. " + getPostsCount() + " from " + reachedPostCount);
+			}
+			else {
+				logger.info("Threads:1-7 finished");
+			}
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -295,24 +303,28 @@ public class Instagram{
 		//data 1-7 into general page
 		int postsCount = getPostsCount();
 		if(postsCount+playvalue < reachedPostCount) {
-			//In UI fehler anzeigen(bla von bla posts).
-			logger.warning("MyPosts: " + postsCount + " from " + reachedPostCount + " failed -> Too much posts. Only round about 600 possible.");
+			//wert von reachedPostCount anzeigen.
 			postsCount = reachedPostCount;
 		}
+
 		int followers = getFollowersCount();
 		if(followers+playvalue < reachedFollowersCount) {
 			//wert von reachedFollowersCount anzeigen.
-			logger.warning("Followers failed: " + followers + " from " + reachedFollowersCount);
 			followers = reachedFollowersCount;
 		}
 		int following = getFollowingCount();
 		if(following+playvalue < reachedFollowingCount) {
 			//wert von myRealFollowingCount anzeigen.
-			logger.warning("Following: failed " + following + " from " + reachedFollowingCount);
 			following = reachedFollowingCount;
 		}
 		long likes = getLikes();
+		if(postsCount+playvalue < reachedPostCount) {
+			//
+		}
 		long comments = getComments();
+		if(postsCount+playvalue < reachedPostCount) {
+			//
+		}
 		double averageLikes = getAverageLikes();
 		double averageComments = getAverageComments();
 		
@@ -346,12 +358,18 @@ public class Instagram{
 			logger.info("Thread:8 running");
 			t8.start();
 		}
+		else {
+			logger.warning("Thread:8 not started -> OpenFriendRequestOut is empty");
+		}
 		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playvalue >= reachedFollowersCount && !myPosts.isEmpty()) {
 		    //System.out.println("Data8-Thread running");
 			logger.info("Thread:9-10 running");
 			t9.start();
 		    //System.out.println("Data9-Thread running");
 			t10.start();
+		}
+		else {
+			logger.warning("Thread:9-10 not started");
 		}
 		
 		if(openFriendRequestOut.size() != 0) {
@@ -368,7 +386,13 @@ public class Instagram{
 		//data2 fertig
 		//data 8 into first page
 		Object[] OpenFriendRequestOut = getOpenFriendRequestOut();
-		
+		for(String e : prepareLog) {
+			if(e.contains("setOpenFriendRequestOut")) {
+				int count = openFriendRequestOut.size();
+				//fehler in UI ausgeben
+				break;
+			}
+		}
 		
 		
 		
@@ -431,15 +455,15 @@ public class Instagram{
     
   
 	private void setFollowingAndFollowers(String urlParameter) {
-		int count = 1000000000;
+		int count = 1000000;
 		String error = null;
 		
 		
 		String url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "";
-		
-		Response response = r.doRequest(url);
-		
+				
 		try {
+			Response response = r.doRequest(url);
+			
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			error = output;
@@ -481,7 +505,18 @@ public class Instagram{
 					
 		} catch (Exception e) {
 			//e.printStackTrace();
-			logger.warning("setFollowingAndFollowers failed -> "  + error); 
+			count = 0;
+			int realCount = 0;
+			if(urlParameter.equals("following")) {
+				count = getFollowingCount();
+				realCount = reachedFollowingCount;
+			}
+			else if(urlParameter.equals("followers")) {
+				count = getFollowersCount();
+				realCount = reachedFollowersCount;
+			}
+			
+			prepareLog.add("setFollowingAndFollowers failed -> " + count + " from " + realCount + " -> "  + error); 
 		}
 		/*
 		if(urlParameter.equals("following")) {
@@ -553,10 +588,9 @@ public class Instagram{
 			else {
 				url = "https://www.instagram.com/accounts/access_tool/current_follow_requests?__a=1&cursor=" + cursor;
 			}
-			
-			Response response = r.doRequest(url);
-			
+						
 			try {
+				Response response = r.doRequest(url);
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
 				error = output;	
@@ -586,7 +620,7 @@ public class Instagram{
 						
 			} catch (Exception e) {
 				//e.printStackTrace();
-				logger.warning("setOpenFriendRequestOut" + " Durchlauf: " + durchlauf + " failed -> " + error); 
+				prepareLog.add("setOpenFriendRequestOut failed -> Durchlauf: " + durchlauf + " -> " + error); 
 				break;
 			}
 			durchlauf++;
@@ -623,8 +657,8 @@ public class Instagram{
 			
 			String error = "";
 			String url = "https://www.instagram.com/" + username + "/?__a=1";
-			Response response = r.doRequest(url);
 			try {
+				Response response = r.doRequest(url);
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
 				error = output;
@@ -638,7 +672,7 @@ public class Instagram{
 				runThread8 = false;
 				
 				if(error.contains("message")) {
-					prepareLog.add("getOpenFriendRequestOutIds -> " + error); 
+					prepareLog.add("getOpenFriendRequestOutIds failed -> " + error); 
 				}
 			}
 			finally {
@@ -651,13 +685,11 @@ public class Instagram{
 	
 	private void setOpenFriendRequestIn() {
 
-		String url = "https://i.instagram.com/api/v1/friendships/pending/";
-
-		Response response = r.doRequest(url);
-
 		String error = null;
+		String url = "https://i.instagram.com/api/v1/friendships/pending/";
 		
 		try {
+			Response response = r.doRequest(url);
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			error = output;
@@ -679,7 +711,7 @@ public class Instagram{
 					
 		} catch (Exception e) {
 			//e.printStackTrace();	
-			logger.warning("setOpenFriendRequestIn failed -> " + error); 
+			prepareLog.add("setOpenFriendRequestIn failed -> " + error); 
 		}
 		//System.out.println("Data6-Thread finished");
 
@@ -702,7 +734,7 @@ public class Instagram{
 		17863787143139595 = post suggestions
 		*/
 		
-		int count = 1000;
+		int count = 100000;
 		String has_next_page = "false";
 		String end_cursor = null;
 		String error = null;
@@ -719,10 +751,9 @@ public class Instagram{
 			}
 			
 			
-			
-			Response response = r.doRequest(url);
-			
-			try {			
+				
+			try {		
+				Response response = r.doRequest(url);
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
 				error = output;
@@ -780,7 +811,9 @@ public class Instagram{
 				else if(durchlauf > 1){
 					durchlauf = 12 + ((durchlauf-1) * 40);  
 				}
-				logger.warning("setMyPosts Post: " + durchlauf + " failed -> " + error); 
+				
+				//In UI fehler anzeigen(bla von bla posts).
+				prepareLog.add("setMyPosts failed -> " + error); 
 				break;
 			}
 					
@@ -946,10 +979,10 @@ public class Instagram{
 		        
 	 			if(error.contains("message")) {
 					if(likerOrCommenter.equals("liker")) {	
-						prepareLog.add("setMostLikedByFollowers -> " + error); 
+						prepareLog.add("setMostLikedByFollowers failed -> " + error); 
 					}
 					else if(likerOrCommenter.equals("commenter")) {
-						prepareLog.add("setMostCommentedByFollowers -> " + error); 
+						prepareLog.add("setMostCommentedByFollowers failed -> " + error); 
 					}
 				}
 				
@@ -1048,11 +1081,13 @@ public class Instagram{
 			String error = prepareLog.get(i);
 			if(error.contains("setMostLikedByFollowers")) {
 				if(print1) {
-					String beg = error.substring(0, error.indexOf("->")-1);
-					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " maximum of " + reachedPostLikes + " posts analysed" + end;
-					prepareLog.set(i, error);
-					print1 = false;
+					if(error.contains("{")) {
+						String beg = error.substring(0, error.indexOf("->")-1);
+						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
+						error = beg + " maximum of " + reachedPostLikes + " posts analysed" + end;
+						prepareLog.set(i, error);
+						print1 = false;
+					}
 				}
 				else {
 					prepareLog.remove(i);
@@ -1061,11 +1096,13 @@ public class Instagram{
 			}
 			else if(error.contains("setMostCommentedByFollowers")) {
 				if(print2) {
-					String beg = error.substring(0, error.indexOf("->")-1);
-					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " maximum of " + reachedPostComments + " posts analysed" + end;
-					prepareLog.set(i, error);
-					print2 = false;
+					if(error.contains("{")) {
+						String beg = error.substring(0, error.indexOf("->")-1);
+						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
+						error = beg + " maximum of " + reachedPostComments + " posts analysed" + end;
+						prepareLog.set(i, error);
+						print2 = false;
+					}
 				}
 				else {
 					prepareLog.remove(i);
@@ -1074,20 +1111,28 @@ public class Instagram{
 			}
 			else if(error.contains("getOpenFriendRequestOutIds")) {
 				if(print3) {
-					String beg = error.substring(0, error.indexOf("->")-1);
-					String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
-					error = beg + " maximum of " + reachedRequestOut + " persons " + end;
-					prepareLog.set(i, error);
-					print3 = false;
+					if(error.contains("{")) {
+						String beg = error.substring(0, error.indexOf("->")-1);
+						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
+						error = beg + " maximum of " + reachedRequestOut + " persons " + end;
+						prepareLog.set(i, error);
+						print3 = false;
+					}
 				}
 				else {
 					prepareLog.remove(i);
 					i--;
 				}
 			}
-			else if(error.contains("MyPosts")) {
+			else if(error.contains("setMyPosts")) {
 				if(print4) {
-					print4 = false;
+					if(error.contains("{")) {
+						String beg = error.substring(0, error.indexOf("->")-1);
+						String end = error.substring(error.indexOf("{")-1, error.indexOf("}")+1);
+						error = beg + " " + myPosts.size() + " posts from " + reachedPostCount + " " + end;
+						prepareLog.set(i, error);
+						print4 = false;
+					}
 				}
 				else {
 					prepareLog.remove(i);
