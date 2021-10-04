@@ -1,4 +1,4 @@
-import java.io.IOException;
+
 import java.util.Random;
 
 import org.json.JSONObject;
@@ -37,7 +37,7 @@ public class APIRequest {
 
 		try {
 			response = client.newCall(request).execute();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			//System.out.println("Error in Request");
 			//e.printStackTrace();
 		}
@@ -62,7 +62,7 @@ public class APIRequest {
 					String output = response.body().string();
 					JSONObject jsonObj = new JSONObject(output);
 					username = jsonObj.getJSONObject("user").getString("username");
-				} catch (IOException e) {
+				} catch (Exception e) {
 					//e.printStackTrace();
 				}
 		return username;
@@ -87,7 +87,7 @@ public class APIRequest {
 			if(response.code() == 200) {
 				sessionIdValid = true;
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			//e.printStackTrace();
 		}
 		requestsCount++;
@@ -108,8 +108,9 @@ public class APIRequest {
 				try {
 					response = client.newCall(request).execute();
 					
-				} catch (IOException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
+					//e.printStackTrace();
+					
 				}
 		requestsCount++;
 		return response;
@@ -119,23 +120,24 @@ public class APIRequest {
 		
 		Response response = null;
 		String userAgent = getUserAgent(2);
-
-		OkHttpClient client = new OkHttpClient().newBuilder()
-				  .build();
-				MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-				@SuppressWarnings("deprecation")
-				RequestBody body = RequestBody.create(mediaType, "enc_password=" + enc_password + "&username=" + username);
-				Request request = new Request.Builder()
-				  .url("https://www.instagram.com/accounts/login/ajax/")
-				  .method("POST", body)
-				  .addHeader("X-CSRFToken", XCSRFToken)
-				  .addHeader("User-Agent", userAgent)
-				  .build();
-				try {
-					response = client.newCall(request).execute();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+		
+		try {
+			OkHttpClient client = new OkHttpClient().newBuilder()
+					  .build();
+					MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+					@SuppressWarnings("deprecation")
+					RequestBody body = RequestBody.create(mediaType, "enc_password=" + enc_password + "&username=" + username);
+					Request request = new Request.Builder()
+					  .url("https://www.instagram.com/accounts/login/ajax/")
+					  .method("POST", body)
+					  .addHeader("X-CSRFToken", XCSRFToken)
+					  .addHeader("User-Agent", userAgent)
+					  .build();
+				
+			response = client.newCall(request).execute();
+		} catch (Exception e) {
+			//e.printStackTrace();
+		}
 	
 		requestsCount++;
 		return response;

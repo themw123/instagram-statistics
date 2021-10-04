@@ -32,8 +32,8 @@ public class InstagramLogin {
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			XCSRFToken = jsonObj.getJSONObject("config").get("csrf_token").toString();
-		} catch (IOException e) {
-			System.out.println("cant get XCSRFToken");
+		} catch (Exception e) {
+			//System.out.println("cant get XCSRFToken");
 		}
 	}
 	
@@ -67,8 +67,8 @@ public class InstagramLogin {
 			}
 
 			
-		} catch (IOException e) {
-			System.out.println("error in result of login");
+		} catch (Exception e) {
+			//System.out.println("error in result of login");
 		}
 		
 		if(result) { 
