@@ -43,7 +43,6 @@ public class Instagram{
 	private int realPostCount;
 	private int realFollowersCount;
 	private int realFollowingCount;
-	private int reachedRequestOut;
 	private int reachedPostLikes;
 	private int reachedPostComments;
 	private int reachedLikes;
@@ -100,7 +99,6 @@ public class Instagram{
 		realPostCount = 0;
 		realFollowersCount = 0;
 		realFollowingCount = 0;
-		reachedRequestOut = 0;
 		reachedPostLikes = 0;
 		reachedPostComments = 0;
 		reachedLikes = 0;
@@ -449,7 +447,7 @@ public class Instagram{
 	private void setFollowingAndFollowers(String urlParameter) {
 		int count = 1000000;
 		String error = null;
-		
+		int realCount = 0;
 		
 		String url = "https://i.instagram.com/api/v1/friendships/"+ ds_user_id + "/" + urlParameter + "/?count=" + count + "";
 				
@@ -498,7 +496,6 @@ public class Instagram{
 		} catch (Exception e) {
 			//e.printStackTrace();
 			count = 0;
-			int realCount = 0;
 			if(urlParameter.equals("following")) {
 				count = getFollowingCount();
 				realCount = realFollowingCount;
@@ -508,8 +505,43 @@ public class Instagram{
 				realCount = realFollowersCount;
 			}
 			
-			prepareLog.add("setFollowingAndFollowers failed -> " + count + " from " + realCount + " -> "  + error); 
+			prepareLog.add("setFollowingAndFollowers " + urlParameter + " failed -> " + count + " from " + realCount + " -> "  + error); 
 		}
+		
+		
+		count = 0;
+		realCount = 0;
+		boolean exist = false;
+		String methodName = null;
+		
+		if(urlParameter.equals("following")) {
+			count = getFollowingCount();
+			realCount = realFollowingCount;
+			methodName = "setFollowingAndFollowers following";
+			
+		}
+		else if(urlParameter.equals("followers")) {
+			count = getFollowersCount();
+			realCount = realFollowersCount;
+			methodName = "setFollowingAndFollowers followers";
+			
+		}
+		
+		for(String e : prepareLog) {
+			if(e.contains(methodName)) {
+				exist = true;
+				break;
+			}
+		}
+		if(!exist && count < realCount) {
+			prepareLog.add("setFollowingAndFollowers failed -> " + count + " from " + realCount + " -> you have got too much " + urlParameter); 
+		}
+		
+		
+		
+		
+
+		
 		/*
 		if(urlParameter.equals("following")) {
 			System.out.println("Data1-Thread finished");
@@ -667,9 +699,6 @@ public class Instagram{
 					prepareLog.add("getOpenFriendRequestOutIds failed -> " + error); 
 				}
 			}
-			finally {
-				reachedRequestOut++;
-			}
 		
 		}
 	}
@@ -801,11 +830,11 @@ public class Instagram{
 					durchlauf = 12;
 				}
 				else if(durchlauf > 1){
-					durchlauf = 12 + ((durchlauf-1) * 40);  
+					durchlauf = 12 + ((durchlauf-1) * 50);  
 				}
 				
 				//In UI fehler anzeigen(bla von bla posts).
-				prepareLog.add("setMyPosts failed -> post " + durchlauf + " from " + realPostCount + error); 
+				prepareLog.add("setMyPosts failed -> post " + durchlauf + " from " + realPostCount + " -> " + error); 
 				break;
 			}
 					
@@ -815,7 +844,8 @@ public class Instagram{
 
 		averageLikes =  Math.round(((double) likes / myPosts.size()) * 100.0) / 100.0;
 		averageComments = Math.round(((double) comments / myPosts.size()) * 100.0) / 100.0;
-	    
+		
+		
 		boolean exist = false;
 		for(String e : prepareLog) {
 			if(e.contains("setMyPosts")) {
@@ -824,6 +854,12 @@ public class Instagram{
 			}
 		}
 		if(!exist && myPosts.size() < realPostCount) {
+			if (durchlauf == 1) {
+				durchlauf = 12;
+			}
+			else if(durchlauf > 1){
+				durchlauf = 13 + ((durchlauf-2) * 50);  
+			}
 			prepareLog.add("setMyPosts failed -> post " + durchlauf + " from " + realPostCount + " -> a maximum about 600 Posts possible"); 
 		}
 		
