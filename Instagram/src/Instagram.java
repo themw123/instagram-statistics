@@ -392,13 +392,13 @@ public class Instagram{
 				t9.join();
 				t10.join();
 				setLikerAndCommenterPostCountsIfNull();
-				logger.info("Threads:9-10 finished\n");	
+				logger.info("Threads:9-10 finished");	
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 		
-		
+		System.out.println("");
 		
 		
 		//data3 fertig
@@ -533,7 +533,7 @@ public class Instagram{
 				break;
 			}
 		}
-		if(!exist && count < realCount) {
+		if(!exist && count+10 < realCount) {
 			prepareLog.add("setFollowingAndFollowers failed -> " + count + " from " + realCount + " -> you have got too much " + urlParameter); 
 		}
 		
@@ -899,6 +899,8 @@ public class Instagram{
 			//e.printStackTrace();
 		}
 		
+		
+		
 		/*
         if(likerOrCommenter.equals("liker")) {
         	System.out.println("Data8pool finished");
@@ -1020,10 +1022,10 @@ public class Instagram{
 		        
 	 			if(error.contains("message")) {
 					if(likerOrCommenter.equals("liker")) {	
-						prepareLog.add("setMostLikedByFollowers failed -> maximum of " + reachedPostLikes + " posts analysed -> " + error); 
+						prepareLog.add("setMostLikedByFollowers failed -> maximum of posts analysed -> " + error); 
 					}
 					else if(likerOrCommenter.equals("commenter")) {
-						prepareLog.add("setMostCommentedByFollowers failed ->  maximum of " + reachedPostLikes + " posts analysed -> " + error); 
+						prepareLog.add("setMostCommentedByFollowers failed ->  maximum of posts analysed -> " + error); 
 					}
 				}
 				
@@ -1117,7 +1119,6 @@ public class Instagram{
 		}
 		*/
 		
-		
 		for(int i=0;i<prepareLog.size();i++) {
 			String error = prepareLog.get(i);
 			if(error.contains("setMostLikedByFollowers")) {
@@ -1155,6 +1156,25 @@ public class Instagram{
 					prepareLog.remove(i);
 					i--;
 				}
+			}
+		}
+		
+		
+		for(int i=0;i<prepareLog.size();i++) {
+			if(prepareLog.get(i).contains("setMostLikedByFollowers")) {
+				String s = prepareLog.get(i);
+				String beg = s.substring(0, s.indexOf("posts"));
+				String end = s.substring(s.indexOf("posts"), s.length());
+				s = beg + reachedPostLikes + " " + end;
+				prepareLog.set(i, s);
+			}
+			else if(prepareLog.get(i).contains("setMostCommentedByFollowers")) {
+				String s = prepareLog.get(i);
+				String beg = s.substring(0, s.indexOf("posts"));
+				String end = s.substring(s.indexOf("posts"), s.length());
+				s = beg + reachedPostComments + " " + end;
+				prepareLog.set(i, s);
+
 			}
 		}
 		
