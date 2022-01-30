@@ -18,6 +18,7 @@ public class Instagram{
 	private LoggerFormat formatter;
 	private ConsoleHandler handler;
 	private Vector<String> prepareLog;
+	private long time;
 	
 	private String chooseLoginprocess;
 	private APIRequest r;
@@ -70,7 +71,7 @@ public class Instagram{
 		}
 			
 		initialDatastructures();
-
+		login();
 	}
 
 	
@@ -93,7 +94,7 @@ public class Instagram{
 		openFriendRequestIn = new Vector<String[]>();
 		myPosts = new Vector<Object[]>();
 		
-		playValue = 0;
+		playValue = 10;
 		likes = 0;
 		comments = 0;
 		averageLikes = 0;
@@ -180,7 +181,7 @@ public class Instagram{
 
 	
 	
-	private void login() {
+	public void login() {
 		if(chooseLoginprocess.equals("login")){
 			logger.info("Trying to login ...");
 			setSession();
@@ -189,6 +190,34 @@ public class Instagram{
 		this.r = new APIRequest(sessionId);
 		//check if sessionId still works
 		sessionIdValid = r.checkSessionId();
+		
+		if(sessionIdValid) {	
+			if(chooseLoginprocess.equals("login")) {
+				logger.info("Login successful\n");
+			}
+			else if(chooseLoginprocess.equals("session")) {
+				logger.info("Session valid\n");
+			}
+			if(username == null) {
+				username = r.getUsername(ds_user_id);	
+			}	
+		}
+		else {
+			//In UI error anzeigen
+			if(chooseLoginprocess.equals("login")) {
+				logger.severe("Login failed");
+			}
+			else if(chooseLoginprocess.equals("session")) {
+				logger.severe("Session error");
+			}
+			//login page fehlermeldung ausgeben
+			if(sessionId == null) {
+				logger.severe("Wrong password or username");
+			}
+			else if(sessionId.equals("two_factor_required")) {
+				logger.severe("Please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
+			}
+		}
 		
 	}
 	
@@ -226,7 +255,8 @@ public class Instagram{
     }
 	
     public void page1(){
-    	
+		
+    	time = -System.currentTimeMillis();    	
     	setRealCounts();
     	
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
@@ -294,7 +324,6 @@ public class Instagram{
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		
 		logger.info("Threads:page1 finished");
 
 	
@@ -303,60 +332,43 @@ public class Instagram{
     
     
     public void page2(){
+    	setRealCounts();
     	logger.info("Thread:page2 running");
 		setMyPosts();
     	logger.info("Thread:page2 finished");
     }
     
     public void page3(){
-
-		Thread t1 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
-		Thread t2 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
-		
+    	setRealCounts();
 		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playValue >= realFollowersCount && !myPosts.isEmpty()) {
-		    //System.out.println("Data8-Thread running");
+			Thread t1 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
+			Thread t2 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
+			//System.out.println("Data8-Thread running");
 	    	logger.info("Threads:page3 running");
 			t1.start();
 		    //System.out.println("Data9-Thread running");
 			t2.start();
-		}
-		
-
-		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playValue >= realFollowersCount && !myPosts.isEmpty()) {
+			
 			try {
-				//data2 fertig
 				t1.join();
 				t2.join();
-				setLikerAndCommenterPostCountsIfNull();
-		    	logger.info("Threads:page3 finished");
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			setLikerAndCommenterPostCountsIfNull();
+	    	logger.info("Threads:page3 finished");
 		}
 		
+		setPrepareLog();
     }
     
     private void data(){
 
-		//data3 fertig
-		//data 9-10 into second page
-	   	Object[] mostLikesFrom = getMostLikesandCommentsFrom("likes", "down");
-	   	Object[] mostCommentsFrom = getMostLikesandCommentsFrom("comments", "down");
-	   	Object[] leastLikesFrom = getMostLikesandCommentsFrom("likes", "up");
-	   	Object[] leastCommentsFrom = getMostLikesandCommentsFrom("comments", "up");
-		if(getFollowersCount()+playValue < realFollowersCount) {
-			//In UI fehler bei allen vier anzeigen. Fehler: follower limit
-		}
-		else if(reachedPostLikes < getPostsCount()) {
-			//In UI fehler allen mostLikeFrom und leastLikesFrom anzeigen. Fehler: nicht alle Posts möglich, aber bis dato werden angezeigt
-			//postLikeCount
-		}
-		else if(reachedPostComments < getPostsCount()) {
-			//In UI fehler bei mostCommentsFrom und leastCommentsFrom anzeigen. Fehler: nicht alle Posts möglich, aber bis dato werden angezeigt
-			//postCommentCount
-		}
+
 		
-	   	
+	   	/*
 	   	data = new Object[20];
     	data[0] = postsCount;
     	data[1] = followers;
@@ -377,7 +389,8 @@ public class Instagram{
     	data[16] = mostLikesFrom;
     	data[17] = mostCommentsFrom;
     	data[18] = leastLikesFrom;
-    	data[19] = leastCommentsFrom;	   	
+    	data[19] = leastCommentsFrom;	 
+    	*/  	
 	}
     
   
@@ -1114,6 +1127,20 @@ public class Instagram{
 
 			}
 		}
+		
+		
+		int count = 0;
+		String br = "";
+		for(String e : prepareLog) {
+			if(count == prepareLog.size()-1) {
+				br = "\n";
+			}
+			logger.warning(e + br);
+			count++;
+		}
+		time = (time + System.currentTimeMillis())/1000;
+		logger.info("Requests total: " + getRequestsCount());
+		logger.info("data took " + time + " seconds");
 		
 	}
 	

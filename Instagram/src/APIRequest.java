@@ -84,7 +84,8 @@ public class APIRequest {
 				  .build();		
 		try {
 			Response response = client.newCall(request).execute();
-			if(response.code() == 200) {
+			String output = response.body().string();
+			if(!output.contains("not-logged-in")) {
 				sessionIdValid = true;
 			}
 		} catch (Exception e) {
