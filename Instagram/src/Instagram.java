@@ -87,25 +87,8 @@ public class Instagram{
 		prepareLog = new Vector<String>();
 
 		sessionIdValid = false;
-		notFollowingYou = new Vector<Object[]>();
-		youFollowingNot = new Vector<Object[]>();
-		mutual = new Vector<Object[]>();
-		openFriendRequestOut = new Vector<String[]>();
-		openFriendRequestIn = new Vector<String[]>();
-		myPosts = new Vector<Object[]>();
 		
 		playValue = 10;
-		likes = 0;
-		comments = 0;
-		averageLikes = 0;
-		averageComments = 0;
-		realPostCount = 0;
-		realFollowersCount = 0;
-		realFollowingCount = 0;
-		reachedPostLikes = 0;
-		reachedPostComments = 0;
-		reachedLikes = 0;
-		reachedComments = 0;
 
 		runThread8 = true;
 		runThread9 = true;
@@ -116,69 +99,6 @@ public class Instagram{
 		logger.setLevel(level);
 	}
 	
-	
-	//alles neu in main machen
-	public void start() {
-		double time = 0;
-		if(chooseLoginprocess.equals("session") || chooseLoginprocess.equals("login")) {
-			login();
-			if(sessionIdValid) {	
-				//sessionid und ds_user_id in App abspeichern
-				if(chooseLoginprocess.equals("login")) {
-					logger.info("Login successful\n");
-				}
-				else if(chooseLoginprocess.equals("session")) {
-					logger.info("Session valid\n");
-				}
-				if(username == null) {
-					username = r.getUsername(ds_user_id);	
-				}	
-				if(setRealCounts()) {
-					/*
-					time = -System.currentTimeMillis();
-					data();
-					time = (time + System.currentTimeMillis())/1000;
-					*/
-				}
-				setPrepareLog();
-				
-				int count = 0;
-				String br = "";
-				for(String e : prepareLog) {
-					if(count == prepareLog.size()-1) {
-						br = "\n";
-					}
-					logger.warning(e + br);
-					count++;
-				}
-				logger.info("Requests total: " + getRequestsCount());
-				logger.info("data took " + time + " seconds");
-			}
-			else {
-				//In UI error anzeigen
-				if(chooseLoginprocess.equals("login")) {
-					logger.severe("Login failed");
-				}
-				else if(chooseLoginprocess.equals("session")) {
-					logger.severe("Session error");
-				}
-				//login page fehlermeldung ausgeben
-				if(sessionId == null) {
-					logger.severe("Wrong password or username");
-				}
-				else if(sessionId.equals("two_factor_required")) {
-					logger.severe("Please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
-				}
-			}
-			
-		}
-		else {
-			logger.severe("Wrong parameter in constructor");
-		}
-		
-	}
-	
-
 	
 	
 	public void login() {
@@ -261,7 +181,7 @@ public class Instagram{
     }
 	
     public void page1(){
-		
+
     	if(!sessionIdValid) {
 			logger.warning("you can not do this. You are not logged in.");
 			return;
@@ -273,6 +193,18 @@ public class Instagram{
     	if(!setRealCounts()) {
     		return;
     	}
+    	
+		prepareLog = new Vector<String>();
+		following = null;
+		followers = null;
+    	likes = 0;
+    	comments = 0;
+		notFollowingYou = new Vector<Object[]>();
+		youFollowingNot = new Vector<Object[]>();
+		mutual = new Vector<Object[]>();
+		openFriendRequestOut = new Vector<String[]>();
+		openFriendRequestIn = new Vector<String[]>();
+		myPosts = new Vector<Object[]>();
     	
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
@@ -347,13 +279,18 @@ public class Instagram{
     
     
     public void page2(){
+    	
     	if(!sessionIdValid) {
 			logger.warning("you can not do this. You are not logged in.");
 			return;
     	}
     	if(!setRealCounts()) {
     		return;
-    	}    	
+    	}  
+    	likes = 0;
+    	comments = 0;
+    	
+		myPosts = new Vector<Object[]>();
     	logger.info("Thread:page2 running");
 		setMyPosts();
     	logger.info("Thread:page2 finished");
@@ -367,7 +304,13 @@ public class Instagram{
     	if(!setRealCounts()) {
     		return;
     	}
+    	
 		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playValue >= realFollowersCount && !myPosts.isEmpty()) {
+			reachedPostLikes = 0;
+			reachedPostComments = 0;
+			reachedLikes = 0;
+			reachedComments = 0;
+			
 			Thread t1 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 			Thread t2 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
 			//System.out.println("Data8-Thread running");
@@ -708,7 +651,7 @@ public class Instagram{
 		17863787143139595 = post suggestions
 		*/
 		
-		myPosts = new Vector<Object[]>();
+
 
 		
 		int count = 100000;
