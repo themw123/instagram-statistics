@@ -182,43 +182,49 @@ public class Instagram{
 	
 	
 	public void login() {
-		if(chooseLoginprocess.equals("login")){
-			logger.info("Trying to login ...");
-			setSession();
-		}
 		
-		this.r = new APIRequest(sessionId);
-		//check if sessionId still works
-		sessionIdValid = r.checkSessionId();
+		if(chooseLoginprocess.equals("session") || chooseLoginprocess.equals("login")) {
 		
-		if(sessionIdValid) {	
-			if(chooseLoginprocess.equals("login")) {
-				logger.info("Login successful\n");
+			if(chooseLoginprocess.equals("login")){
+				logger.info("Trying to login ...");
+				setSession();
 			}
-			else if(chooseLoginprocess.equals("session")) {
-				logger.info("Session valid\n");
+			
+			this.r = new APIRequest(sessionId);
+			//check if sessionId still works
+			sessionIdValid = r.checkSessionId();
+			
+			if(sessionIdValid) {	
+				if(chooseLoginprocess.equals("login")) {
+					logger.info("Login successful\n");
+				}
+				else if(chooseLoginprocess.equals("session")) {
+					logger.info("Session valid\n");
+				}
+				if(username == null) {
+					username = r.getUsername(ds_user_id);	
+				}	
 			}
-			if(username == null) {
-				username = r.getUsername(ds_user_id);	
-			}	
+			else {
+				//In UI error anzeigen
+				if(chooseLoginprocess.equals("login")) {
+					logger.severe("Login failed");
+				}
+				else if(chooseLoginprocess.equals("session")) {
+					logger.severe("Session error");
+				}
+				//login page fehlermeldung ausgeben
+				if(sessionId == null) {
+					logger.severe("Wrong password or username");
+				}
+				else if(sessionId.equals("two_factor_required")) {
+					logger.severe("Please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
+				}
+			}
 		}
 		else {
-			//In UI error anzeigen
-			if(chooseLoginprocess.equals("login")) {
-				logger.severe("Login failed");
-			}
-			else if(chooseLoginprocess.equals("session")) {
-				logger.severe("Session error");
-			}
-			//login page fehlermeldung ausgeben
-			if(sessionId == null) {
-				logger.severe("Wrong password or username");
-			}
-			else if(sessionId.equals("two_factor_required")) {
-				logger.severe("Please disable the two factor authentication in your instagram account settings. After you logged in in this App you can reactivate it.");
-			}
+			logger.severe("Wrong parameter in constructor");
 		}
-		
 	}
 	
 	
@@ -256,8 +262,17 @@ public class Instagram{
 	
     public void page1(){
 		
+    	if(!sessionIdValid) {
+			logger.warning("you can not do this. You are not logged in.");
+			return;
+    	}
+    	
     	time = -System.currentTimeMillis();    	
-    	setRealCounts();
+    	
+    	
+    	if(!setRealCounts()) {
+    		return;
+    	}
     	
 		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
@@ -332,14 +347,26 @@ public class Instagram{
     
     
     public void page2(){
-    	setRealCounts();
+    	if(!sessionIdValid) {
+			logger.warning("you can not do this. You are not logged in.");
+			return;
+    	}
+    	if(!setRealCounts()) {
+    		return;
+    	}    	
     	logger.info("Thread:page2 running");
 		setMyPosts();
     	logger.info("Thread:page2 finished");
     }
     
     public void page3(){
-    	setRealCounts();
+    	if(!sessionIdValid) {
+			logger.warning("you can not do this. You are not logged in.");
+			return;
+    	}
+    	if(!setRealCounts()) {
+    		return;
+    	}
 		if(this.followers != null && this.followers.length != 0 && getFollowersCount()+playValue >= realFollowersCount && !myPosts.isEmpty()) {
 			Thread t1 = new Thread(() -> setMostLikedOrCommentedByFollowers("liker"));
 			Thread t2 = new Thread(() -> setMostLikedOrCommentedByFollowers("commenter"));
@@ -363,37 +390,13 @@ public class Instagram{
 		
 		setPrepareLog();
     }
-    
-    private void data(){
 
-
-		
-	   	/*
-	   	data = new Object[20];
-    	data[0] = postsCount;
-    	data[1] = followers;
-    	data[2] = following;
-    	data[3] = likes;
-    	data[4] = comments;
-    	data[5] = averageLikes;
-    	data[6] = averageComments;
-    	data[7] = notFollowingYou;
-    	data[8] = youFollowingNot;
-    	data[9] = mutual;
-    	data[10] = openFriendRequestIn;
-    	data[11] = mostLikesPosts;
-    	data[12] = mostCommentsPosts;
-    	data[13] = leastLikesPosts;
-    	data[14] = leastCommentsPosts;
-    	data[15] = OpenFriendRequestOut;
-    	data[16] = mostLikesFrom;
-    	data[17] = mostCommentsFrom;
-    	data[18] = leastLikesFrom;
-    	data[19] = leastCommentsFrom;	 
-    	*/  	
-	}
+ 
     
-  
+    
+    
+    
+    
 	private void setFollowingAndFollowers(String urlParameter) {
 		int count = 1000000;
 		String error = null;
@@ -483,7 +486,7 @@ public class Instagram{
 				break;
 			}
 		}
-		if(!exist && count+10 < realCount) {
+		if(!exist && count+playValue < realCount) {
 			prepareLog.add("setFollowingAndFollowers failed -> " + count + " from " + realCount + " -> you have got too much " + urlParameter); 
 		}
 		
@@ -705,6 +708,9 @@ public class Instagram{
 		17863787143139595 = post suggestions
 		*/
 		
+		myPosts = new Vector<Object[]>();
+
+		
 		int count = 100000;
 		String has_next_page = "false";
 		String end_cursor = null;
@@ -803,7 +809,7 @@ public class Instagram{
 				break;
 			}
 		}
-		if(!exist && myPosts.size() < realPostCount) {
+		if(!exist && myPosts.size()+playValue < realPostCount) {
 			if (durchlauf == 1) {
 				durchlauf = 12;
 			}
