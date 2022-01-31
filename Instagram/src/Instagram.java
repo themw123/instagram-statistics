@@ -87,9 +87,25 @@ public class Instagram{
 		prepareLog = new Vector<String>();
 
 		sessionIdValid = false;
-		
 		playValue = 10;
-
+		
+		prepareLog = new Vector<String>();
+		following = null;
+		followers = null;
+    	likes = 0;
+    	comments = 0;
+		notFollowingYou = new Vector<Object[]>();
+		youFollowingNot = new Vector<Object[]>();
+		mutual = new Vector<Object[]>();
+		openFriendRequestOut = new Vector<String[]>();
+		openFriendRequestIn = new Vector<String[]>();
+		myPosts = new Vector<Object[]>();
+		
+		reachedPostLikes = 0;
+		reachedPostComments = 0;
+		reachedLikes = 0;
+		reachedComments = 0;
+		
 		runThread8 = true;
 		runThread9 = true;
 		runThread10 = true;
@@ -1331,7 +1347,12 @@ public class Instagram{
 	}
 	
 	public int getPostsCount() {
-		return myPosts.size();
+		if(myPosts != null) {
+			return myPosts.size();
+		}
+		else {
+			return 0;
+		}
 	}
 	
 	public int getFollowersCount() {
