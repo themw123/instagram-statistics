@@ -178,7 +178,7 @@ public class Instagram{
     private boolean setRealCounts() {
     	boolean success = true;
 		String error = null;
-		String url = "https://www.instagram.com/" + username + "/?__a=1";
+		String url = "https://i.instagram.com/api/v1/users/web_profile_info/?username=" + username;
 						
 		try {			
 			Response response = r.doRequest(url);
@@ -186,9 +186,9 @@ public class Instagram{
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			error = output;
-			realPostCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media").getInt("count");
-			realFollowingCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_follow").getInt("count");
-			realFollowersCount = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_followed_by").getInt("count");
+			realPostCount = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media").getInt("count");
+			realFollowingCount = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_follow").getInt("count");
+			realFollowersCount = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_followed_by").getInt("count");
 		}catch(Exception e) {
 			logger.warning("setRealCounts failed -> "  + error);
 			success = false;
@@ -226,8 +226,9 @@ public class Instagram{
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
 		Thread t3 = new Thread(() -> setNotFollowingYou());
 		Thread t4 = new Thread(() -> setYouFollowingNot());
-		Thread t5 = new Thread(() -> setOpenFriendRequestOut());
-		Thread t6 = new Thread(() -> setOpenFriendRequestOutExtras());
+		//wurde von instagram entfernt
+		//Thread t5 = new Thread(() -> setOpenFriendRequestOut());
+		//Thread t6 = new Thread(() -> setOpenFriendRequestOutExtras());
 		Thread t7 = new Thread(() -> setOpenFriendRequestIn());
 		Thread t8 = new Thread(() -> setMyPosts());
 
@@ -239,7 +240,7 @@ public class Instagram{
     	//System.out.println("Data2-Thread running");
 		t2.start();
     	//System.out.println("Data6-Thread running");
-		t5.start();
+		//t5.start();
     	//System.out.println("Data6-Thread running");
 		t7.start();
     	//System.out.println("Data7-Thread running");
@@ -271,12 +272,15 @@ public class Instagram{
 				t3.join();
 				t4.join();
 			}
+			/*
 			t5.join();
 			if(openFriendRequestOut.size() != 0) {
 				t6.start();
 			}
+			*/
 			t7.join();
 			t8.join();
+			/*
 			if(openFriendRequestOut.size() != 0) {
 				try {
 					t6.join();
@@ -284,6 +288,7 @@ public class Instagram{
 					e.printStackTrace();
 				}
 			}
+			*/
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -543,7 +548,7 @@ public class Instagram{
 				for(int i=0;i<length;i++) {
 					JSONObject userJson = jsonArr.getJSONObject(i);
 					String username = userJson.getString("text");
-					//platzhalter für picture und id, weil nicht in request vorhanden
+					//platzhalter fï¿½r picture und id, weil nicht in request vorhanden
 					String picture = "https://scontent-hel3-1.cdninstagram.com/v/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=scontent-hel3-1.cdninstagram.com&_nc_ohc=isg9IBAnxdAAX-Wj2Wc&edm=AEsR1pMBAAAA&ccb=7-4&oh=fbaa5b506be987e7c37fb50eface7cf2&oe=615717CF&_nc_sid=3f45ac&ig_cache_key=YW5vbnltb3VzX3Byb2ZpbGVfcGlj.2-ccb7-4";
 					String id = "0";
 					String[] person = new String[3];
@@ -680,7 +685,7 @@ public class Instagram{
 		do {
 			String url = "";	
 			if(has_next_page.equals("false")) {
-				url = "https://www.instagram.com/" + username + "/?__a=1";
+				url = "https://i.instagram.com/api/v1/users/web_profile_info/?username=" + username;
 			}	
 			else if (has_next_page.equals("true")) {
 				url = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&variables={\"id\":\""+ ds_user_id + "\",\"first\":"+ count +",\"after\":\"" + end_cursor + "\"}";
@@ -695,7 +700,7 @@ public class Instagram{
 				error = output;
 				
 				if(has_next_page.equals("false")) {
-					jsonObj = jsonObj.getJSONObject("graphql").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
+					jsonObj = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
 				}
 				else {
 					jsonObj = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_owner_to_timeline_media");
