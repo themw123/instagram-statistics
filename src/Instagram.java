@@ -159,6 +159,8 @@ public class Instagram {
 			realFollowersCount = jsonObj.getJSONObject("data").getJSONObject("user").getJSONObject("edge_followed_by")
 					.getInt("count");
 		} catch (Exception e) {
+			e.printStackTrace();
+
 			logger.warning("setRealCounts failed -> " + error);
 			success = false;
 		}

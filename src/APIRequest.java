@@ -36,8 +36,7 @@ public class APIRequest {
 
 		try {
 			response = client.newCall(request).execute();
-			String output = response.body().string();
-			String t = "";
+
 		} catch (Exception e) {
 			// System.out.println("Error in Request");
 			e.printStackTrace();
