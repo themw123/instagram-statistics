@@ -147,7 +147,7 @@ public class Instagram {
 		String url = "https://i.instagram.com/api/v1/users/web_profile_info/?username=" + username;
 
 		try {
-			Response response = r.doRequest(url);
+			Response response = r.doRequest(url, ds_user_id);
 
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
@@ -234,6 +234,11 @@ public class Instagram {
 	}
 
 	private void setFollowingAndFollowers(String urlParameter) {
+
+		// bei eigenen profil holt er auch um die 200 follower bzw sogar mehr alle
+		// aufeinmal
+		// bei anderen müsste man iteration einrichten, es werden nur 97 max bei einer
+		// iteration geholt
 		int count = 1000000;
 		String error = null;
 		int realCount = 0;
@@ -242,7 +247,7 @@ public class Instagram {
 				+ count + "";
 
 		try {
-			Response response = r.doRequest(url);
+			Response response = r.doRequest(url, ds_user_id);
 
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
@@ -364,7 +369,7 @@ public class Instagram {
 		String url = "https://i.instagram.com/api/v1/friendships/pending/";
 
 		try {
-			Response response = r.doRequest(url);
+			Response response = r.doRequest(url, ds_user_id);
 			String output = response.body().string();
 			JSONObject jsonObj = new JSONObject(output);
 			error = output;
@@ -389,6 +394,9 @@ public class Instagram {
 	}
 
 	private void setMyPosts() {
+
+		// achtung nach 1 jahr musste ds_user_id in cookie mitangegeben werden, sonnst
+		// funktionierten die weiteren iterationen nicht
 
 		/*
 		 * query_id:
@@ -419,7 +427,7 @@ public class Instagram {
 			}
 
 			try {
-				Response response = r.doRequest(url);
+				Response response = r.doRequest(url, ds_user_id);
 				String output = response.body().string();
 				JSONObject jsonObj = new JSONObject(output);
 				error = output;
@@ -470,8 +478,7 @@ public class Instagram {
 					durchlauf = 12 + ((durchlauf - 1) * 50);
 				}
 
-				// In UI fehler anzeigen(bla von bla posts).
-				prepareLog.add("setMyPosts failed -> post " + durchlauf + " from " + realPostCount + " -> " + error);
+				prepareLog.add("setMyPosts failed -> post " + durchlauf + " from " + realPostCount + " -> error");
 				break;
 			}
 
@@ -578,6 +585,11 @@ public class Instagram {
 	}
 
 	// getter
+
+	public ArrayList<Post> getUnorderedPosts() {
+		return myPosts;
+	}
+
 	public long getRealFollowersCount() {
 		return realFollowersCount;
 	}

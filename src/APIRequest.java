@@ -24,22 +24,21 @@ public class APIRequest {
 		this.sessionId = sessionId;
 	}
 
-	public Response doRequest(String url) {
+	public Response doRequest(String url, String ds_user_id) {
 		Response response = null;
 
 		Request request = new Request.Builder()
 				.url(url)
 				.method("GET", null)
 				.addHeader("X-IG-App-ID", "936619743392459")
-				.addHeader("Cookie", "sessionid=" + sessionId)
+				.addHeader("Cookie", "sessionid=" + sessionId + ";" + "ds_user_id=" + ds_user_id + ";")
 				.build();
 
 		try {
 			response = client.newCall(request).execute();
-
 		} catch (Exception e) {
 			// System.out.println("Error in Request");
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 		requestsCount++;
 		return response;
