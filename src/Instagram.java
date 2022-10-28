@@ -113,13 +113,11 @@ public class Instagram {
 					username = r.getUsername(ds_user_id);
 				}
 			} else {
-				// In UI error anzeigen
 				if (chooseLoginprocess.equals("login")) {
 					logger.severe("Login failed");
 				} else if (chooseLoginprocess.equals("session")) {
 					logger.severe("Session error");
 				}
-				// login page fehlermeldung ausgeben
 				if (sessionId == null) {
 					logger.severe("Wrong password or username");
 				} else if (sessionId.equals("two_factor_required")) {

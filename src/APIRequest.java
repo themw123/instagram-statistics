@@ -70,7 +70,6 @@ public class APIRequest {
 	public boolean checkSessionId() {
 
 		boolean sessionIdValid = false;
-		String CookieRest = "; ; csrftoken=nZuDlWBFwyeYeMq2310WJTkZ7TJ94eW8; ds_user_id=***REMOVED***; ig_did=73E57DB4-02C8-4C6E-8E5B-0BAA0F9D98D1; mid=Y1woHQAEAAGYjGiATqfQP_GveoAU; rur=\"NAO\\054***REMOVED***\\0541698519975:01f74828e5c0bceeb4544c99b27213051a5aa2d7bcf9d3f52e5132b65383f703f02e5c0e\"; shbid=\"19131\\054***REMOVED***\\0541698519975:01f79c6adc26ebc8eabd0594f3757b0420275e2be32994fa68cc976e8d41f1eff2194cb0\"; shbts=\"1666983975\\054***REMOVED***\\0541698519975:01f77f12b8de0c42160475896f818e4552a08e35c277825f17961443e408ead9fda86315\"";
 
 		OkHttpClient client = new OkHttpClient().newBuilder()
 				.build();
