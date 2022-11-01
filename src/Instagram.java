@@ -189,8 +189,8 @@ public class Instagram {
 		openFriendRequestIn = new ArrayList<Person>();
 		myPosts = new ArrayList<Post>();
 
-		//Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
-		Thread t1 = null;
+		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
+		//Thread t1 = null;
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
 		Thread t3 = new Thread(() -> setNotFollowingYou());
 		Thread t4 = new Thread(() -> setYouFollowingNot());
@@ -199,13 +199,13 @@ public class Instagram {
 
 		logger.info("Threads: running");
 
-		//t1.start();
+		t1.start();
 		t2.start();
 		t5.start();
 		t6.start();
 
 		try {
-			//t1.join();
+			t1.join();
 			t2.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -242,15 +242,21 @@ public class Instagram {
 		String error = null;
 		int realCount = 0;
 		boolean has_next_page = false;
-		String next_max_id = "";
+		String next_max_id_String = "";
+		int next_max_id_int = 0;
+
 
 		do {
 			
 
 			String url = "";
 			if (has_next_page) {
+				if(urlParameter.equals("followers"))
 				url = "https://i.instagram.com/api/v1/friendships/" + ds_user_id + "/" + urlParameter + "/?count="
-						+ count + "&max_id=" + next_max_id;
+						+ count + "&max_id=" + next_max_id_String;
+				if(urlParameter.equals("following"))
+				url = "https://i.instagram.com/api/v1/friendships/" + ds_user_id + "/" + urlParameter + "/?count="
+						+ count + "&max_id=" + next_max_id_int;
 			} else {
 				url = "https://i.instagram.com/api/v1/friendships/" + ds_user_id + "/" + urlParameter + "/?count="
 						+ count + "";
@@ -263,10 +269,17 @@ public class Instagram {
 				JSONObject jsonObj = new JSONObject(output);
 				error = output;
 
-				String next = "";
+				String nextString = "";
+				int nextInt = 0;
 				try {
-					next = jsonObj.getString("next_max_id");
-					next_max_id = next;
+					if(urlParameter.equals("followers")) {
+						nextString = jsonObj.getString("next_max_id");
+						next_max_id_String = nextString;
+					}
+					if(urlParameter.equals("following")) {
+						nextInt = jsonObj.getInt("next_max_id");
+						next_max_id_int = nextInt;
+					}
 					has_next_page = true;
 				} catch (Exception e) {
 					has_next_page = false;
