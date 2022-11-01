@@ -24,8 +24,8 @@ public class Instagram {
 	private String ds_user_id;
 	private boolean sessionIdValid;
 
-	private Person[] following;
-	private Person[] followers;
+	private ArrayList<Person> following;
+	private ArrayList<Person> followers;
 	private ArrayList<Person> notFollowingYou;
 	private ArrayList<Person> youFollowingNot;
 	private ArrayList<Person> mutual;
@@ -74,8 +74,8 @@ public class Instagram {
 		playValue = 10;
 
 		prepareLog = new ArrayList<String>();
-		following = null;
-		followers = null;
+		following = new ArrayList<Person>();
+		followers = new ArrayList<Person>();
 		likes = 0;
 		comments = 0;
 		notFollowingYou = new ArrayList<Person>();
@@ -179,8 +179,8 @@ public class Instagram {
 		}
 
 		prepareLog = new ArrayList<String>();
-		following = null;
-		followers = null;
+		following = new ArrayList<Person>();
+		followers = new ArrayList<Person>();
 		likes = 0;
 		comments = 0;
 		notFollowingYou = new ArrayList<Person>();
@@ -189,7 +189,8 @@ public class Instagram {
 		openFriendRequestIn = new ArrayList<Person>();
 		myPosts = new ArrayList<Post>();
 
-		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
+		//Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
+		Thread t1 = null;
 		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
 		Thread t3 = new Thread(() -> setNotFollowingYou());
 		Thread t4 = new Thread(() -> setYouFollowingNot());
@@ -198,20 +199,20 @@ public class Instagram {
 
 		logger.info("Threads: running");
 
-		t1.start();
+		//t1.start();
 		t2.start();
 		t5.start();
 		t6.start();
 
 		try {
-			t1.join();
+			//t1.join();
 			t2.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
 		try {
-			if ((this.following.length != 0 || this.followers.length != 0)
+			if ((following != null && followers != null && following.size() != 0 || followers.size() != 0)
 					&& getFollowersCount() + playValue >= realFollowersCount
 					&& getFollowingCount() + playValue >= realFollowingCount) {
 				t3.start();
@@ -237,58 +238,74 @@ public class Instagram {
 		// aufeinmal
 		// bei anderen müsste man iteration einrichten, es werden nur 97 max bei einer
 		// iteration geholt
-		int count = 1000000;
+		int count = 50;
 		String error = null;
 		int realCount = 0;
+		boolean has_next_page = false;
+		String next_max_id = "";
 
-		String url = "https://i.instagram.com/api/v1/friendships/" + ds_user_id + "/" + urlParameter + "/?count="
-				+ count + "";
+		do {
+			
 
-		try {
-			Response response = r.doRequest(url, ds_user_id);
-
-			String output = response.body().string();
-			JSONObject jsonObj = new JSONObject(output);
-			error = output;
-
-			JSONArray ja_users = jsonObj.getJSONArray("users");
-			int length = ja_users.length();
-
-			if (urlParameter.equals("following") && following == null) {
-				following = new Person[length];
-			} else if (urlParameter.equals("followers") && followers == null) {
-				followers = new Person[length];
+			String url = "";
+			if (has_next_page) {
+				url = "https://i.instagram.com/api/v1/friendships/" + ds_user_id + "/" + urlParameter + "/?count="
+						+ count + "&max_id=" + next_max_id;
+			} else {
+				url = "https://i.instagram.com/api/v1/friendships/" + ds_user_id + "/" + urlParameter + "/?count="
+						+ count + "";
 			}
 
-			for (int i = 0; i < length; i++) {
-				JSONObject userJson = ja_users.getJSONObject(i);
-				String username = userJson.getString("username");
-				String picture = userJson.getString("profile_pic_url");
-				long id = userJson.getLong("pk");
+			try {
+				Response response = r.doRequest(url, ds_user_id);
 
-				Person p = new Person(id, username, picture);
+				String output = response.body().string();
+				JSONObject jsonObj = new JSONObject(output);
+				error = output;
 
-				if (urlParameter.equals("following")) {
-					following[i] = p;
-				} else if (urlParameter.equals("followers")) {
-					followers[i] = p;
+				String next = "";
+				try {
+					next = jsonObj.getString("next_max_id");
+					next_max_id = next;
+					has_next_page = true;
+				} catch (Exception e) {
+					has_next_page = false;
 				}
-			}
 
-		} catch (Exception e) {
-			// e.printStackTrace();
-			count = 0;
-			if (urlParameter.equals("following")) {
-				count = getFollowingCount();
-				realCount = realFollowingCount;
-			} else if (urlParameter.equals("followers")) {
-				count = getFollowersCount();
-				realCount = realFollowersCount;
-			}
+				JSONArray ja_users = jsonObj.getJSONArray("users");
+				int length = ja_users.length();
 
-			prepareLog.add("setFollowingAndFollowers " + urlParameter + " failed -> " + count + " from " + realCount
-					+ " -> " + error);
-		}
+				for (int i = 0; i < length; i++) {
+					JSONObject userJson = ja_users.getJSONObject(i);
+					String username = userJson.getString("username");
+					String picture = userJson.getString("profile_pic_url");
+					long id = userJson.getLong("pk");
+
+					Person p = new Person(id, username, picture);
+
+					if (urlParameter.equals("following")) {
+						following.add(p);
+					} else if (urlParameter.equals("followers")) {
+						followers.add(p);
+					}
+				}
+
+			} catch (Exception e) {
+				// e.printStackTrace();
+				count = 0;
+				if (urlParameter.equals("following")) {
+					count = getFollowingCount();
+					realCount = realFollowingCount;
+				} else if (urlParameter.equals("followers")) {
+					count = getFollowersCount();
+					realCount = realFollowersCount;
+				}
+
+				prepareLog.add("setFollowingAndFollowers " + urlParameter + " failed -> " + count + " from " + realCount
+						+ " -> " + error);
+				break;
+			}
+		} while (has_next_page);
 
 		count = 0;
 		realCount = 0;
@@ -638,7 +655,7 @@ public class Instagram {
 
 	public int getFollowersCount() {
 		if (followers != null) {
-			return followers.length;
+			return followers.size();
 		} else {
 			return 0;
 		}
@@ -646,7 +663,7 @@ public class Instagram {
 
 	public int getFollowingCount() {
 		if (following != null) {
-			return following.length;
+			return following.size();
 		} else {
 			return 0;
 		}
