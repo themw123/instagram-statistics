@@ -189,39 +189,38 @@ public class Instagram {
 		openFriendRequestIn = new ArrayList<Person>();
 		myPosts = new ArrayList<Post>();
 
-		Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
-		//Thread t1 = null;
-		Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
-		Thread t3 = new Thread(() -> setNotFollowingYou());
-		Thread t4 = new Thread(() -> setYouFollowingNot());
-		Thread t5 = new Thread(() -> setOpenFriendRequestIn());
+		//Thread t1 = new Thread(() -> setFollowingAndFollowers("following"));
+		//Thread t2 = new Thread(() -> setFollowingAndFollowers("followers"));
+		//Thread t3 = new Thread(() -> setNotFollowingYou());
+		//Thread t4 = new Thread(() -> setYouFollowingNot());
+		//Thread t5 = new Thread(() -> setOpenFriendRequestIn());
 		Thread t6 = new Thread(() -> setMyPosts());
 
 		logger.info("Threads: running");
 
-		t1.start();
-		t2.start();
-		t5.start();
+		//t1.start();
+		//t2.start();
+		//t5.start();
 		t6.start();
 
-		try {
-			t1.join();
-			t2.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		//try {
+			//t1.join();
+			//t2.join();
+		//} catch (InterruptedException e) {
+		//	e.printStackTrace();
+		//}
 
 		try {
 			if ((following != null && followers != null && following.size() != 0 || followers.size() != 0)
 					&& getFollowersCount() + playValue >= realFollowersCount
 					&& getFollowingCount() + playValue >= realFollowingCount) {
-				t3.start();
-				t4.start();
+				//t3.start();
+				//t4.start();
 
-				t3.join();
-				t4.join();
+				//t3.join();
+				//t4.join();
 			}
-			t5.join();
+			//t5.join();
 			t6.join();
 
 		} catch (InterruptedException e1) {
@@ -234,11 +233,7 @@ public class Instagram {
 
 	private void setFollowingAndFollowers(String urlParameter) {
 
-		// bei eigenen profil holt er auch um die 200 follower bzw sogar mehr alle
-		// aufeinmal
-		// bei anderen müsste man iteration einrichten, es werden nur 97 max bei einer
-		// iteration geholt
-		int count = 50;
+		int count = 1000000;
 		String error = null;
 		int realCount = 0;
 		boolean has_next_page = false;
