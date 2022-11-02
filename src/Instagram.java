@@ -434,19 +434,19 @@ public class Instagram {
 		 * 17863787143139595 = post suggestions
 		 */
 
-		int count = 100000;
-		boolean has_next_page = false;
+		int count = 10000000;
+		boolean more_available = false;
 		String id = null;
+		String next_max_id = "";
 		String error = null;
 		int durchlauf = 0;
 
 		do {
 			String url = "";
-			if (has_next_page.equals("false")) {
-				url = "https://i.instagram.com/api/v1/feed/user/" + username + "/?count=" + count;
-			} else if (has_next_page.equals("true")) {
-				url = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&variables={\"id\":\""
-						+ ds_user_id + "\",\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}";
+			if (more_available ) {
+				url = "https://i.instagram.com/api/v1/feed/user/" + ds_user_id +"/?count=" + count + "&max_id=" + next_max_id;
+			} else {
+				url = "https://i.instagram.com/api/v1/feed/user/" + username + "/username/?count=" + count;
 			}
 
 			try {
@@ -455,30 +455,29 @@ public class Instagram {
 				JSONObject jsonObj = new JSONObject(output);
 				error = output;
 
-				has_next_page = jsonObj.getJSONArray("items")[;
 
-				if (has_next_page.equals("true")) {
-					end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
+				more_available  = jsonObj.getBoolean("more_available");
+				
+				if (more_available) {		
+					next_max_id = jsonObj.getString("next_max_id");
 				}
 
-				JSONArray jsonArr = jsonObj.getJSONArray("edges");
+				JSONArray jsonArr = jsonObj.getJSONArray("items");
 				int length = jsonArr.length();
 				for (int i = 0; i < length; i++) {
 					int likes = 0;
 					int comments = 0;
 
-					JSONObject post = jsonArr.getJSONObject(i).getJSONObject("node");
+					JSONObject post = jsonArr.getJSONObject(i);
 
-					try {
-						likes = Integer.parseInt(post.getJSONObject("edge_liked_by").get("count").toString());
-					} catch (Exception e) {
-						likes = Integer.parseInt(post.getJSONObject("edge_media_preview_like").get("count").toString());
-					}
-					comments = Integer.parseInt(post.getJSONObject("edge_media_to_comment").get("count").toString());
+					
+					likes = post.getInt("like_count");
+			
+					comments = post.getInt("comment_count");
 
-					String shortcode = post.getString("shortcode");
+					String shortcode = post.getString("id");
 
-					String display_url = post.getString("display_url");
+					String display_url = post.getJSONObject("image_versions2").getJSONArray("candidates").getJSONObject(0).getString("url");
 
 					Post p = new Post(shortcode, likes, comments, display_url);
 					this.likes = this.likes + likes;
@@ -486,7 +485,8 @@ public class Instagram {
 					myPosts.add(p);
 				}
 			} catch (Exception e) {
-				// e.printStackTrace();
+				
+				e.printStackTrace();
 				if (durchlauf == 1) {
 					durchlauf = 12;
 				} else if (durchlauf > 1) {
@@ -499,7 +499,7 @@ public class Instagram {
 
 			durchlauf++;
 
-		} while (has_next_page.equals("true"));
+		} while (more_available);
 
 		averageLikes = Math.round(((double) likes / myPosts.size()) * 100.0) / 100.0;
 		averageComments = Math.round(((double) comments / myPosts.size()) * 100.0) / 100.0;
@@ -597,6 +597,131 @@ public class Instagram {
 		}
 		return orderedPosts;
 
+	}
+	
+	
+	public JSONObject getJson(boolean print) {
+		
+		if (!getSessionIdValid()) {
+			return new JSONObject().put("status", "error");
+		}
+		
+		int playvalue = (int) getPlayValue();
+		int realPostsCount = (int) getRealPostCount();
+		int realFollowersCount = (int) getRealFollowersCount();
+		int realFollowingCount = (int) getRealFollowingCount();
+
+		int postsCount = getPostsCount();
+		long likes = getLikes();
+		long comments = getComments();
+		double averageLikes = getAverageLikes();
+		double averageComments = getAverageComments();
+		int followers = getFollowersCount();
+		int following = getFollowingCount();
+		ArrayList<Person> notFollowingYou = getNotFollowingYou();
+		ArrayList<Person> youFollowingNot = getYouFollowingNot();
+		ArrayList<Person> mutual = getMutual();
+		ArrayList<Person> openFriendRequestIn = getOpenFriendRequestIn();
+		ArrayList<String> prepareLog = getPrepareLog();
+
+		if (postsCount + playvalue < realPostsCount) {
+			postsCount = realPostsCount;
+		}
+
+		if (followers + playvalue < realFollowersCount) {
+			followers = realFollowersCount;
+		}
+		if (following + playvalue < realFollowingCount) {
+			following = realFollowingCount;
+		}
+
+		// ArayList<Post> orderedPosts = i.getUnorderedPosts();
+		ArrayList<Post> orderedPosts = getPosts("likes", "down");
+		/*
+		 * ArrayList<Post> orderedPosts = i.getPosts("comments", "down");
+		 * ArrayList<Post> orderedPosts = i.getPosts("likes", "up");
+		 * ArrayList<Post> orderedPosts = i.getPosts("comments", "up");
+		 */
+
+		JSONObject joAll = new JSONObject();
+
+		JSONObject joStats = new JSONObject();
+		joStats.put("Follower", followers);
+		joStats.put("Following", following);
+		joStats.put("Posts", postsCount);
+		joStats.put("likes", likes);
+		joStats.put("comments", comments);
+		joAll.put("stats", joStats);
+
+		String notFollowingYouString = "";
+		JSONArray notFollowingYouJson = new JSONArray();
+		for (Person p : notFollowingYou) {
+			notFollowingYouString = notFollowingYouString + "\n" + p.getName();
+			JSONObject joPerson = new JSONObject(p);
+			notFollowingYouJson.put(joPerson);
+		}
+		joAll.put("notFollowingYou", notFollowingYouJson);
+
+		JSONArray youFollowingNotJson = new JSONArray();
+		String youFollowingNotString = "";
+		for (Person p : youFollowingNot) {
+			youFollowingNotString = youFollowingNotString + "\n" + p.getName();
+			JSONObject joPerson = new JSONObject(p);
+			youFollowingNotJson.put(joPerson);
+		}
+		joAll.put("youFollowingNot", youFollowingNotJson);
+
+		JSONArray mutualJson = new JSONArray();
+		String mutualString = "";
+		for (Person p : mutual) {
+			mutualString = mutualString + "\n" + p.getName();
+			JSONObject joPerson = new JSONObject(p);
+			mutualJson.put(joPerson);
+		}
+		joAll.put("mutual", mutual);
+
+		JSONArray openFriendRequestInJson = new JSONArray();
+		String openFriendRequestString = "";
+		for (Person p : openFriendRequestIn) {
+			openFriendRequestString = openFriendRequestString + "\n" + p.getName();
+			JSONObject joPerson = new JSONObject(p);
+			openFriendRequestInJson.put(joPerson);
+		}
+		joAll.put("openFriendRequestIn", openFriendRequestInJson);
+
+		JSONArray mostLikesPostsJson = new JSONArray();
+		String postsString = "";
+		for (Post p : orderedPosts) {
+			postsString = postsString + "\n" + p.getDisplay_url();
+			JSONObject joPerson = new JSONObject(p);
+			mostLikesPostsJson.put(joPerson);
+		}
+		joAll.put("mostLikesPosts", mostLikesPostsJson);
+
+		if(print) {
+			System.out.println("\n\n");
+			System.out.println("!!!!Outdated features: Login(with credentials)!!!!\n");
+			System.out.println("Follower: " + followers);
+			System.out.println("Following: " + following);
+			System.out.println("Posts: " + postsCount);
+			System.out.println("likes: " + likes + ", average: " + averageLikes);
+			System.out.println("comments: " + comments + ", average: " + averageComments + "\n");
+			
+			System.out.println("notFollowingYou: ");
+			System.out.println(notFollowingYouString + "\n\n");
+			System.out.println("youFollowingNot: ");
+			System.out.println(youFollowingNotString + "\n\n");
+			System.out.println("mutual: ");
+			System.out.println(mutualString + "\n");
+			System.out.println("openFriendRequestIn :");
+			System.out.println(openFriendRequestString + "\n\n");
+			System.out.println("mostLikesPosts:");
+			System.out.println(postsString + "\n");
+		}
+
+
+		// alles in Json object mit namen joAll
+		return joAll;
 	}
 
 	// getter
