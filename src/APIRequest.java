@@ -115,10 +115,10 @@ public class APIRequest {
 		return response;
 	}
 
-	public Response doLogin(String XCSRFToken, String enc_password, String username) {
+	public Response loginRequest(String XCSRFToken, String enc_password, String username) {
 
 		Response response = null;
-		String userAgent = getUserAgent(2);
+		String userAgent = getUserAgent(1);
 
 		try {
 			OkHttpClient client = new OkHttpClient().newBuilder()
@@ -127,7 +127,7 @@ public class APIRequest {
 			@SuppressWarnings("deprecation")
 			RequestBody body = RequestBody.create(mediaType, "enc_password=" + enc_password + "&username=" + username);
 			Request request = new Request.Builder()
-					.url("https://www.instagram.com/accounts/login/ajax/")
+					.url("https://www.instagram.com/api/v1/web/accounts/login/ajax/")
 					.method("POST", body)
 					.addHeader("X-CSRFToken", XCSRFToken)
 					.addHeader("User-Agent", userAgent)
