@@ -435,15 +435,15 @@ public class Instagram {
 		 */
 
 		int count = 100000;
-		String has_next_page = "false";
-		String end_cursor = null;
+		boolean has_next_page = false;
+		String id = null;
 		String error = null;
 		int durchlauf = 0;
 
 		do {
 			String url = "";
 			if (has_next_page.equals("false")) {
-				url = "https://i.instagram.com/api/v1/users/web_profile_info/?username=" + username;
+				url = "https://i.instagram.com/api/v1/feed/user/" + username + "/?count=" + count;
 			} else if (has_next_page.equals("true")) {
 				url = "https://www.instagram.com/graphql/query/?query_id=17888483320059182&variables={\"id\":\""
 						+ ds_user_id + "\",\"first\":" + count + ",\"after\":\"" + end_cursor + "\"}";
@@ -455,15 +455,7 @@ public class Instagram {
 				JSONObject jsonObj = new JSONObject(output);
 				error = output;
 
-				if (has_next_page.equals("false")) {
-					jsonObj = jsonObj.getJSONObject("data").getJSONObject("user")
-							.getJSONObject("edge_owner_to_timeline_media");
-				} else {
-					jsonObj = jsonObj.getJSONObject("data").getJSONObject("user")
-							.getJSONObject("edge_owner_to_timeline_media");
-				}
-
-				has_next_page = jsonObj.getJSONObject("page_info").get("has_next_page").toString();
+				has_next_page = jsonObj.getJSONArray("items")[;
 
 				if (has_next_page.equals("true")) {
 					end_cursor = jsonObj.getJSONObject("page_info").get("end_cursor").toString();
