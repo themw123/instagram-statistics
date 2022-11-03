@@ -165,17 +165,17 @@ public class Instagram {
 		return success;
 	}
 
-	public void doWork() {
+	public JSONObject getData(boolean print) {
 
 		if (!sessionIdValid) {
 			logger.warning("you can not do this. You are not logged in.");
-			return;
+			return null;
 		}
 
 		time = -System.currentTimeMillis();
 
 		if (!setRealCounts()) {
-			return;
+			return null;
 		}
 
 		prepareLog = new ArrayList<String>();
@@ -203,12 +203,14 @@ public class Instagram {
 		t5.start();
 		t6.start();
 
+		
 		try {
 			t1.join();
 			t2.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
 
 		try {
 			if ((following != null && followers != null && following.size() != 0 || followers.size() != 0)
@@ -228,7 +230,8 @@ public class Instagram {
 		}
 		logger.info("Threads: finished");
 		setPrepareLog();
-
+		return getJson_consolelog(print);
+		
 	}
 
 	private void setFollowingAndFollowers(String urlParameter) {
@@ -477,7 +480,13 @@ public class Instagram {
 
 					String shortcode = post.getString("id");
 
-					String display_url = post.getJSONObject("image_versions2").getJSONArray("candidates").getJSONObject(0).getString("url");
+					String display_url = "error";
+					try {
+						display_url = post.getJSONObject("image_versions2").getJSONArray("candidates").getJSONObject(0).getString("url");
+					}catch(Exception e) {
+						display_url = post.getJSONArray("carousel_media").getJSONObject(0).getJSONObject("image_versions2").getJSONArray("candidates").getJSONObject(0).getString("url");
+						//e.printStackTrace();
+					}
 
 					Post p = new Post(shortcode, likes, comments, display_url);
 					this.likes = this.likes + likes;
@@ -486,7 +495,7 @@ public class Instagram {
 				}
 			} catch (Exception e) {
 				
-				e.printStackTrace();
+				//e.printStackTrace();
 				if (durchlauf == 1) {
 					durchlauf = 12;
 				} else if (durchlauf > 1) {
@@ -596,11 +605,10 @@ public class Instagram {
 			}
 		}
 		return orderedPosts;
-
 	}
 	
 	
-	public JSONObject getJson(boolean print) {
+	public JSONObject getJson_consolelog(boolean print) {
 		
 		if (!getSessionIdValid()) {
 			return new JSONObject().put("status", "error");
