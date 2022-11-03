@@ -105,13 +105,15 @@ public class Instagram {
 
 			if (sessionIdValid) {
 				if (chooseLoginprocess.equals("login")) {
-					logger.info("Login successful\n");
+					logger.info("Login successful");
+					logger.info("SessionId: " + sessionId + "\n");
 				} else if (chooseLoginprocess.equals("session")) {
 					logger.info("Session valid\n");
 				}
 				if (username == null) {
 					username = r.getUsername(ds_user_id);
 				}
+				
 			} else {
 				if (chooseLoginprocess.equals("login")) {
 					logger.severe("Login failed");
@@ -587,7 +589,7 @@ public class Instagram {
 
 	}
 
-	public ArrayList<Post> getPosts(String likesOrcomments, String order) {
+	public ArrayList<Post> getOrderedPosts(String likesOrcomments, String order) {
 
 		ArrayList<Post> orderedPosts = (ArrayList<Post>) myPosts.clone();
 
@@ -644,7 +646,7 @@ public class Instagram {
 		}
 
 		// ArayList<Post> orderedPosts = i.getUnorderedPosts();
-		ArrayList<Post> orderedPosts = getPosts("likes", "down");
+		ArrayList<Post> orderedPosts = getOrderedPosts("likes", "down");
 		/*
 		 * ArrayList<Post> orderedPosts = i.getPosts("comments", "down");
 		 * ArrayList<Post> orderedPosts = i.getPosts("likes", "up");
@@ -816,6 +818,10 @@ public class Instagram {
 
 	public ArrayList<Person> getOpenFriendRequestIn() {
 		return this.openFriendRequestIn;
+	}
+	
+	public String getSessionId() {
+		return sessionId;
 	}
 
 	public int getRequestsCount() {
