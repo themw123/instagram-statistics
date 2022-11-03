@@ -633,7 +633,12 @@ public class Instagram {
 		ArrayList<Person> mutual = getMutual();
 		ArrayList<Person> openFriendRequestIn = getOpenFriendRequestIn();
 		ArrayList<String> prepareLog = getPrepareLog();
-
+		int notFollowingYouCount = getNotFollowingYouCount();
+		int youFollowingNotCount = getYouFollowingNotCount();
+		int mutualCount = getMutualCount();
+		int openFriendRequestInCount = getOpenFriendRequestInCount();
+		
+		
 		if (postsCount + playvalue < realPostsCount) {
 			postsCount = realPostsCount;
 		}
@@ -661,6 +666,12 @@ public class Instagram {
 		joStats.put("Posts", postsCount);
 		joStats.put("likes", likes);
 		joStats.put("comments", comments);
+		joStats.put("NotFollowingYouCount", notFollowingYou);
+		joStats.put("youFollowingNotCount", youFollowingNotCount);
+		joStats.put("mutualCount", mutualCount);
+		joStats.put("openFriendRequestInCount", openFriendRequestInCount);
+
+
 		joAll.put("stats", joStats);
 
 		String notFollowingYouString = "";
@@ -715,7 +726,11 @@ public class Instagram {
 			System.out.println("Following: " + following);
 			System.out.println("Posts: " + postsCount);
 			System.out.println("likes: " + likes + ", average: " + averageLikes);
-			System.out.println("comments: " + comments + ", average: " + averageComments + "\n");
+			System.out.println("comments: " + comments + ", average: " + averageComments);
+			System.out.println("NotFollowingYouCount: " + notFollowingYouCount);
+			System.out.println("youFollowingNotCount: " + youFollowingNotCount);
+			System.out.println("mutualCount: " + mutualCount);
+			System.out.println("openFriendRequestInCount: " + openFriendRequestInCount + "\n");
 			
 			System.out.println("notFollowingYou: ");
 			System.out.println(notFollowingYouString + "\n\n");
@@ -818,6 +833,25 @@ public class Instagram {
 
 	public ArrayList<Person> getOpenFriendRequestIn() {
 		return this.openFriendRequestIn;
+	}
+	
+
+
+	
+	public int getNotFollowingYouCount() {
+		return this.notFollowingYou.size();
+	}
+
+	public int getYouFollowingNotCount() {
+		return this.youFollowingNot.size();
+	}
+
+	public int getMutualCount() {
+		return this.mutual.size();
+	}
+
+	public int getOpenFriendRequestInCount() {
+		return this.openFriendRequestIn.size();
 	}
 	
 	public String getSessionId() {
