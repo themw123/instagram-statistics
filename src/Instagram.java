@@ -721,7 +721,6 @@ public class Instagram {
 
 		if(print) {
 			System.out.println("\n\n");
-			//System.out.println("!!!!Outdated features: Login(with credentials)!!!!\n");
 			System.out.println("Follower: " + followers);
 			System.out.println("Following: " + following);
 			System.out.println("Posts: " + postsCount);
