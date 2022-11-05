@@ -93,55 +93,7 @@ public class APIRequest {
 		return sessionIdValid;
 	}
 
-	public Response XCSRFToken() {
-		Response response = null;
-		String userAgent = getUserAgent(2);
 
-		OkHttpClient client = new OkHttpClient().newBuilder()
-				.build();
-		Request request = new Request.Builder()
-				.url("https://www.instagram.com/data/shared_data/")
-				.method("GET", null)
-				.addHeader("User-Agent", userAgent)
-				.build();
-		try {
-			response = client.newCall(request).execute();
-
-		} catch (Exception e) {
-			// e.printStackTrace();
-
-		}
-		requestsCount++;
-		return response;
-	}
-
-	public Response loginRequest(String XCSRFToken, String enc_password, String username) {
-
-		Response response = null;
-		String userAgent = getUserAgent(1);
-
-		try {
-			OkHttpClient client = new OkHttpClient().newBuilder()
-					.build();
-			MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-			@SuppressWarnings("deprecation")
-			RequestBody body = RequestBody.create(mediaType, "enc_password=" + enc_password + "&username=" + username);
-			Request request = new Request.Builder()
-					.url("https://www.instagram.com/api/v1/web/accounts/login/ajax/")
-					.method("POST", body)
-					.addHeader("X-CSRFToken", XCSRFToken)
-					.addHeader("User-Agent", userAgent)
-					.build();
-
-			response = client.newCall(request).execute();
-		} catch (Exception e) {
-			// e.printStackTrace();
-		}
-
-		requestsCount++;
-		return response;
-
-	}
 
 	public int getRequestsCount() {
 		return requestsCount;
