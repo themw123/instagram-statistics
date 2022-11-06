@@ -1,3 +1,4 @@
+package Instagram;
 
 import java.util.Random;
 

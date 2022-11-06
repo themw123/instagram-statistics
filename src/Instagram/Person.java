@@ -1,3 +1,4 @@
+package Instagram;
 public class Person {
     private long id;
     private String idString;
