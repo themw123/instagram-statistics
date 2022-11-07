@@ -2,6 +2,7 @@ package Instagram;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
@@ -42,24 +43,11 @@ public class Instagram {
 	private int realFollowersCount;
 	private int realFollowingCount;
 
-	public Instagram(String chooseLoginprocess, String data1, String data2) {
-
-		this.chooseLoginprocess = chooseLoginprocess;
-
-		if (chooseLoginprocess.equals("session")) {
-			this.sessionId = data1;
-			this.ds_user_id = data2;
-		}
-
-		else if (chooseLoginprocess.equals("login")) {
-			this.username = data1;
-			this.password = data2;
-		}
-
+	public Instagram() {
 		initialDatastructures();
-		login();
 	}
-
+	
+	
 	private void initialDatastructures() {
 		logger = Logger.getLogger(Instagram.class.getName());
 		logger.setLevel(Level.ALL);
@@ -69,6 +57,7 @@ public class Instagram {
 		handler.setFormatter(formatter);
 		handler.setLevel(Level.ALL);
 		logger.addHandler(handler);
+
 		prepareLog = new ArrayList<String>();
 
 		sessionIdValid = false;
@@ -91,13 +80,19 @@ public class Instagram {
 		logger.setLevel(level);
 	}
 
-	public void login() {
+	public void connect(String chooseLoginprocess, String data1, String data2) {
 
 		if (chooseLoginprocess.equals("session") || chooseLoginprocess.equals("login")) {
 
 			if (chooseLoginprocess.equals("login")) {
+				this.username = data1;
+				this.password = data2;
 				logger.info("Trying to login ...");
 				setSession();
+			}
+			if (chooseLoginprocess.equals("session")) {
+				this.sessionId = data1;
+				this.ds_user_id = data2;
 			}
 
 			this.r = new APIRequest(sessionId);
