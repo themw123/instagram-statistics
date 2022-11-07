@@ -232,7 +232,7 @@ public class Instagram {
 		
 	}
 
-	private void setFollowingAndFollowers(String urlParameter) {
+	public void setFollowingAndFollowers(String urlParameter) {
 
 		int count = 1000000;
 		String error = null;
@@ -813,7 +813,11 @@ public class Instagram {
 			return 0;
 		}
 	}
-
+	
+	public ArrayList<Person> getFollowers() {
+		return this.followers;
+	}
+	
 	public ArrayList<Person> getNotFollowingYou() {
 		return this.notFollowingYou;
 	}
