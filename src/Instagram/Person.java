@@ -16,6 +16,11 @@ public class Person {
         this.name = name;
         this.picture = picture;
     }
+    
+    public Person(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     public long getId() {
         return this.id;
