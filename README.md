@@ -13,7 +13,6 @@ Features:
 - Authentifizierung
     - Session 🍪
     - Credentials📋(Benutztername und Passwort)
-      - wenn session nicht funktioniert werden credentials verwendet
 
 - Ausgabe
     - Anzahl
