@@ -12,13 +12,12 @@ Features:
 
 - Threads
 
-- Json
-
 - Authentifizierung
     - session 🍪
     - credentials📋(Benutztername und Passwort)
 
 - Ausgabe
+    - output auch als json
     - Anzahl
       - likes👍
       - comments⌨️
