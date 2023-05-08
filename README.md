@@ -2,6 +2,10 @@
 
 Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem Projekt wird keine offizielle Instagram API verwendet. Die api wurde reverse engineered. Das Projekt gilt nur zu Lern- und Testzwecken. Es kann jederzeit die FUnktionsweise Seitens Instagram verändert werden, sodass das Projekt nicht mehr funktioniert.
 
+Einrichtung:
+``` 
+mvn install
+```
 
 - Logger
 
@@ -15,8 +19,7 @@ Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem
 - Ausgabe
     - Anzahl
       - likes👍
-      - comments✍️
-
+      - comments⌨️
     - Anzahl und Person
       - Follower 
       - Following
