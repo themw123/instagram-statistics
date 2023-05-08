@@ -8,25 +8,25 @@ Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem
 - Threads
 
 - Authentifizierung
-    - Session <img src="https://cdn-icons-png.flaticon.com/128/1772/1772646.png" data-src="https://cdn-icons-png.flaticon.com/128/1772/1772646.png" alt="plätzchen " title="plätzchen " class="lzy lazyload--done" srcset="https://cdn-icons-png.flaticon.com/128/1772/1772646.png 4x" width="22" height="22">
-    - Credentials(Benutztername und Passwort)
+    - Session 🍪
+    - Credentials📋(Benutztername und Passwort)
       - wenn session nicht funktioniert werden credentials verwendet
 
 - Ausgabe
     - Anzahl
-      - likes
-      - comments
+      - likes👍
+      - comments✍️
 
     - Anzahl und Person
-      - Follower
+      - Follower 
       - Following
-      - Posts
+      - Posts🖼️
       - NotFollowingYou
       - youFollowingNot
       - mutual
       - openFriendRequestIn
     
     - Sortierung
-      - Posts(meiste oder wenigste likes oder comments)
+      - Posts(meiste⬆️ oder wenigste⬇️ likes oder comments)
 
 
