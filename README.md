@@ -1,4 +1,4 @@
-# Instagram
+# instagram-statistics
 
 Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem Projekt wird keine offizielle Instagram API verwendet. Die api wurde reverse engineered. Das Projekt gilt nur zu Lern- und Testzwecken. Es kann jederzeit die Funktionsweise Seitens Instagram verändert werden, sodass das Projekt nicht mehr funktioniert.
 
