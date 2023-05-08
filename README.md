@@ -8,7 +8,7 @@ Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem
 - Threads
 
 - Authentifizierung
-    - Session
+    - Session <img src="https://cdn-icons-png.flaticon.com/128/1772/1772646.png" data-src="https://cdn-icons-png.flaticon.com/128/1772/1772646.png" alt="plätzchen " title="plätzchen " class="lzy lazyload--done" srcset="https://cdn-icons-png.flaticon.com/128/1772/1772646.png 4x" width="64" height="64">
     - Credentials(Benutztername und Passwort)
       - wenn session nicht funktioniert werden credentials verwendet
 
