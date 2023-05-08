@@ -2,19 +2,31 @@
 
 Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem Projekt wird keine offizielle Instagram API verwendet. Die api wurde reverse engineered. Das Projekt gilt nur zu Lern- und Testzwecken. Es kann jederzeit die FUnktionsweise Seitens Instagram verändert werden, sodass das Projekt nicht mehr funktioniert.
 
+
+- Logger
+
+- Threads
+
 - Authentifizierung
     - Session
-    - Credentials
+    - Credentials(Benutztername und Passwort)
+      - wenn session nicht funktioniert werden credentials verwendet
 
 - Ausgabe
-    - Follower
-    - Following
-    - Posts
-    - likes
-    - comments
-    - NotFollowingYou
-    - youFollowingNot
-    - mutual
-    - openFriendRequestIn
+    - Anzahl
+      - likes
+      - comments
+
+    - Anzahl und Person
+      - Follower
+      - Following
+      - Posts
+      - NotFollowingYou
+      - youFollowingNot
+      - mutual
+      - openFriendRequestIn
+    
+    - Sortierung
+      - Posts(meiste oder wenigste likes oder comments)
 
 
