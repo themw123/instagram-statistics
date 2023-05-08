@@ -7,6 +7,8 @@ Einrichtung:
 mvn install
 ```
 
+Features:
+
 - Logger
 
 - Threads
