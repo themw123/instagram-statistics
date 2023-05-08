@@ -4,30 +4,34 @@ Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem
 
 ![Alt text](/img/output.png "Output")
 
+Beispiele für alle folgeden features befinden sich in der main 
+
 Features:
 
 - Logger
 
 - Threads
 
+- Json
+
 - Authentifizierung
-    - Session 🍪
-    - Credentials📋(Benutztername und Passwort)
+    - session 🍪
+    - credentials📋(Benutztername und Passwort)
 
 - Ausgabe
     - Anzahl
       - likes👍
       - comments⌨️
     - Anzahl und Person
-      - Follower 
-      - Following
-      - Posts🖼️
-      - NotFollowingYou
+      - follower 
+      - following
+      - posts🖼️
+      - notFollowingYou
       - youFollowingNot
       - mutual
       - openFriendRequestIn
     
     - Sortierung
-      - Posts(meiste⬆️ oder wenigste⬇️ likes oder comments)
+      - posts(meiste⬆️ oder wenigste⬇️ likes oder comments)
 
 
