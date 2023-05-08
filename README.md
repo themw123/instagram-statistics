@@ -17,7 +17,7 @@ Features:
     - credentials📋(Benutztername und Passwort)
 
 - Ausgabe
-    - output auch als json
+    - Ausgabe auch als json
     - Anzahl
       - likes👍
       - comments⌨️
