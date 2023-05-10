@@ -4,7 +4,7 @@ Lasse dir alle deine Instagram-Statistiken auf einem Blick ausgegeben. In diesem
 
 ![Alt text](/img/output.png "Output")
 
-Beispiele für alle folgeden features befinden sich in der main 
+Beispiele für alle folgeden Features/Befehle befinden sich in der main 
 
 Features:
 
