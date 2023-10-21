@@ -13,7 +13,6 @@ public class Main {
 		String sessionId = "xxx";
 		String ds_user_id = "xxx";
 
-
 		Instagram instagram = new Instagram();
 		instagram.connect("session", sessionId, ds_user_id);
 		// password = password_input();
